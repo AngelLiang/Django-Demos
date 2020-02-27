@@ -6,9 +6,8 @@
     # 主要是创建用户表等
     $ python manage.py migrate
 
-    # 迁移polls数据库
-    $ python manage.py makemigrations polls
-    $ python manage.py sqlmigrate polls 0001
+    # 迁移 blog 数据库
+    $ python manage.py makemigrations blog
 
     # 数据库第二次迁移
     $ python manage.py migrate
