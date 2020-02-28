@@ -33,7 +33,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/
     'django.contrib.contenttypes',
+
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -42,12 +45,25 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#module-django.middleware.security
     'django.middleware.security.SecurityMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#django.contrib.sessions.middleware.SessionMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#module-django.middleware.common
     'django.middleware.common.CommonMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#csrf-protection-middleware
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#module-django.contrib.auth.middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#module-django.contrib.messages.middleware
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    # https://docs.djangoproject.com/en/3.0/ref/middleware/#x-frame-options-middleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
