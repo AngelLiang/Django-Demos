@@ -1,9 +1,9 @@
 # Django 添加导入导出功能
 
+
 ## 准备工作
 
-    # 数据库第一次迁移
-    # 主要是创建用户表等
+    # 数据库第一次迁移，主要是创建用户表等
     $ python manage.py migrate
 
     # 迁移 common 数据库
@@ -12,8 +12,12 @@
     # 数据库第二次迁移
     $ python manage.py migrate
 
+    # 创建 static 文件
+    $ python manage.py collectstatic
+
     # 创建管理员
     $ python manage.py createsuperuser
+
 
 ## 启动服务器
 
