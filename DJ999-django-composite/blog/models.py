@@ -20,7 +20,7 @@ class Post(models.Model):
     slug = models.SlugField(default='')
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#textfield
-    content = models.TextField('内容')
+    content = models.TextField('内容', default='')
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#booleanfield
     is_delete = models.BooleanField('已删除', default=False)
