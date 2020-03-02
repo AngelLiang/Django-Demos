@@ -18,8 +18,8 @@ class PostAdmin(ImportExportModelAdmin):
         'money', 'price',
         'create_date', 'create_time', 'update_datetime',
     )
-    list_filter = ['is_delete']
-    search_fields = ['title']
+    list_filter = ('is_delete', 'tags__name')
+    search_fields = ('title',)
 
 
 admin.site.register(Post, PostAdmin)
