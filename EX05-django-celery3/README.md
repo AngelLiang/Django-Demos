@@ -6,13 +6,10 @@
     需要安装 RabbitMQ
 
 
-### 迁移 django celery 数据表
-
-    $ python manage.py migrate django_celery_results
-
-
 ## 启动celery worker
 
+    $ pipenv install
+    $ pipenv shell
     $ celery -A django_celery_demo worker -l info
 
 ---
