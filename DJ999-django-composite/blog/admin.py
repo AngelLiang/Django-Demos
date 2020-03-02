@@ -5,6 +5,7 @@ from import_export.admin import ImportExportModelAdmin
 from .models import Post, Tag
 
 
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_filter = ('name',)
@@ -22,4 +23,3 @@ class PostAdmin(ImportExportModelAdmin):
 
 
 admin.site.register(Post, PostAdmin)
-admin.site.register(Tag, TagAdmin)
