@@ -4,6 +4,9 @@
 
     $ django-admin startproject mysite
 
+    # OR
+    $ django-admin startproject example .
+
 启动
 
     $ cd mysite
