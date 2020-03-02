@@ -51,6 +51,18 @@ class Post(models.Model):
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#manytomanyfield
     tags = models.ManyToManyField(Tag)
 
+    # https://docs.djangoproject.com/en/3.0/ref/models/fields/#choices
+    DRAFT = 'D'
+    PUBLISH = 'P'
+    STATUS_CHOICES = [
+        (DRAFT, 'Draft'),
+        (PUBLISH, 'Publish'),
+    ]
+
+    status = models.CharField(
+        max_length=1, choices=STATUS_CHOICES, default=DRAFT
+    )
+
     def __str__(self):
         return self.title
 
