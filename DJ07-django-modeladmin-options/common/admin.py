@@ -7,6 +7,18 @@ from .models import Post, Tag
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+    def has_add_permission(self, request):
+        """
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.has_add_permission
+        """
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
 
 class PostAdmin(admin.ModelAdmin):
 
