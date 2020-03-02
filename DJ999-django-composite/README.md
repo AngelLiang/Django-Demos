@@ -12,6 +12,9 @@
     # 数据库第二次迁移
     $ python manage.py migrate
 
+    # 创建 static 文件
+    $ python manage.py collectstatic
+
     # 创建管理员
     $ python manage.py createsuperuser
 

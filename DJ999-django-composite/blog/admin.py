@@ -1,5 +1,5 @@
 from django.contrib import admin
-
+from import_export.admin import ImportExportModelAdmin
 # Register your models here.
 
 from .models import Post, Tag
@@ -11,7 +11,7 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(ImportExportModelAdmin):
     list_display = (
         'title', 'slug', 'user', 'is_delete',
         'money', 'price',
