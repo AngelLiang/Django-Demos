@@ -1,15 +1,22 @@
-# Django创建一个项目示例
+# Django 创建一个项目示例
 
-创建一个项目
+## 创建一个项目
 
-    $ django-admin startproject mysite
-
-    # OR
+    $ pipenv install
+    $ pipenv shell
     $ django-admin startproject example .
 
-启动
 
-    $ cd mysite
+## 迁移数据库
+
+    $ python manage.py migrate
+
+## 创建管理员
+
+    $ python manage.py createsuperuser
+
+## 启动服务
+
     $ python manage.py runserver
 
 ---
