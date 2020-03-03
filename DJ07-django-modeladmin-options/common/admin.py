@@ -63,18 +63,8 @@ class PostAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.empty_value_display
     empty_value_display = 'unknown'
 
-    # save_as_continue = False
-
-    def save_model(self, request, obj, form, change):
-        """
-        :param request:
-        :param obj:
-        :param form:
-        :param change: bool, 是否是新建
-        """
-        print(f'change:{change}')
-        obj.user = request.user
-        super().save_model(request, obj, form, change)
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.readonly_fields
+    readonly_fields = ('create_date', 'create_time', 'update_datetime')
 
     def make_published(self, request, queryset):
         """
@@ -87,6 +77,19 @@ class PostAdmin(admin.ModelAdmin):
     # Setting permissions for actions
     make_published.allowed_permissions = ('change',)
     actions = [make_published]  # 添加自定义的 action
+
+    # save_as_continue = False
+
+    def save_model(self, request, obj, form, change):
+        """
+        :param request:
+        :param obj:
+        :param form:
+        :param change: bool, 是否是新建
+        """
+        print(f'change:{change}')
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
 
 
 admin.site.register(Post, PostAdmin)
