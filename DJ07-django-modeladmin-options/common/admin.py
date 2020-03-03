@@ -58,6 +58,9 @@ class PostAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """
+        :param request:
+        :param obj:
+        :param form:
         :param change: bool, 是否是新建
         """
         print(f'change:{change}')
