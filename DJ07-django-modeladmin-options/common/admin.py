@@ -23,19 +23,22 @@ class TagAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display
-    list_display = ('title', 'slug', 'user', 'create_date',
-                    'create_time', 'update_datetime')
+    list_display = (
+        'title', 'slug', 'status', 'user',
+        'create_date', 'create_time',
+        'update_datetime'
+    )
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_display_links
     # list_display_links = ('title',)
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_editable
-    list_editable = ('slug',)
+    list_editable = ('status',)
 
     # readonly_fields = ('view_count',)
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
-    list_filter = ('create_date',)
+    list_filter = ('create_date', 'user__username')
 
     # Set date_hierarchy to the name of a DateField or DateTimeField in your model, and the change list page will include a date-based drilldown navigation by that field.
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.date_hierarchy
@@ -60,6 +63,14 @@ class PostAdmin(admin.ModelAdmin):
         print(f'change:{change}')
         obj.user = request.user
         super().save_model(request, obj, form, change)
+
+    def make_published(modeladmin, request, queryset):
+        """
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/actions/
+        """
+        queryset.update(status='p')
+    make_published.short_description = '标记所选的文章为发布状态'
+    actions = [make_published]  # 添加自定义的 action
 
 
 admin.site.register(Post, PostAdmin)
