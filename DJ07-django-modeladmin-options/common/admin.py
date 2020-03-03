@@ -64,12 +64,16 @@ class PostAdmin(admin.ModelAdmin):
         obj.user = request.user
         super().save_model(request, obj, form, change)
 
-    def make_published(modeladmin, request, queryset):
+    def make_published(self, request, queryset):
         """
         https://docs.djangoproject.com/en/3.0/ref/contrib/admin/actions/
         """
         queryset.update(status='p')
+        # for obj in queryset:
+        #     do_something_with(obj)
     make_published.short_description = '标记所选的文章为发布状态'
+    # Setting permissions for actions
+    make_published.allowed_permissions = ('change',)
     actions = [make_published]  # 添加自定义的 action
 
 
