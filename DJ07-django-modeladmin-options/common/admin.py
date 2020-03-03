@@ -40,6 +40,15 @@ class PostAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
     list_filter = ('create_date', 'user__username')
 
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_max_show_all
+    list_max_show_all = 200
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_per_page
+    list_per_page = 100
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_select_related
+    # list_select_related = ('user',)
+
     # Set date_hierarchy to the name of a DateField or DateTimeField in your model, and the change list page will include a date-based drilldown navigation by that field.
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.date_hierarchy
     date_hierarchy = 'create_date'
