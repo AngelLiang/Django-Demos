@@ -1,6 +1,8 @@
 from decimal import Decimal
+
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+# from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -46,10 +48,16 @@ class Post(models.Model):
     price = models.FloatField(blank=True, default=0.0)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#foreignkey
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
+    # users = models.ManyToManyField(
+    #     settings.AUTH_USER_MODEL, blank=True
+    # )
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#manytomanyfield
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#choices
     DRAFT = 'D'
