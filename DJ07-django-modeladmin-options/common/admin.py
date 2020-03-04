@@ -4,7 +4,9 @@ from django.contrib import admin
 from .models import Post, Tag
 
 
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    # site_title = '标签'
     list_display = ('name',)
 
     def has_add_permission(self, request):
@@ -111,4 +113,3 @@ class PostAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Post, PostAdmin)
-admin.site.register(Tag, TagAdmin)
