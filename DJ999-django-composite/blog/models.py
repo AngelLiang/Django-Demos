@@ -50,14 +50,15 @@ class Post(models.Model):
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#foreignkey
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        verbose_name='用户'
     )
     # users = models.ManyToManyField(
     #     settings.AUTH_USER_MODEL, blank=True
     # )
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#manytomanyfield
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name='标签')
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#choices
     DRAFT = 'D'
