@@ -70,10 +70,10 @@ class PostAdmin(admin.ModelAdmin):
     # fieldsets = ('fields', 'field_options')
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_horizontal
-    # filter_horizontal = None
+    filter_horizontal = ('tags',)  # 水平方式过滤器
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_vertical
-    # filter_vertical = None
+    # filter_vertical = ('tags',)  # 垂直方式过滤器
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.formfield_overrides
     # formfield_overrides = None
