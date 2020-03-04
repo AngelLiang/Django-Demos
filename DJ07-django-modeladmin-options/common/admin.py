@@ -67,7 +67,7 @@ class PostAdmin(admin.ModelAdmin):
     readonly_fields = ('create_date', 'create_time', 'update_datetime')
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets
-    # fieldsets = (,)
+    # fieldsets = ('fields', 'field_options')
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_horizontal
     # filter_horizontal = None
@@ -102,6 +102,12 @@ class PostAdmin(admin.ModelAdmin):
         print(f'change:{change}')
         obj.user = request.user
         super().save_model(request, obj, form, change)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.get_form
+        """
+        return super().get_form(request, obj, **kwargs)
 
 
 admin.site.register(Post, PostAdmin)
