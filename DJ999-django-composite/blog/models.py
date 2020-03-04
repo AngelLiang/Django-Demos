@@ -7,14 +7,39 @@ from django.conf import settings
 # Create your models here.
 
 
-class Tag(models.Model):
+class BaseModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+
+class Tag(BaseModel):
     name = models.CharField('标签名', max_length=32)
 
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
-class Post(models.Model):
+    class Meta:
+        """
+        https://docs.djangoproject.com/en/3.0/topics/db/models/#meta-options
+        https://docs.djangoproject.com/en/3.0/ref/models/options/#model-meta-options
+        """
+        # https://docs.djangoproject.com/en/3.0/ref/models/options/#django.db.models.Options.verbose_name
+        verbose_name = '标签'
+        verbose_name_plural = verbose_name
+
+        # https://docs.djangoproject.com/en/3.0/ref/models/options/#default-permissions
+        # default_permissions = ('add', 'delete', 'view')  #  ('add', 'change', 'delete', 'view')
+
+        # https://docs.djangoproject.com/en/3.0/ref/models/options/#unique-together
+        # unique_together =
+        # db_table = 'tag'
+
+
+class Post(BaseModel):
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#charfield
     title = models.CharField('标题', max_length=128)
 
@@ -77,3 +102,5 @@ class Post(models.Model):
 
     class Meta:
         ordering = ['-update_datetime']
+        verbose_name = '文章'
+        verbose_name_plural = verbose_name
