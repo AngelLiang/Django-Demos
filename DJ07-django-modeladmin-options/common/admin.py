@@ -66,6 +66,18 @@ class PostAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.readonly_fields
     readonly_fields = ('create_date', 'create_time', 'update_datetime')
 
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets
+    # fieldsets = (,)
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_horizontal
+    # filter_horizontal = None
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_vertical
+    # filter_vertical = None
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.formfield_overrides
+    # formfield_overrides = None
+
     def make_published(self, request, queryset):
         """
         https://docs.djangoproject.com/en/3.0/ref/contrib/admin/actions/
