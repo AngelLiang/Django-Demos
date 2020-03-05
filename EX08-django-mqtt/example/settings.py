@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django_mqtt',
     'django_mqtt.mosquitto.auth_plugin',
     'django_mqtt.publisher',
+
+    'common.apps.CommonConfig',
 ]
 
 MIDDLEWARE = [

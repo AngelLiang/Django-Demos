@@ -14,4 +14,4 @@
 
 ---
 
-- django_mqtt: https://github.com/ehooo/django_mqtt
+- django_mqtt github: https://github.com/ehooo/django_mqtt
