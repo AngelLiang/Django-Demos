@@ -53,10 +53,10 @@ class Post(BaseModel):
     is_delete = models.BooleanField('已删除', default=False)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#datefield
-    create_date = models.DateField('创建日期', auto_now=True)
+    create_date = models.DateField('创建日期', auto_now_add=True)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#timefield
-    create_time = models.TimeField('创建时间', auto_now=True)
+    create_time = models.TimeField('创建时间', auto_now_add=True)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#datetimefield
     update_datetime = models.DateTimeField('更新时间', auto_now=True)
