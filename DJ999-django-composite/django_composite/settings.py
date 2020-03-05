@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'import_export',
-    'blog',
+    # 必须使用下面的配置方案
+    'blog.apps.BlogConfig',
+    # 使用下面的配置方案配置的 BlogConfig 不会改变
+    # 'blog',
 ]
 
 MIDDLEWARE = [
