@@ -50,7 +50,7 @@ class Post(BaseModel):
     content = models.TextField('内容', default='')
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#booleanfield
-    is_delete = models.BooleanField('已删除', default=False)
+    is_delete = models.BooleanField('已删除', default=False, db_index=True)
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#datefield
     create_date = models.DateField('创建日期', auto_now_add=True)
