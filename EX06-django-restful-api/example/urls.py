@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', include('snippets.urls')),
+    # http://127.0.0.1:8000/sr
+    path('sr/', include('serializer_relations.urls')),
     # 添加下面两句
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
