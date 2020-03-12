@@ -48,6 +48,4 @@ router.register(r'snippets', views6.SnippetViewSet)
 # router.register(r'users', views.UserViewSet)
 
 # The API URLs are now determined automatically by the router.
-urlpatterns += [
-    path('', include(router.urls)),
-]
+urlpatterns += router.urls

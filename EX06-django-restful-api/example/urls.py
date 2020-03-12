@@ -21,12 +21,14 @@ from .apis import router
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('', include('snippets.urls')),
+    path('snippets/', include('snippets.urls')),
     # http://127.0.0.1:8000/sr/
     path('sr/', include('serializer_relations.urls')),
     # http://127.0.0.1:8000/filtering/
     path('filtering/', include('filtering.urls')),
+    # http://127.0.0.1:8000/auth/
+    path('auth/', include('authentication.urls')),
     # 添加下面两句
-    path('', include(router.urls)),
+    path('users', include((router.urls, 'users'))),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
