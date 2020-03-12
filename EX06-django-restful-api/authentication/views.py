@@ -1,11 +1,21 @@
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import (
+    SessionAuthentication,
+    BasicAuthentication,
+    TokenAuthentication,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
 class ExampleView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [
+        SessionAuthentication,
+        # https://www.django-rest-framework.org/api-guide/authentication/#basicauthentication
+        BasicAuthentication,
+        # https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
+        TokenAuthentication
+    ]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):

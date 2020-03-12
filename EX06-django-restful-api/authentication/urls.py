@@ -11,5 +11,5 @@ urlpatterns = [
 ]
 urlpatterns += [
     # url(r'^api-token-auth/', views.obtain_auth_token)
-    url(r'^api-token-auth/', CustomAuthToken.as_view())
+    path('token/', CustomAuthToken.as_view())
 ]
