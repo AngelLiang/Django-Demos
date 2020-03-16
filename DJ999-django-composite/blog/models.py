@@ -74,9 +74,11 @@ class Post(BaseModel):
 
     # https://docs.djangoproject.com/en/3.0/ref/models/fields/#foreignkey
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # ForeignKey.on_delete: CASCADE/PROTECT/SET_NULL/SET_DEFAULT/SET()/DO_NOTHING
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        verbose_name='用户'
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+        verbose_name='用户',
+        # related_name='+',
     )
     # users = models.ManyToManyField(
     #     settings.AUTH_USER_MODEL, blank=True
