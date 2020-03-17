@@ -68,8 +68,19 @@ class PostAdmin(admin.ModelAdmin):
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.readonly_fields
     readonly_fields = ('create_date', 'create_time', 'update_datetime')
 
+    # 分组显示
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets
-    # fieldsets = ('fields', 'field_options')
+    # fieldsets = (
+    #     ('文章', {
+    #         'fields': ('title', 'slug', 'content'),
+    #         'classes': ('wide', 'extrapretty'),
+    #     }),
+    #     # 'field_options'
+    # )
+
+    # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.radio_fields
+    # admin.VERTICAL | admin.HORIZONTAL
+    radio_fields = {'status': admin.HORIZONTAL}
 
     # https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.filter_horizontal
     filter_horizontal = ('tags',)  # 水平方式过滤器
