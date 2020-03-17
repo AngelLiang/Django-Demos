@@ -9,7 +9,8 @@ class TrackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Track
-        fields = ['title', 'duration', 'order']
+        # fields = ['title', 'duration', 'order']
+        fields = '__all__'
 
 
 class TrackListingField(serializers.RelatedField):
