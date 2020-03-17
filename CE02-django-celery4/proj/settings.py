@@ -122,7 +122,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # CELERY
+CELERY_BROKER_URL = 'amqp://guest:guest@127.0.0.1:5672/'
+CELERY_TIMEZONE = TIME_ZONE
+
+# CELERY_TASK_DEFAULT_QUEUE = 'django'
+# CELERY_TASK_DEFAULT_EXCHANGE_TYPE = 'direct'
+# CELERY_task_default_routing_key = 'django'
+
 # CELERY_RESULT_BACKEND = 'django-db'
 # CELERY_CACHE_BACKEND = 'django-cache'
