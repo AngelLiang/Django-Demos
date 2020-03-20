@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 
-name = '后台系统管理'
+name = '后台管理系统'
 
 
 class MyAdminSite(admin.AdminSite):
