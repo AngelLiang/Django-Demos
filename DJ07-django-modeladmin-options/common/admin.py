@@ -9,10 +9,15 @@ class TagAdmin(admin.ModelAdmin):
     # site_title = '标签'
     list_display = ('name',)
 
+    ####################################################################################
+
+    def has_view_permission(request, obj=None):
+        """
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.has_view_permission
+        """
+        return True
+
     def has_add_permission(self, request):
-        """
-        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.has_add_permission
-        """
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -106,15 +111,29 @@ class PostAdmin(admin.ModelAdmin):
     # save_as_continue = False
 
     def save_model(self, request, obj, form, change):
-        """
-        :param request:
-        :param obj:
-        :param form:
-        :param change: bool, 是否是新建
+        """保存事件
+        :param request: HttpRequest
+        :param obj: a model instance
+        :param form: a ModelForm instance
+        :param change: bool, whether it is adding or changing the object
+
+        Overriding this method allows doing pre- or post-save operations.
+        Call super().save_model() to save the object using Model.save().
+
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.save_model
         """
         print(f'change:{change}')
         obj.user = request.user
-        super().save_model(request, obj, form, change)
+        return super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        """删除事件
+        :param request:
+        :param obj:
+
+        https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.delete_model
+        """
+        return super().delete_model(request, obj)
 
     def get_form(self, request, obj=None, **kwargs):
         """
