@@ -1,3 +1,4 @@
+from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -41,10 +42,16 @@ urlpatterns = [
 
 # https://www.django-rest-framework.org/tutorial/6-viewsets-and-routers/#using-routers
 
-from rest_framework.routers import DefaultRouter
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'snippets', views6.SnippetViewSet)
+
+# basename - the base to use for the URL names that are created.
+# action - the name of the current action (e.g., list, create).
+# detail - boolean indicating if the current action is configured for a list or detail view.
+# suffix - the display suffix for the viewset type - mirrors the detail attribute.
+# name - the display name for the viewset. This argument is mutually exclusive to suffix.
+# description - the display description for the individual view of a viewset.
+router.register(r'snippets', views6.SnippetViewSet, basename='snippets')
 # router.register(r'users', views.UserViewSet)
 
 # The API URLs are now determined automatically by the router.
