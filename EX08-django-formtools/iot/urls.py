@@ -6,7 +6,6 @@ from .previews import DeviceFormPreview
 from .wizardviews import DeviceWizard, FORMS
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('device/preview/', DeviceFormPreview(forms.DeviceForm)),
     path('device/wizardview/',
          DeviceWizard.as_view(

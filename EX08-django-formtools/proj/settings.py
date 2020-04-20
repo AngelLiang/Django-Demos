@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'formtools',
+    'sitesetup.apps.SitesetupConfig',
     'iot.apps.IotConfig',
 ]
 

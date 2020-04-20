@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('setup/', include('sitesetup.urls')),
     path('iot/', include('iot.urls')),
 ]

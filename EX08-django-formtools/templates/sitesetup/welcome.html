@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+
+{# <h1>第{{ wizard.steps.index }}步 - {% trans "欢迎访问站点" %}</h1> #}
+{# 共{{ wizard.steps.count }}步 #}
+<h1>{% trans "欢迎访问站点" %}</h1>
+
+
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ wizard.form.media }}
+
+    {{ wizard.management_form }}
+    {% if wizard.form.forms %}
+        {{ wizard.form.management_form }}
+        {% for form in wizard.form.forms %}
+            {{ form.as_p }}
+        {% endfor %}
+    {% else %}
+        {{ wizard.form.as_p }}
+    {% endif %}
+
+    {% if wizard.steps.prev %}
+        <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+        <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+    {% endif %}
+    <input type="submit" name="submit" value="{% trans "下一步" %}" />
+</form>
+
+{% endblock %}
