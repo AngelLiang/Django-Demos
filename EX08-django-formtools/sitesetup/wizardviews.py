@@ -12,20 +12,22 @@ Here’s the basic workflow for how a user would use a wizard:
 """
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
 from formtools.wizard.views import SessionWizardView
 
 from . import forms
 
 FORMS = [
-    ("welcome", forms.WalcomeForm),
-    ("create", forms.CreateSuperUserForm),
-    # ("done", forms.DoneForm),
+    ('welcome', forms.WalcomeForm),
+    # ("create", forms.CreateSuperUserForm),
+    ('create', forms.UserCreationForm),
 ]
 
 TEMPLATES = {
     'welcome': 'sitesetup/welcome.html',
     'create': 'sitesetup/createsuperuser.html',
     'done': 'sitesetup/done.html',
+    'exist': 'sitesetup/exist.html',
 }
 
 
@@ -41,17 +43,27 @@ class SiteSetupWizard(SessionWizardView):
 
     def done(self, form_list, **kwargs):
         """override"""
-        print(form_list)
+        # print(form_list)
+        for form in form_list:
+            form.save()
+
         template = TEMPLATES['done']
         return render(self.request, template, {
             'form_data': [form.cleaned_data for form in form_list],
         })
 
     def process_step(self, form):
-        print(self.steps.current)
-        if 'create' == self.steps.current:
-            print(form)
+        # print(self.steps.current)
         return self.get_form_step_data(form)
+
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form=form, **kwargs)
+        if 'create' == self.steps.current:
+            superuser = User.objects.filter(is_superuser=True).all()
+            print(superuser)
+            if superuser:
+                pass
+        return context
 
     def render(self, form=None, **kwargs):
         form = form or self.get_form()

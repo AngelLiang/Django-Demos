@@ -7,8 +7,10 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+
         {{ wizard.form.media }}
         {{ wizard.management_form }}
+
         {% if wizard.form.forms %}
             {{ wizard.form.management_form }}
             {% for form in wizard.form.forms %}
@@ -19,8 +21,8 @@
         {% endif %}
 
         {% if wizard.steps.prev %}
-            <!-- <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button> -->
-            <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+            {% comment %} <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}">{% trans "first step" %}</button> {% endcomment %}
+            {% comment %} <button class="button" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button> {% endcomment %}
         {% endif %}
         <input type="submit" name="submit" value="{% trans "submit" %}" />
     </form>
