@@ -81,6 +81,7 @@ class PostAdmin(admin.ModelAdmin):
     # fieldsets = (
     #     ('文章', {
     #         'fields': ('title', 'slug', 'content'),
+    #         # A list or tuple containing extra CSS classes to apply to the fieldset.
     #         'classes': ('wide', 'extrapretty'),
     #     }),
     #     # 'field_options'
