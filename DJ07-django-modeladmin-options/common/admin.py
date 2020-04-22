@@ -144,9 +144,9 @@ class PostAdmin(admin.ModelAdmin):
         """
         return super().get_form(request, obj, **kwargs)
 
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
+    def formfield_for_dbfield(self, db_field, request):
         """设置表单默认值"""
-        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        field = super().formfield_for_dbfield(db_field, request)
         if db_field.name == 'user':
             field.initial = request.user
         return field
