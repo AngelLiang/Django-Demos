@@ -1,6 +1,3 @@
-"""
-https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#extending-the-existing-user-model
-"""
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
@@ -11,9 +8,11 @@ from . import models
 
 
 class UserAdmin(BaseUserAdmin):
+    # can_delete = False
     list_display = (
-        'username', 'email', 'organization',
-        'first_name', 'last_name', 'is_staff',
+        'username', 'email',
+        'first_name', 'last_name', 'organization',
+        'is_staff', 'is_active',
     )
     readonly_fields = ('last_login', 'date_joined',)
     list_filter = (
@@ -39,6 +38,9 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'password1', 'password2', 'is_staff', 'organization'),
         }),
     )
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 # admin.site.unregister(User)
