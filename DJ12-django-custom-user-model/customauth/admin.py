@@ -39,6 +39,12 @@ class UserAdmin(BaseUserAdmin):
         }),
     )
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            # 创建帐号之后不可再更改用户名
+            self.readonly_fields.append('username')
+        return self.readonly_fields
+
     def has_delete_permission(self, request, obj=None):
         return False
 
