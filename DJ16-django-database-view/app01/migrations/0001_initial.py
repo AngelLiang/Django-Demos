@@ -2,6 +2,8 @@
 
 from django.db import migrations
 from django.db import connection
+from django.contrib.auth.models import Permission, ContentType
+from app01 import models
 
 cursor = connection.cursor()
 
@@ -10,12 +12,17 @@ def forwards_func(apps, schema_editor):
     """创建视图"""
     sql = r'CREATE VIEW temp_user AS SELECT id, username, first_name FROM auth_user;'
     cursor.execute(sql)
+    content_type = ContentType.objects.get_for_model(models.TempUser)
+    Permission.objects.create(
+        codename='viwe_temp_user', name='Can view temp user', content_type=content_type,
+    )
 
 
 def reverse_func(apps, schema_editor):
     """删除视图"""
     sql = r'DROP VIEW temp_user;'
     cursor.execute(sql)
+    Permission.objects.filter(codename='viwe_temp_user').delete()
 
 
 class Migration(migrations.Migration):
