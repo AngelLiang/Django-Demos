@@ -34,7 +34,7 @@ class SaleModelAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.SaleSummary)
-class LoadContractSummaryAdmin(admin.ModelAdmin):
+class SaleSummaryAdmin(admin.ModelAdmin):
     change_list_template = 'admin/dashboard/sales_change_list.html'
     actions = None
     date_hierarchy = 'created'
@@ -52,7 +52,7 @@ class LoadContractSummaryAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_module_permission(self, request):
         return True
@@ -78,14 +78,14 @@ class LoadContractSummaryAdmin(admin.ModelAdmin):
         # 需要统计的列
         metrics = {
             'total': Count('id'),
-            'total_sales': Sum('price'),
+            'total_price': Sum('price'),
         }
 
         # 按分类统计
-        # total_sales 正序
+        # total_price 正序
         response.context_data['summary'] = list(
             qs.values('category__name').annotate(
-                **metrics).order_by('total_sales')
+                **metrics).order_by('total_price')
         )
 
         # List view summary

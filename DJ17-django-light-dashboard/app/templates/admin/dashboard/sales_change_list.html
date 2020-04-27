@@ -18,8 +18,8 @@
             <tr>
                 <th> <div class="text"> <a href="#">Category </a> </div> </th>
                 <th> <div class="text"> <a href="#">Total </a> </div> </th>
-                <th> <div class="text"> <a href="#">Total Sales </a> </div> </th>
-                <th> <div class="text"> <a href="#"><strong>% Of Total Sales</strong></a> </div> </th>
+                <th> <div class="text"> <a href="#">Total Price </a> </div> </th>
+                <th> <div class="text"> <a href="#"><strong>% Of Total Price</strong></a> </div> </th>
             </tr>
         </thead>
         <tbody>
@@ -27,17 +27,15 @@
             <tr class="{% cycle 'row1' 'row2' %}">
                 <td> {{ row.category__name }} </td>
                 <td> {{ row.total }} </td>
-                <td> {{ row.total_sales | default:0 }} </td>
-                <td><strong> {{ row.total_sales | default:0 | percentof:summary_total.total_sales }} </strong> </td>
-                {% comment %} <td><strong> {{ row.total_sales | default:0 }} </strong> </td> {% endcomment %}
-
+                <td> {{ row.total_price | default:0 }} </td>
+                <td><strong> {{ row.total_price | default:0 | percentof:summary_total.total_price }} </strong> </td>
             </tr>
             {% endfor %}
             <tr style="font-weight:bold; border-top:2px solid #DDDDDD;">
                 <td> Total </td>
                 {% comment %} <td> {{ summary_total.total | intcomma }} </td> {% endcomment %}
                 <td> {{ summary_total.total }} </td>
-                <td> {{ summary_total.total_sales | default:0 }} </td>
+                <td> {{ summary_total.total_price | default:0 }} </td>
                 <td> 100% </td>
             </tr>
         </tbody>
@@ -107,10 +105,11 @@
 <div class="results">
     <div class="bar-chart">
     {% for x in summary_over_time %}
-        <div class="bar" style="height:{{x.pct}}%">
+        <div class="bar" style="height:{{ x.pct }}%">
             <div class="bar-tooltip">
-                {{x.total }}<br>
-                {{x.period | date:"d/m/Y H:i"}}
+                {{ x.total }}
+                <br>
+                {{ x.period | date:"d/m/Y H:i" }}
             </div>
         </div>
     {% endfor %}
