@@ -40,10 +40,11 @@ class UserAdmin(BaseUserAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:
-            # 创建帐号之后不可再更改用户名
-            self.readonly_fields.append('username')
-        return self.readonly_fields
+        readonly_fields = self.readonly_fields
+        user = request.user
+        if obj and not user.is_superuser:
+            readonly_fields.append('username')
+        return readonly_fields
 
     def has_delete_permission(self, request, obj=None):
         return False
