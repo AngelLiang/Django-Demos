@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'viewflow',
     'viewflow.frontend',
 
+    'customnode.apps.CustomnodeConfig',
     'demo.apps.DemoConfig',
 ]
 
