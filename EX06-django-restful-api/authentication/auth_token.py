@@ -4,6 +4,10 @@ from rest_framework.response import Response
 
 
 class CustomAuthToken(ObtainAuthToken):
+    """
+    HTTP header:
+        Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
+    """
 
     # def get(self, request, *args, **kwargs):
     #     content = {
