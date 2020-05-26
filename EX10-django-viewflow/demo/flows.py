@@ -8,6 +8,24 @@ from viewflow.flow import views as flow_views
 from .models import HelloWorldProcess
 
 
+# class SampleFlow(Flow):
+#     start = flow.Start(my_view).Next(this.task)
+
+#     task = flow.Handler(perform_task).Next(this.check_status)
+
+#     check_status = flow.If(this.is_completed) \
+#         .Then(this.end).Else(this.task)
+
+#     end = flow.End()
+
+#     def perform_task(self, activation):
+#         import random
+#         activation.process.completed = random.randint(0, 1)
+
+#     def is_completed(self, activation):
+#         return activation.process.completed
+
+
 @frontend.register
 class HelloWorldFlow(Flow):
     """
@@ -17,7 +35,8 @@ class HelloWorldFlow(Flow):
     """
     process_class = HelloWorldProcess
     process_title = _('Hello world')
-    process_description = _('This process demonstrates hello world approval request flow.')
+    process_description = _(
+        'This process demonstrates hello world approval request flow.')
 
     lock_impl = lock.select_for_update_lock
 
