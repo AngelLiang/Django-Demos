@@ -5,6 +5,7 @@
     pipenv shell
     python manage.py migrate
     python manage.py bootstrap
+    python manage.py runserver
 
 
 - root/q1w2e3r4
