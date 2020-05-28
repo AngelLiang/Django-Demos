@@ -20,5 +20,6 @@ from django.conf.urls import url, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^', include("river_admin.urls")),
+    url(r'^base/', include('base.urls')),
     url(r'^order/', include('order.urls')),
 ]

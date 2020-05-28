@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'river',
     'river_admin',
 
+    'base.apps.BaseConfig',
     'order.apps.OrderConfig',
 ]
 
