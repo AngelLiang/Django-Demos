@@ -138,3 +138,5 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'river_admin.views.exception_handler'
 }
+
+# RIVER_INJECT_MODEL_ADMIN = True

@@ -52,7 +52,7 @@ INSTALLED_APPS = [
 
 ## hook function example
 
-```
+```python
 from datetime import datetime
 
 def handle(context):
@@ -60,7 +60,7 @@ def handle(context):
 ```
 
 
-```
+```python
 from river.models.hook import BEFORE, AFTER
 
 def _handle_my_transitions(hook):
