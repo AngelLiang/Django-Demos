@@ -110,15 +110,15 @@ class Role(MPTTModel, models.Model):
     class Meta:
         # app_label = 'auth'
         verbose_name = _('角色')
-        verbose_name_plural = verbose_name
+        verbose_name_plural = _('角色')
 
 
 class ProxyRole(Role):
     class Meta:
         proxy = True
         app_label = 'auth'
-        verbose_name = _('role')
-        verbose_name_plural = _('roles')
+        verbose_name = _('角色')
+        verbose_name_plural = _('角色')
 
 
 class Organization(MPTTModel, models.Model):
@@ -171,7 +171,7 @@ class Organization(MPTTModel, models.Model):
     class Meta:
         # app_label = 'auth'
         verbose_name = _('组织')
-        verbose_name_plural = verbose_name
+        verbose_name_plural = _('组织')
 
     # class MPTTMeta:
     #     order_insertion_by = ['name']
@@ -181,5 +181,5 @@ class ProxyOrganization(Organization):
     class Meta:
         proxy = True
         app_label = 'auth'
-        verbose_name = _('organization')
-        verbose_name_plural = _('organizations')
+        verbose_name = _('组织')
+        verbose_name_plural = _('组织')
