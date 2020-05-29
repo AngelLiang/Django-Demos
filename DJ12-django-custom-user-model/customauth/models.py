@@ -62,6 +62,7 @@ class User(AbstractUser):
 
 class ProxyUser(User):
     class Meta:
+        managed = False
         proxy = True
         app_label = 'auth'
         verbose_name = _('user')
@@ -115,6 +116,7 @@ class Role(MPTTModel, models.Model):
 
 class ProxyRole(Role):
     class Meta:
+        managed = False
         proxy = True
         app_label = 'auth'
         verbose_name = _('角色')
@@ -179,6 +181,7 @@ class Organization(MPTTModel, models.Model):
 
 class ProxyOrganization(Organization):
     class Meta:
+        managed = False
         proxy = True
         app_label = 'auth'
         verbose_name = _('组织')
