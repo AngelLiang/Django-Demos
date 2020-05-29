@@ -1,12 +1,14 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 
-from customauth import models
+# from customauth import models
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class UserInline(admin.TabularInline):
     # model = settings.AUTH_USER_MODEL
-    model = models.User
+    model = User
     can_delete = False
     fields = ['username', 'email', 'is_active', 'date_joined']
 

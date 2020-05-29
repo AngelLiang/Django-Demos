@@ -13,7 +13,7 @@ class UserAdmin(BaseUserAdmin):
     # can_delete = False
     list_display = (
         'username', 'email',
-        'get_full_name',
+        'name',
         'organization',
         'is_staff', 'is_active',
     )
@@ -30,15 +30,12 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         # 个人信息
-        # 在个人信息后面添加 phone, organization 字段
-        (_('Personal info'), {
-         'fields': ('first_name', 'last_name', 'email', 'phone', 'organization')}),
+        # (_('Personal info'), {'fields': ('first_name', 'last_name', 'email', 'phone',)}),
+        (_('Personal info'), {'fields': ('name', 'email', 'phone', 'organization', 'avatar')}),
         #  角色
         ('角色', {'fields': ('roles',)}),
         # 权限
-        (_('Permissions'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
-        }),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'), }),
         # 重要日期
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
