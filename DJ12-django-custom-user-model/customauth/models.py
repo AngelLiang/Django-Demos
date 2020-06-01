@@ -5,13 +5,15 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
+from .utils.soft_delete import SoftDeletableManager
+
 
 class User(AbstractUser):
 
     name = models.CharField(
         _('名称'),
         max_length=8,
-        null=True, blank=True,
+        default='', blank=True,
     )
 
     avatar = models.FileField(
@@ -22,22 +24,24 @@ class User(AbstractUser):
     phone = models.CharField(
         _('手机号码'),
         max_length=16,
-        null=True, blank=True,
+        default='', blank=True,
     )
 
     # 组织：多对一关系
-    organization = models.ForeignKey(
+    # organization = models.ForeignKey(
+    organization = TreeForeignKey(
         'Organization',
         verbose_name=_('所属组织'),
         null=True, blank=True,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         db_constraint=False,
         related_name='main_menbers',
+        limit_choices_to={'is_deleted': False},
     )
     # role = models.ForeignKey(
     #     'Role',
     #     null=True, blank=True,
-    #     on_delete=models.CASCADE,
+    #     on_delete=models.PROTECT,
     #     verbose_name='角色',
     #     related_name='menbers',
     # )
@@ -49,57 +53,76 @@ class User(AbstractUser):
         blank=True,
         db_constraint=False,
         related_name='menbers',
+        limit_choices_to={'is_deleted': False},
     )
 
     # def __str__(self):
     #     return self.username
 
     # class Meta:
-    #     app_label = 'auth'
     #     verbose_name = _('user')
     #     verbose_name_plural = _('users')
 
 
-class ProxyUser(User):
+class BaseModel(models.Model):
+
     class Meta:
-        managed = False
-        proxy = True
-        app_label = 'auth'
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
-
-
-class Role(MPTTModel, models.Model):
-    name = models.CharField(_('角色名称'), max_length=80)
-    code = models.CharField(
-        _('角色编码'), max_length=32,
-        null=True, blank=True,
-        db_index=True, unique=True
-    )
-    parent = TreeForeignKey(
-        'self', on_delete=models.CASCADE,
-        verbose_name='父级角色',
-        null=True, blank=True,
-        related_name='children'
-    )
+        abstract = True
 
     created_at = models.DateTimeField(_('创建时间'), auto_now_add=True)
     updated_at = models.DateTimeField(_('更新时间'), auto_now=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_('创建人'),
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         db_constraint=False,
         related_name='+',
     )
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_('最后修改人'),
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         db_constraint=False,
         related_name='+',
     )
-    description = models.TextField(_('描述'), default='')
+    description = models.TextField(_('描述'), default='', blank=True)
+
+    is_deleted = models.BooleanField(
+        _('已删除'), default=False, editable=False, db_index=True
+    )
+
+    # 放在这里，后台还是可以显示已经软删除的数据
+    # objects = SoftDeletableManager()
+
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        """
+        Soft delete object(set its ``is_deleted`` field to True).
+        Actually delete object if setting ``soft`` to False.
+        """
+        if soft:
+            self.is_deleted = True
+            self.save(using=using)
+        else:
+            return super().delete(using=using, *args, **kwargs)
+
+
+class Role(MPTTModel, BaseModel):
+    name = models.CharField(_('角色名称'), max_length=80)
+    code = models.CharField(
+        _('角色编码'), max_length=32,
+        null=True, blank=True,
+        db_index=True
+    )
+    parent = TreeForeignKey(
+        'self',
+        # 删除父级数据之前需要先删除子数据
+        on_delete=models.PROTECT,
+        verbose_name='父级角色',
+        null=True, blank=True,
+        related_name='children',
+        # 软删除的数据不显示
+        limit_choices_to={'is_deleted': False},
+    )
 
     def get_menbers(self):
         return self.menbers.all()
@@ -109,59 +132,37 @@ class Role(MPTTModel, models.Model):
         return self.name
 
     class Meta:
-        # app_label = 'auth'
         verbose_name = _('角色')
         verbose_name_plural = _('角色')
 
-
-class ProxyRole(Role):
-    class Meta:
-        managed = False
-        proxy = True
-        app_label = 'auth'
-        verbose_name = _('角色')
-        verbose_name_plural = _('角色')
+    objects = SoftDeletableManager()
 
 
-class Organization(MPTTModel, models.Model):
+class Organization(MPTTModel, BaseModel):
     name = models.CharField(_('组织名称'), max_length=80)
     code = models.CharField(
         _('组织编码'), max_length=32,
         null=True, blank=True,
-        db_index=True, unique=True
+        db_index=True
     )
     parent = TreeForeignKey(
-        'self', on_delete=models.CASCADE,
+        'self',
+        # 删除父级数据之前需要先删除子数据
+        on_delete=models.PROTECT,
         verbose_name=_('父级组织'),
         null=True, blank=True,
-        related_name='children'
+        related_name='children',
+        # 软删除的数据不显示
+        limit_choices_to={'is_deleted': False},
     )
     leader = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         verbose_name=_('负责人'),
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
+        null=True, blank=True,
         db_constraint=False,
         related_name='+',
     )
-
-    created_at = models.DateTimeField(_('创建时间'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('更新时间'), auto_now=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        verbose_name=_('创建人'),
-        on_delete=models.CASCADE,
-        db_constraint=False,
-        related_name='+',
-    )
-    updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        verbose_name=_('最后修改人'),
-        on_delete=models.CASCADE,
-        db_constraint=False,
-        related_name='+',
-    )
-
-    description = models.TextField(_('描述'), default='')
 
     def get_main_menbers(self):
         return self.main_menbers.all()
@@ -171,18 +172,18 @@ class Organization(MPTTModel, models.Model):
         return self.name
 
     class Meta:
-        # app_label = 'auth'
         verbose_name = _('组织')
         verbose_name_plural = _('组织')
 
     # class MPTTMeta:
     #     order_insertion_by = ['name']
 
+    objects = SoftDeletableManager()
 
-class ProxyOrganization(Organization):
+
+class ProxyGroup(Group):
+    """代理Group到这里的app，Group不需要软删除"""
     class Meta:
-        managed = False
         proxy = True
-        app_label = 'auth'
-        verbose_name = _('组织')
-        verbose_name_plural = _('组织')
+        verbose_name = _('用户组')
+        verbose_name_plural = _('用户组')

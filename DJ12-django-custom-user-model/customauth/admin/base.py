@@ -10,3 +10,9 @@ class BaseAdmin(admin.ModelAdmin):
         if hasattr(obj, 'updated_at'):
             rfs.append('updated_at')
         return rfs
+
+    # def delete_queryset(request, queryset):
+    #     """override"""
+    #     for obj in queryset:
+    #         obj.is_deleted = True
+    #         obj.save()

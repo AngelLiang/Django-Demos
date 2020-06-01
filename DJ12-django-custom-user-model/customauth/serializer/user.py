@@ -17,8 +17,7 @@ class UserSerializer(BaseSerializer):
         fields = [
             'id',
             'username', 'email',
-            'first_name', 'last_name',
-            'fullname',
+            'name',
             # 'is_staff',
             'is_active',
             'date_joined', 'last_login',

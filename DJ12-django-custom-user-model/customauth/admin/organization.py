@@ -27,13 +27,31 @@ class OrganizationAdmin(MPTTModelAdmin):
     readonly_fields = ['created_at', 'updated_at', 'created_by', 'updated_by']
 
     fieldsets = (
-        (None, {'fields': ('name', 'code', 'leader',
-                           'created_at', 'updated_at', 'created_by', 'updated_by')}),
+        (None, {'fields':
+                ('name', 'code', 'parent', 'leader',
+                 'description',
+                 'created_at', 'updated_at', 'created_by', 'updated_by',
+                 )}
+         ),
     )
+    add_fieldsets = (
+        (None, {'fields': ('name', 'code', 'parent', 'leader', 'description',)}
+         ),
+    )
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
 
     inlines = [
         UserInline,
     ]
+
+    def get_inlines(self, request, obj):
+        if obj:
+            return self.inlines
+        return []
 
     def save_model(self, request, obj, form, change):
         obj.updated_by = request.user
