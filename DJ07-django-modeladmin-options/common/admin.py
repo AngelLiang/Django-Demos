@@ -26,6 +26,9 @@ class TagAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return True
 
+    def has_module_permission(self, request):
+        return True
+
 
 class PostAdmin(admin.ModelAdmin):
 
@@ -78,6 +81,7 @@ class PostAdmin(admin.ModelAdmin):
     # fieldsets = (
     #     ('文章', {
     #         'fields': ('title', 'slug', 'content'),
+    #         # A list or tuple containing extra CSS classes to apply to the fieldset.
     #         'classes': ('wide', 'extrapretty'),
     #     }),
     #     # 'field_options'
@@ -140,6 +144,13 @@ class PostAdmin(admin.ModelAdmin):
         https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.get_form
         """
         return super().get_form(request, obj, **kwargs)
+
+    def formfield_for_dbfield(self, db_field, request):
+        """设置表单默认值"""
+        field = super().formfield_for_dbfield(db_field, request)
+        if db_field.name == 'user':
+            field.initial = request.user
+        return field
 
 
 admin.site.register(Post, PostAdmin)

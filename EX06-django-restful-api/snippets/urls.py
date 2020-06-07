@@ -1,3 +1,4 @@
+from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -41,9 +42,9 @@ urlpatterns = [
 
 # https://www.django-rest-framework.org/tutorial/6-viewsets-and-routers/#using-routers
 
-from rest_framework.routers import DefaultRouter
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
+
 router.register(r'snippets', views6.SnippetViewSet)
 # router.register(r'users', views.UserViewSet)
 
