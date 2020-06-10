@@ -10,6 +10,7 @@ django = ">=3.0,<4.0"
 djangorestframework = "*"
 django-filter = "*"
 pygments = "*"
+coreapi = "*"
 
 [requires]
 python_version = "3.6"
