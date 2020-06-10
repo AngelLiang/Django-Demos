@@ -11,6 +11,8 @@ djangorestframework = "*"
 django-filter = "*"
 pygments = "*"
 coreapi = "*"
+drf-yasg = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.6"

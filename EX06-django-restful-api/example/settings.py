@@ -39,8 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-    # authentication
+    # for authentication
     'rest_framework.authtoken',
+    'drf_yasg',
 
     'snippets.apps.SnippetsConfig',
     'serializer_relations.apps.SerializerRelationsConfig',
