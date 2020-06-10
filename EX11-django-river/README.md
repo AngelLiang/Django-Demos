@@ -10,9 +10,10 @@
 
 
 - root/q1w2e3r4
+- admin/q1w2e3r4
 - team_leader_1/q1w2e3r4
 - purchaser_1/q1w2e3r4
-
+- developer_1/q1w2e3r4
 
 ## river 使用说明
 

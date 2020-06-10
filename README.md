@@ -38,3 +38,4 @@
 | EX08  | django-formtools                  | Django 使用 formtools 分步骤配置数据 |
 | EX09  | django-totals                     | Django 简单统计功能                  |
 | EX11  | django-river                      | django-river 工作流示例              |
+| TP01  | my-django-template                | 我的 django 开发模板                 |
