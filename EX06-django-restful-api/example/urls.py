@@ -46,7 +46,7 @@ urlpatterns = [
     # http://127.0.0.1:8000/auth/
     path('auth/', include('authentication.urls')),
     # 添加下面两句
-    path('users', include((router.urls, 'users'))),
+    path('users/', include((router.urls, 'users'))),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # documents
