@@ -20,8 +20,9 @@ class AuthEntry(models.Model):
     username = models.CharField('用户名', max_length=255, null=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         blank=True, null=True,
+        db_constraint=False,
         verbose_name='用户',
         related_name='+',
     )
