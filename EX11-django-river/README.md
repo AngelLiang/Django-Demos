@@ -1,3 +1,8 @@
+## 准备工作
+
+需要安装以下包
+
+    pipenv install django-river river-admin django-codemirror2 six
 
 ## 快速开始
 
