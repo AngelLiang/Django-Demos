@@ -2,7 +2,9 @@
 
 {% block submit_buttons_bottom %}
     {{ block.super }}
-    <div class="submit-row">
-        <input type="submit" value="发布" name="_set-publish" onclick="return confirm('确定要设置为发布吗？')">
-    </div>
+    {% if original.is_draft %}
+        <div class="submit-row">
+            <input type="submit" value="发布" name="_set-publish" onclick="return confirm('确定要设置为发布吗？')">
+        </div>
+    {% endif %}
 {% endblock %}

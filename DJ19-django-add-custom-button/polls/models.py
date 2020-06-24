@@ -15,6 +15,9 @@ class Question(models.Model):
     )
     status = models.CharField(max_length=1, default=DRAFT, choices=STATUS)
 
+    def is_draft(self):
+        return self.status == self.DRAFT
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
