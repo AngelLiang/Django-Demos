@@ -16,10 +16,10 @@
     <table>
         <thead>
             <tr>
-                <th> <div class="text"> <a href="#">Category </a> </div> </th>
-                <th> <div class="text"> <a href="#">Total </a> </div> </th>
-                <th> <div class="text"> <a href="#">Total Price </a> </div> </th>
-                <th> <div class="text"> <a href="#"><strong>% Of Total Price</strong></a> </div> </th>
+                <th> <div class="text"> <a href="#"> {% trans '分类' %} </a> </div> </th>
+                <th> <div class="text"> <a href="#"> {% trans '数量' %} </a> </div> </th>
+                <th> <div class="text"> <a href="#"> {% trans '总价' %} </a> </div> </th>
+                <th> <div class="text"> <a href="#"><strong> {% trans '总价百分比' %}</strong></a> </div> </th>
             </tr>
         </thead>
         <tbody>
@@ -32,7 +32,7 @@
             </tr>
             {% endfor %}
             <tr style="font-weight:bold; border-top:2px solid #DDDDDD;">
-                <td> Total </td>
+                <td> 总计 </td>
                 {% comment %} <td> {{ summary_total.total | intcomma }} </td> {% endcomment %}
                 <td> {{ summary_total.total }} </td>
                 <td> {{ summary_total.total_price | default:0 }} </td>
@@ -42,6 +42,7 @@
     </table>
 </div>
 
+{% comment %} 统计图 {% endcomment %}
 <br>
 <h2> {% blocktrans %} Sales time (by {{ period }}) {% endblocktrans %} </h2>
 

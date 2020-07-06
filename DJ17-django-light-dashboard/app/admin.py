@@ -84,8 +84,7 @@ class SaleSummaryAdmin(admin.ModelAdmin):
         # 按分类统计
         # total_price 正序
         response.context_data['summary'] = list(
-            qs.values('category__name').annotate(
-                **metrics).order_by('total_price')
+            qs.values('category__name').annotate(**metrics).order_by('total_price')
         )
 
         # List view summary
@@ -108,9 +107,7 @@ class SaleSummaryAdmin(admin.ModelAdmin):
         response.context_data['summary_over_time'] = [{
             'period': x['period'],
             'total': x['total'] or 0,
-            'pct':
-            ((x['total'] or 0) - low) / (high - low) * 100
-            if high > low else 0,
+            'pct': ((x['total'] or 0) - low) / (high - low) * 100 if high > low else 0,
         } for x in summary_over_time]
 
         return response
