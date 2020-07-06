@@ -5,7 +5,18 @@
 
     {{ block.super }}
 
+
+    {% comment %} <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                django.jQuery("#id_province").empty();
+            })
+        })
+    </script> {% endcomment %}
+
+
     <script type="text/javascript">
+
         django.jQuery(function() {
             var select = django.jQuery("#id_country");  // parent
             console.log(select);
