@@ -27,7 +27,7 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    order_date = models.DateField('订单日期', auto_now_add=True)
+    order_date = models.DateField('订单日期')
     title = models.CharField('标题', max_length=255, default='')
     amount = models.DecimalField('总金额', max_digits=11, decimal_places=2, blank=True, default=0)
 
