@@ -24,13 +24,14 @@ class OrderItemReportView(SampleReportView):
     # Another way making use of the built-in Report Fields which is identical to the above
     # columns = ['name', '__total_quantity__',]
 
-    # time_series_pattern = 'monthly'
+    time_series_pattern = 'monthly'
 
     # Charts
     charts_settings = [
         {
             'type': 'bar',
             'data_source': '__total_quantity__',
-            'title_source': 'name',
+            'title_source': 'title',
+            'title': 'Total Monthly Sales',
         },
     ]
