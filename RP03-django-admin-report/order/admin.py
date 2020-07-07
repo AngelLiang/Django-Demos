@@ -21,28 +21,27 @@ class OrderItemInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-        # search_fields = ('nome', 'email', 'cpf', 'rg')
-    list_display = ('data', 'payment_type', 'email',
-                    'delivered', 'total_value', 'gender')
-    list_filter = ('data', 'payment_type')
+    # search_fields = ('nome', 'email', 'cpf', 'rg')
+    list_display = ('date', 'payment_type', 'email', 'delivered', 'total_value', 'gender')
+    list_filter = ('date', 'payment_type')
     inlines = [OrderItemInline]
 
-
-    # date_hierarchy = 'data'
+    # date_hierarchy = 'date'
     # exclude = ('grupo_tributacao',)
+
+
 admin.site.register(Order, OrderAdmin)
 
 
 class ReportOrderAdmin(ExportMixin, AdminNoAddPermissionMixin, ChartReportAdmin):
     list_filter = ['payment_type', 'email', 'delivered']
-    list_display = ('data', 'payment_type', 'email',
-                    'delivered', 'total_value', 'gender')
+    list_display = ('date', 'payment_type', 'email', 'delivered', 'total_value', 'gender')
 
     # group_by = "gender"
 
     report_aggregates = (
         ('total_value', Sum, "<b>Total vendido</b>"),
-        ('total_value', Avg, "<b>Valor médio</b>"),
+        ('total_value', Avg, "<b>平均值</b>"),
         ('total_value', Count, "<b>Número de pedidos</b>"),
     )
 
@@ -85,6 +84,8 @@ class ReportOrderItemsResource(resources.ModelResource):
 
 
 class ReportOrderItemsAdmin(ExportMixin, AdminNoAddPermissionMixin, ChartReportAdmin):
+    """订单明细报表"""
+
     resource_class = ReportOrderItemsResource
     list_filter = ['name', 'orderitem__order__payment_type', ]
     list_display = ('name', 'valor_atual', 'orderitem__value__avg', 'orderitem__value__max',
@@ -120,6 +121,6 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'value')
 
 
-    # date_hierarchy = 'data'
+    # date_hierarchy = 'date'
     # exclude = ('grupo_tributacao',)
 admin.site.register(Product, ProductAdmin)
