@@ -19,18 +19,19 @@ class OrderItemReportView(SampleReportView):
     group_by = 'product'
 
     # The columns you want to display , `quantity` and `value` are fields on `MySalesItem` model.
-    columns = ['name', BaseReportField.create(Sum, 'quantity'), BaseReportField.create(Sum, 'price')]
+    # columns = ['name', BaseReportField.create(Sum, 'quantity'), BaseReportField.create(Sum, 'price')]
 
     # Another way making use of the built-in Report Fields which is identical to the above
-    # columns = ['name', '__total_quantity__',]
+    columns = ['name', '__total_quantity__',]
 
-    time_series_pattern = 'monthly'
+    # time_series_pattern = 'monthly'
 
     # Charts
-    charts_settings = [
+    chart_settings = [
         {
             'type': 'bar',
             'data_source': '__total_quantity__',
+            # 'data_source': BaseReportField.create(Sum, 'quantity'),
             'title_source': 'title',
             'title': 'Total Monthly Sales',
         },
