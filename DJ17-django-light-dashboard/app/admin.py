@@ -97,17 +97,15 @@ class SaleSummaryAdmin(admin.ModelAdmin):
             period=Trunc('created', 'day', output_field=DateTimeField()),
         ).values('period').annotate(total=Sum('price')).order_by('period')
 
-        summary_range = summary_over_time.aggregate(
-            low=Min('total'),
-            high=Max('total'),
-        )
+        summary_range = summary_over_time.aggregate(low=Min('total'), high=Max('total'))
         high = summary_range.get('high', 0)
         low = summary_range.get('low', 0)
 
         response.context_data['summary_over_time'] = [{
             'period': x['period'],
             'total': x['total'] or 0,
-            'pct': ((x['total'] or 0) - low) / (high - low) * 100 if high > low else 0,
+            # 'pct': ((x['total'] or 0) - low) / (high - low) * 100 if high > low else 0,
+            'pct': (x['total'] or 0) / high * 100 if high else 0,
         } for x in summary_over_time]
 
         return response
