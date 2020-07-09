@@ -6,3 +6,8 @@
     python manage.py createsuperuser
     python manage.py seed order --number=200
     python manage.py runserver
+
+
+## 效果图
+
+![demo](screen/demo.png)
