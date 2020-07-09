@@ -1,6 +1,7 @@
 import calendar
 from django.contrib import admin
 
+from django.contrib.admin.views.main import ChangeList
 from django.db.models import (
     Count, Sum, Min, Max, Avg,
     DateTimeField, DateField
@@ -116,6 +117,24 @@ class OrderAdmin(admin.ModelAdmin):
             'all': ('css/admin/css/barchart.css',)
         }
 
+    def get_changelist_instance(self, request):
+        cl = super().get_changelist_instance(request)
+        year = request.GET.get(self.date_hierarchy + '__year')
+        month = request.GET.get(self.date_hierarchy + '__month')
+        day = request.GET.get(self.date_hierarchy + '__day')
+        title = ''
+        if year:
+            title += f'{year}年'
+        if month:
+            title += f'{month}月'
+        if day:
+            title += f'{day}日'
+        if title:
+            cl.title = f'{title}的{self.opts.verbose_name}'
+        else:
+            cl.title = f'全部{self.opts.verbose_name}'
+        return cl
+
     def changelist_view(self, request, extra_context=None):
         response = super().changelist_view(request, extra_context=extra_context)
 
@@ -145,6 +164,9 @@ class OrderAdmin(admin.ModelAdmin):
             return 'year'
 
         x_num = 0
+        year = None
+        month = None
+        day = None
         extract_field = self.date_hierarchy
         date_hierarchy = get_date_hierarchy(request, self.date_hierarchy)
 
