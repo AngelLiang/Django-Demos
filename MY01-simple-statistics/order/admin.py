@@ -88,6 +88,25 @@ def fill_empty_date(summary_over_time, x_num, date_hierarchy, year, month, day):
     return new_summary_over_time
 
 
+def gen_changelist_title(request, date_hierarchy, model_name):
+    year = request.GET.get(date_hierarchy + '__year')
+    month = request.GET.get(date_hierarchy + '__month')
+    day = request.GET.get(date_hierarchy + '__day')
+
+    title = ''
+    if year:
+        title += f'{year}年'
+    if month:
+        title += f'{month}月'
+    if day:
+        title += f'{day}日'
+
+    if title:
+        return f'{title}的{model_name}'
+    else:
+        return f'全部{model_name}'
+
+
 class CustomerAdmin(admin.ModelAdmin):
     pass
 
@@ -120,20 +139,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def get_changelist_instance(self, request):
         cl = super().get_changelist_instance(request)
-        year = request.GET.get(self.date_hierarchy + '__year')
-        month = request.GET.get(self.date_hierarchy + '__month')
-        day = request.GET.get(self.date_hierarchy + '__day')
-        title = ''
-        if year:
-            title += f'{year}年'
-        if month:
-            title += f'{month}月'
-        if day:
-            title += f'{day}日'
-        if title:
-            cl.title = f'{title}的{self.opts.verbose_name}'
-        else:
-            cl.title = f'全部{self.opts.verbose_name}'
+        cl.title = gen_changelist_title(request, self.date_hierarchy, self.opts.verbose_name)
         return cl
 
     def changelist_view(self, request, extra_context=None):
