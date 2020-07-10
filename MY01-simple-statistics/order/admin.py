@@ -123,8 +123,8 @@ class OrderItemInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'order_date', 'title', 'amount', 'created_at')
-    list_filter = ('created_at',)
+    list_display = ('order_date', 'title', 'amount', 'customer', 'created_at')
+    # list_filter = ('customer',)
     search_fields = ('title',)
 
     readonly_fields = ('amount',)
@@ -158,9 +158,7 @@ class OrderAdmin(admin.ModelAdmin):
             # no context_data.
             return response
 
-        def get_date_hierarchy(request, date_hierarchy):
-            if 'created_at__gte' in request.GET:
-                return None
+        def get_next_date_hierarchy(request, date_hierarchy):
             # 不能调动以下判断顺序，因为要从小到大判断
             if date_hierarchy + '__day' in request.GET:
                 return 'hour'
@@ -175,7 +173,7 @@ class OrderAdmin(admin.ModelAdmin):
         month = None
         day = None
         extract_field = self.date_hierarchy
-        date_hierarchy = get_date_hierarchy(request, self.date_hierarchy)
+        date_hierarchy = get_next_date_hierarchy(request, self.date_hierarchy)
 
         # print(date_hierarchy)
         if date_hierarchy == 'year':
