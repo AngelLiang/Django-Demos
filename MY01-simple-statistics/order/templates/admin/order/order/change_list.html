@@ -6,7 +6,7 @@
   {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
 
 {% comment %} 统计图 {% endcomment %}
-{% if show_chart %}
+{% if cl.model_admin.show_chart %}
 
 <br>
 
