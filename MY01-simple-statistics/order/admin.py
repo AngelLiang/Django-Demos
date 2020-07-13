@@ -15,8 +15,7 @@ from django.db.models.functions import (
 
 from . import models
 from .reportutils import (
-    get_next_in_date_hierarchy, gen_changelist_title,
-    gen_summary
+    gen_changelist_title, get_chart_data, get_chart_title
 )
 
 
@@ -45,7 +44,7 @@ class OrderAdmin(admin.ModelAdmin):
     ordering = ('created_at',)
     date_hierarchy = 'created_at'
 
-    show_chart = True
+    chart_show = True
 
     class Media:
         css = {
@@ -73,7 +72,8 @@ class OrderAdmin(admin.ModelAdmin):
             # no context_data.
             return response
 
-        response.context_data['summary_over_time'] = gen_summary(request, qs, self.date_hierarchy)
+        response.context_data['chart_title'] = get_chart_title(request, self.date_hierarchy)
+        response.context_data['chart_data'] = get_chart_data(request, qs, self.date_hierarchy)
 
         return response
 

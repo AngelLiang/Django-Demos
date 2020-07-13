@@ -216,7 +216,7 @@ def gen_summary_over_time(total_every_period, high, low):
     return summary_over_time
 
 
-def gen_summary(request, qs, date_hierarchy):
+def get_chart_data(request, qs, date_hierarchy):
     next_date_hierarchy = get_next_in_date_hierarchy(request, date_hierarchy)
     # 统计周期数量
     total_every_period, x_num = get_total_every_period(qs, request, date_hierarchy)
@@ -228,5 +228,15 @@ def gen_summary(request, qs, date_hierarchy):
     summary_over_time = gen_summary_over_time(total_every_period, high, low)
     # print(summary_over_time)
     year, month, day = get_date_hierarchy_year_month_day(request, date_hierarchy)
-    summary_over_time = fill_empty_date(summary_over_time, x_num, next_date_hierarchy, year, month, day)
-    return summary_over_time
+    chart_data = fill_empty_date(summary_over_time, x_num, next_date_hierarchy, year, month, day)
+    return chart_data
+
+
+def get_chart_title(request, date_hierarchy):
+    next_date_hierarchy = get_next_in_date_hierarchy(request, date_hierarchy)
+    date_title_mapping = {
+        'year': '按年份统计',
+        'month': '按月份统计',
+        'day': '按日期统计',
+    }
+    return date_title_mapping.get(next_date_hierarchy, None)
