@@ -4,7 +4,6 @@ from .models import Question
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    change_form_template = 'admin/question/change_form.html'
 
     def response_change(self, request, obj):
         from django.http import HttpResponseRedirect
