@@ -13,9 +13,21 @@ class ProductAdmin(admin.ModelAdmin):
 
 class OrderItemInline(admin.TabularInline):
     model = models.OrderItem
-    extra = 1
     fields = ('product', 'quantity', 'price', 'amount',)
     readonly_fields = ('amount',)
+    extra = 0
+
+    def has_view_permission(self, request, obj=None):
+        return True
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 
 class OrderAdmin(admin.ModelAdmin):
@@ -23,9 +35,9 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('amount',)
     inlines = (OrderItemInline,)
 
-    # def save_model(self, request, obj, form, change):
-    #     super().save_model(request, obj, form, change)
-    #     obj.update_amount()
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        obj.update_code()
 
 
 admin.site.register(models.Customer, CustomerAdmin)

@@ -27,9 +27,12 @@ class Product(models.Model):
 
 
 class Order(models.Model):
+    code = models.CharField('订单号', max_length=40, default='', blank=True)
     order_date = models.DateField('订单日期')
     title = models.CharField('标题', max_length=255, default='')
-    amount = models.DecimalField('总金额', max_digits=11, decimal_places=2, blank=True, default=0)
+    description = models.TextField('描述说明', max_length=10000, default='')
+    amount = models.DecimalField('总金额', max_digits=11, decimal_places=2, blank=True, null=True)
+    created_at = models.DateTimeField('创建时间')
 
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='客户')
 
@@ -40,18 +43,28 @@ class Order(models.Model):
         verbose_name = '订单'
         verbose_name_plural = '订单'
 
-    def update_amount(self):
-        self.amount = OrderItem.objects.filter(order=self).aggregate(Sum('amount'))['amount__sum']
-        self.save(update_fields=['amount'])
+    def update_amount(self, commit=True):
+        self.amount = OrderItem.objects.filter(order=self).aggregate(Sum('amount')).get('amount__sum')
+        if commit:
+            self.save(update_fields=['amount'])
+
+    def update_code(self, prefix='D', number_width=4, commit=True):
+        if self.code is None or len(self.code) == 0:
+            fmt = f'%s%0{number_width}d'
+            # 生成code，这里需要获取obj的id，所以需要先保存
+            code = fmt % (prefix, self.id)
+            self.code = code
+            if commit:
+                self.save(update_fields=['code'])
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='订单')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='订单', related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='产品')
 
     quantity = models.PositiveSmallIntegerField('数量')
     price = models.DecimalField('单价', max_digits=11, decimal_places=2)
-    amount = models.DecimalField('总价', max_digits=11, decimal_places=2, null=True, default=0)
+    amount = models.DecimalField('总价', max_digits=11, decimal_places=2, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.amount = self.quantity * self.price
@@ -65,4 +78,4 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = '订单明细'
         verbose_name_plural = '订单明细'
-        # default_permissions = ()
+        default_permissions = ()
