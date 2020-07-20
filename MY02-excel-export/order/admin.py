@@ -3,7 +3,9 @@ from io import BytesIO
 
 from django.contrib import admin
 from django.conf.urls import url
+from django.conf import settings
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 
 from . import models
 from .excelutils import (
@@ -48,95 +50,111 @@ class OrderAdmin(admin.ModelAdmin):
         obj.update_code()
 
     def get_urls(self):
+        opts = self.opts
         urls = super().get_urls()
         return [
-            url(r'(?P<obj_id>\d+)/excel-export', self.excel_export),
+            url(r'(?P<obj_id>\d+)/excel-export', self.detail_export_action,
+                name=f'{opts.app_label}_{opts.model_name}_detailexport'),
         ] + urls
 
-    def excel_export(self, request, obj_id):
-        # models = Measure.objects.filter(country_id=obj_id)
-        try:
-            obj = self.model.objects.get(id=obj_id)
-        except self.model.DoesNotExist:
-            pass
-        else:
+    def has_detail_export_permission(self, request):
+        user = request.user
+        # permission_code = 'get_detail_excel'
+        permission_code = getattr(settings, 'DETAIL_EXPORT_PERMISSION_CODE', None)
+        if permission_code is None:
+            return True
 
-            style = get_noraml_style()
-            lstyle = get_label_style()
-            hstyle = get_headers_style()
+        opts = self.opts
+        codename = f'{permission_code}_{opts.model_name}'
+        return user.has_perm(f'{opts.app_label}.{codename}')
 
-            headers = ('物料', '单价', '数量', '小计',)
-            width = len(headers)
+    def detail_export_action(self, request, obj_id):
 
-            row = 0
-            row2_left = len(headers) // 2
-            row_right = width - 1
+        # 判断权限
+        if not self.has_detail_export_permission(request):
+            raise PermissionDenied
 
-            ws = xlwt.Workbook(encoding='utf8')
-            sheet = ws.add_sheet('sheet1')
+        obj = self.get_object(request, obj_id)
+        if obj is None:
+            opts = self.opts
+            return self._get_obj_does_not_exist_redirect(request, opts, obj_id)
 
-            # 标题
-            sheet.write_merge(row, 0, row, row_right, str(obj.title), hstyle)
+        style = get_noraml_style()
+        lstyle = get_label_style()
+        hstyle = get_headers_style()
 
+        headers = ('物料', '单价', '数量', '小计',)
+        width = len(headers)
+
+        row = 0
+        row2_left = len(headers) // 2
+        row_right = width - 1
+
+        ws = xlwt.Workbook(encoding='utf8')
+        sheet = ws.add_sheet('sheet1')
+
+        # 标题
+        sheet.write_merge(row, 0, row, row_right, str(obj.title), hstyle)
+
+        row += 1
+        sheet.write_merge(row, row, 0, 0, '订单号', lstyle)
+        sheet.write_merge(row, row, 1, row2_left - 1, str(obj.code), style)
+        sheet.write_merge(row, row, row2_left, row2_left, '客户', lstyle)
+        sheet.write_merge(row, row, row2_left + 1, row_right, obj.customer.name, style)
+
+        row += 1
+        sheet.write_merge(row, row, 0, 0, '订单日期', lstyle)
+        sheet.write_merge(row, row, 1, row2_left - 1, str(obj.order_date), style)
+        sheet.write_merge(row, row, row2_left, row2_left, '创建时间', lstyle)
+        sheet.write_merge(row, row, row2_left + 1, row_right, str(obj.created_at), style)
+
+        row += 1
+        sheet.write_merge(row, row, 0, 0, '总金额', lstyle)
+        sheet.write_merge(row, row, 1, row2_left - 1, obj.amount, style)
+        # sheet.write_merge(row, row, row2_left, row2_left, '折扣金额', lstyle)
+        # sheet.write_merge(row, row, row2_left + 1, row_right, obj.discount_amount, style)
+
+        row += 1
+        sheet.write_merge(row, row + 2, 0, 0, '描述信息', lstyle)
+        sheet.write_merge(row, row + 2, 1, width - 1, obj.description, style)
+
+        ########################################################
+        # 明细行
+
+        row += 3
+        sheet.write_merge(row, row, 0, width - 1, '订单明细', hstyle)
+        row += 1
+        for i, header in enumerate(headers):
+            sheet.write(row, i, header, hstyle)
+
+        items = obj.items.all()
+        row += 1
+        first_col_max_width = 4
+        for item in items:
+            data = (
+                item.product.name, item.price, item.quantity, item.amount,
+            )
+            name_len = len(item.product.name)
+            if name_len > first_col_max_width:
+                first_col_max_width = name_len
+            for i, dat in enumerate(data):
+                sheet.write(row, i, dat, style)
             row += 1
-            sheet.write_merge(row, row, 0, 0, '订单号', lstyle)
-            sheet.write_merge(row, row, 1, row2_left - 1, str(obj.code), style)
-            sheet.write_merge(row, row, row2_left, row2_left, '客户', lstyle)
-            sheet.write_merge(row, row, row2_left + 1, row_right, obj.customer.name, style)
 
-            row += 1
-            sheet.write_merge(row, row, 0, 0, '订单日期', lstyle)
-            sheet.write_merge(row, row, 1, row2_left - 1, str(obj.order_date), style)
-            sheet.write_merge(row, row, row2_left, row2_left, '创建时间', lstyle)
-            sheet.write_merge(row, row, row2_left + 1, row_right, str(obj.created_at), style)
+        # xlwt中列宽的值表示方法：默认字体0的1/256为衡量单位。
+        # xlwt创建时使用的默认宽度为2960，即11个字符0的宽度
+        first_col = sheet.col(0)
+        first_col.width = 256 * first_col_max_width * 2    # 256为衡量单位
 
-            row += 1
-            sheet.write_merge(row, row, 0, 0, '总金额', lstyle)
-            sheet.write_merge(row, row, 1, row2_left - 1, obj.amount, style)
-            # sheet.write_merge(row, row, row2_left, row2_left, '折扣金额', lstyle)
-            # sheet.write_merge(row, row, row2_left + 1, row_right, obj.discount_amount, style)
+        ########################################################
 
-            row += 1
-            sheet.write_merge(row, row + 2, 0, 0, '描述信息', lstyle)
-            sheet.write_merge(row, row + 2, 1, width - 1, obj.description, style)
-
-            ########################################################
-            # 明细行
-
-            row += 3
-            sheet.write_merge(row, row, 0, width - 1, '订单明细', hstyle)
-            row += 1
-            for i, header in enumerate(headers):
-                sheet.write(row, i, header, hstyle)
-
-            items = obj.items.all()
-            row += 1
-            first_col_max_width = 4
-            for item in items:
-                data = (
-                    item.product.name, item.price, item.quantity, item.amount,
-                )
-                name_len = len(item.product.name)
-                if name_len > first_col_max_width:
-                    first_col_max_width = name_len
-                for i, dat in enumerate(data):
-                    sheet.write(row, i, dat, style)
-                row += 1
-
-            # xlwt中列宽的值表示方法：默认字体0的1/256为衡量单位。
-            # xlwt创建时使用的默认宽度为2960，即11个字符0的宽度
-            first_col = sheet.col(0)
-            first_col.width = 256 * first_col_max_width * 2    # 256为衡量单位
-
-            ########################################################
-
-            bio = BytesIO()
-            ws.save(bio)
-            bio.seek(0)
-            response = HttpResponse(bio.getvalue(), content_type='application/vnd.ms-excel')
-            response['Content-Disposition'] = f'attachment; filename={obj.code}.xls'
-            # response.write(bio.getvalue())
-            return response
+        bio = BytesIO()
+        ws.save(bio)
+        bio.seek(0)
+        response = HttpResponse(bio.getvalue(), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = f'attachment; filename={obj.code}.xls'
+        # response.write(bio.getvalue())
+        return response
 
 
 admin.site.register(models.Customer, CustomerAdmin)
