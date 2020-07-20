@@ -42,4 +42,5 @@
 | EX11  | django-river                          | django-river 工作流示例                  |
 | MY01  | simple-statistics                     | Django 简易统计页面                      |
 | MY02  | excel-export                          | Django 生成包含订单明细的 Excel 表并下载 |
+| MY03  | admin-module-sort                     | 让 django admin 的 module 按权重排序     |
 | TP01  | my-django-template                    | 我的 django 开发模板                     |
