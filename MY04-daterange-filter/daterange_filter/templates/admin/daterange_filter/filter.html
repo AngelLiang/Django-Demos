@@ -1,0 +1,53 @@
+{% load i18n admin_static %}
+
+<h3>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</h3>
+
+<style>
+    .calendarbox, .clockbox {
+        /* Make sure the calendar widget popover displays in front of the sidebar */
+        z-index: 1100;
+        margin-left: -16em !important;
+        margin-top: 9em !important;
+    }
+    .datetimeshortcuts {
+        /* Hide "|" symbol */
+        font-size: 0;
+    }
+    .datetimeshortcuts a:before{
+        /* Restore deleted spaces */
+        content: " ";
+    }
+    .datetimeshortcuts a{
+        /* Make text for "Today" a bit smaller so it appears on one line. */
+        font-size: 7pt;
+    }
+    #changelist-filter a {
+        display: inline;
+    }
+</style>
+
+<script>
+    // reset button after submitting dates does not work, so 
+    // here is the solution which implements the fix.
+    django.jQuery(document).ready(function(){
+        django.jQuery("#resetBtn").click(function(){
+            var gte = django.jQuery("input[id^=id_drf__][id$=gte]")[0].defaultValue = "";
+            var lte = django.jQuery("input[id^=id_drf__][id$=lte]")[0].defaultValue = "";
+        });
+    });
+</script>
+
+{% with choices.0 as i %}
+<form method="GET" action="">
+    {{ spec.form.media }}
+    {{ spec.form.as_p }}
+    <p class="submit-row">
+        {#create hidden inputs to preserve values from other filters and search field#}
+        {% for k, v in i.get_query.items %}
+                <input type="hidden" name="{{ k }}" value="{{ v }}">
+        {% endfor %}    
+    <input type="submit" value="{% trans "Search" %}">
+    <input type="reset" id="resetBtn" value="{% trans "Clear" %}">
+    </p>
+</form>
+{% endwith %}
