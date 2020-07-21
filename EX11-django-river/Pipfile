@@ -6,8 +6,8 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = ">=3.0,<4.0"
-django-river = "*"
+django = ">=2.0,<3.0"
+django-river = ">=3.2.2"
 six = "*"
 river-admin = "*"
 django-codemirror2 = "*"
