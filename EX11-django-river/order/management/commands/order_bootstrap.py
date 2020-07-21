@@ -111,8 +111,10 @@ class Command(BaseCommand):
         # received_to_closed_meta.groups.set([team_leader_group])
 
         # 超管
-        admin = User.objects.filter(username="admin").first() or User.objects.create_superuser("admin", "", "q1w2e3r4")
-        admin.groups.set([team_leader_group, purchaser_group])
+        root = User.objects.filter(username="root").first() or User.objects.create_superuser("root", "", "q1w2e3r4")
+        # root.groups.set([team_leader_group, purchaser_group])
+        root.groups.add(team_leader_group)
+        root.groups.add(purchaser_group)
 
         # 采购组长
         purchase_leader_1 = User.objects.filter(username="purchase_leader_1").first(

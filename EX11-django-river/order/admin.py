@@ -47,14 +47,12 @@ class OrderAdmin(admin.ModelAdmin):
 
     def river_actions(self, obj):
         content = ""
-        # print(f'{self.user} {self.user.groups.all()}')
-        # print(obj.river.status.on_final_state)
         # 遍历
         for transition_approval in obj.river.status.get_available_approvals(as_user=self.user):
             content += create_river_button(obj, transition_approval)
 
         return mark_safe(content)
-    # river_actions.description = '状态操作'
+    river_actions.short_description = '状态操作'
 
 
 admin.site.register(models.Product)
