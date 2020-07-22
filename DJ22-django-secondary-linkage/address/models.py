@@ -21,6 +21,7 @@ class Province(models.Model):
         Country,
         verbose_name=_('国家'),
         on_delete=models.CASCADE,
+        related_name='provinces',
     )
 
     def __str__(self):

@@ -22,19 +22,20 @@
             console.log(select);
             select.change(function(){
                 // console.log("value change"+django.jQuery(this).val());
-                var url = "/admin/address/address/get_provinces/"+django.jQuery(this).val(); // 能够正确的访问到view的url
+                var url = "/admin/address/country/" + django.jQuery(this).val() + "/provinces/"; // 能够正确的访问到view的url
                 // console.log(url);
                 django.jQuery.get(
                     url,
-                    function(data){
+                    function(data) {
                         var target = django.jQuery("#id_province");  // children
                         target.empty(); // 先清空
-                        data.forEach(function(e){
+                        data.forEach(function(e) {
                             // console.log(e, e.id, e.name);
                             target.append("<option value='"+e.id+"'>" + e.name + "</option>");
                             {% comment %} target.eq(0).attr('selected', 'true'); {% endcomment %}
                         });
-                })
+                    }
+                )
             });
  
         });
