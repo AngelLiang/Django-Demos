@@ -1,0 +1,52 @@
+{% extends 'admin/change_form.html' %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                $('.add-another').click(function(e) {
+                    e.preventDefault();
+                    showAddAnotherPopup(this);
+                });
+                $('.related-lookup').click(function(e) {
+                    e.preventDefault();
+                    showRelatedObjectLookupPopup(this);
+                });
+
+            function handlerTypeChange() {
+                v = $("input[name='handler_type']:checked").val();
+                console.log(v)
+                if(v=='00'){
+                    {% comment %} 指定用户 {% endcomment %}
+                    $('div.field-users').show();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').hide();
+                }else if(v=='10'){
+                    {% comment %} 指定岗位 {% endcomment %}
+                    $('div.field-users').hide();
+                    $('div.field-positions').show();
+                    $('div.field-roles').hide();
+                }else if(v=='20'){
+                    {% comment %} 指定角色 {% endcomment %}
+                    $('div.field-users').hide();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').show();
+                }else if(v=='90'){
+                    {% comment %} 提交人 {% endcomment %}
+                    $('div.field-users').hide();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').hide();
+                }
+            }
+
+            $("input[name='handler_type']").bind('click',function(){
+                handlerTypeChange()
+            });
+            //handlerTypeChange()
+
+        })(django.jQuery);
+    </script>
+
+{% endblock %}

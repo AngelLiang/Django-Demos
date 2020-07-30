@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} delete-confirmation{% endblock %}
+
+{% comment %} 导航栏 {% endcomment %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst|escape }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
+&rsaquo; {% trans '提交' %}
+</div>
+{% endblock %}
+
+{% comment %} 主要内容 {% endcomment %}
+{% block content %}
+{% if workflow %}
+    <p>{% blocktrans with escaped_object=object %}你确定要提交 {{ object_name }} "{{ escaped_object }}" 吗？ {% endblocktrans %}</p>
+
+    <h3> {{ workflow.code }} {{ workflow.name }} </h3>
+
+    <form action="" method="post">{% csrf_token %}
+        {% if next_node %}
+            <p class="next-node">{% trans "下一节点" %}：{{ next_node.name }}</p>
+            {% comment %} 渲染用户 {% endcomment %}
+            {% if has_next_user %}
+                <ul class="node-users">
+                {% for user in next_users %}
+                    <li><input type="checkbox" name="{{checkbox_name}}" value="{{user.id}}" checked> {{user.name|default:user.username}}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>{% trans "该节点没有配置处理用户"%}</p>
+            {% endif %}
+        {% endif %}
+    <div>
+
+    <input type="hidden" name="post" value="yes" />
+    {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+    {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+    <input type="submit" value="{% trans "Yes, I'm sure" %}" />
+        <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">{% trans "No, take me back" %}</a>
+    </div>
+    </form>
+{% else %}
+    <p>{% trans "你需要对该数据配置工作流" %}</p>
+    {% comment %} 返回按钮 {% endcomment %}
+    <a href="#" onclick="window.history.back(); return false;" class="button cancel-link">{% trans "OK" %}</a>
+{% endif %}
+{% endblock %}
