@@ -5,7 +5,7 @@
 | 编号  | 名称                                  | 说明                                     |
 | ----- | ------------------------------------- | ---------------------------------------- |
 | AD01  | django-grappelli                      | Django Admin 使用 grappelli UI           |
-| AD02  | django-grappelli                      | Django Admin 使用 simpleui               |
+| AD02  | django-simpleui                       | Django Admin 使用 simpleui               |
 | AP01  | authlog-app                           | Django 认证日志 app 示例                 |
 | CE01  | django-celery3                        | Django 使用 Celery 3 示例                |
 | CE02  | django-celery4                        | Django 使用 Celery 4 示例                |
@@ -29,7 +29,7 @@
 | DJ18  | LocaleMiddleware                      | Django 语言本地化                        |
 | DJ19  | django-add-custom-button              | Django admin 修改页面添加客制化按钮      |
 | DJ20  | django-add-custom-button-in-list-view | Django admin 列表页面添加客制化按钮      |
-| DJ21  | django-admin-tools                    | django-admin-tools 使用示例（未完成）      |
+| DJ21  | django-admin-tools                    | django-admin-tools 使用示例（未完成）    |
 | DJ22  | django-subordinate-drop-down-list     | Django admin 从属下拉列表                |
 | DJ999 | django-composite                      | Django 综合示例                          |
 | EX01  | django-with-jinja2                    | Django 使用 jinja2                       |
