@@ -41,9 +41,10 @@
                         url,
                         function(data) {
                             target.empty(); // 先清空
+                            target.append("<option value>---------</option>");
                             data.forEach(function(e) {
                                 target.append("<option value='"+e.id+"'>" + e.name + "</option>");
-                                {% comment %} target.eq(0).attr('selected', 'true'); {% endcomment %}
+                                target.eq(0).attr('selected', 'true');  // 选中第一个
                             });
                         }
                     )
