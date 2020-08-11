@@ -170,7 +170,7 @@ class WorkflowInstance(BaseModel):
                             )
                             users = transition_approval_meta.get_users_from_handler_type(
                                 request, workflow_object)
-                            LOGGER.debug(f'{users}')
+                            LOGGER.debug(f'approval users:{users}')
                             if users:
                                 transition_approval.users.add(*users)
                             # transition_approval.permissions.add(*transition_approval_meta.permissions.all())
@@ -191,8 +191,7 @@ class WorkflowInstance(BaseModel):
                 init_state = self.workflow.states.filter(is_start=True).first()
                 self.set_state(init_state)
 
-                LOGGER.debug(
-                    "Transition approvals are initialized for the workflow object %s" % self.workflow_object)
+                LOGGER.debug("Transition approvals are initialized for the workflow object %s" % self.workflow_object)
 
     @property
     def status_field(self):
@@ -203,14 +202,14 @@ class WorkflowInstance(BaseModel):
         """处于初始状态"""
         # return self.get_state() == self.class_workflow.initial_state
         state = self.get_state()
-        return state.is_start is True
+        return state and state.is_start
 
     @property
     def on_final_state(self):
         """处于结束状态"""
         # return self.class_workflow.final_states.filter(pk=self.get_state().pk).count() > 0
         state = self.get_state()
-        return state.is_stop is True
+        return state and state.is_stop
 
     def get_next_approvals(self):
         """获取下一个批准"""
@@ -257,8 +256,7 @@ class WorkflowInstance(BaseModel):
         except Transition.DoesNotExist:
             # raise RiverException(ErrorCode.STATE_IS_NOT_AVAILABLE_TO_BE_JUMPED,
             #                      "This state is not available to be jumped in the future of this object")
-            ValueError(
-                "This state is not available to be jumped in the future of this object")
+            ValueError("This state is not available to be jumped in the future of this object")
 
     def get_available_states(self, as_user=None):
         """获取可用的状态"""
