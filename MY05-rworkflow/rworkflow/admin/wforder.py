@@ -21,16 +21,16 @@ class WforderAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'code',
                 'title',
                 'rstatus',
                 ('workflow_category', 'workflow',),
                 # 'workflow_instance',
                 'description',
-
             ),
         }),
     )
-    readonly_fields = ('rstatus',)
+    readonly_fields = ('code', 'rstatus',)
 
     def has_change_permission(self, request, obj=None):
         if obj:
@@ -47,7 +47,8 @@ class WforderAdmin(BaseAdmin):
     def get_urls(self):
         urls = super().get_urls()
         return [
-            url(r'^(?P<object_id>\d+)/wf_approve/(?P<next_state_id>\d+)/$', self.wf_approve_api, name='wf_approve'),
+            url(r'^(?P<object_id>\d+)/wf_approve/(?P<next_state_id>\d+)/$',
+                self.wf_approve_api, name='wf_approve'),
         ] + urls
 
     def wf_approve_api(self, request, object_id, next_state_id=None):
@@ -61,6 +62,7 @@ class WforderAdmin(BaseAdmin):
                 return self._get_obj_does_not_exist_redirect(request, opts, object_id)
 
         next_state = get_object_or_404(models.State, pk=next_state_id)
+        LOGGER.debug(f'next_state:{next_state}')
 
         workflow_instance = obj.get_workflow_instance()
         workflow_instance.approve(as_user=request.user, next_state=next_state)
@@ -88,13 +90,15 @@ class WforderAdmin(BaseAdmin):
             workflow = self.get_workflow(request, obj)
             extra_context.update({'workflow': workflow})
             if workflow:
-                workflow_instance, is_created = obj.get_or_create_workflow_instance(request)
+                workflow_instance, is_created = obj.get_or_create_workflow_instance(
+                    request)
                 extra_context.update({'workflow_instance': workflow_instance})
 
                 if workflow_instance:
                     next_approvals = []
-                    approvals = workflow_instance.get_available_approvals(user).all()
-                    # LOGGER.debug(approvals)
+                    approvals = workflow_instance.get_available_approvals(
+                        user).all()
+                    LOGGER.debug(approvals)
                     for approval in approvals:
                         url = reverse(f'admin:wf_approve',
                                       kwargs={'object_id': obj.pk,
@@ -131,8 +135,20 @@ class WforderAdmin(BaseAdmin):
         WORKFLOW_APP_LABEL = 'rworkflow'
         WORKFLOW_MODEL_NAME = 'workflow'
         try:
-            content_type = ContentType.objects.get(app_label=WORKFLOW_APP_LABEL, model=WORKFLOW_MODEL_NAME)
-            workflow = content_type.get_object_for_this_type(app_label=app_label, model_name=model_name)
+            content_type = ContentType.objects.get(
+                app_label=WORKFLOW_APP_LABEL, model=WORKFLOW_MODEL_NAME)
+            workflow = content_type.get_object_for_this_type(
+                app_label=app_label, model_name=model_name)
         except Exception:
             return None
         return workflow
+
+    def get_changeform_initial_data(self, request):
+        return {
+            'user': request.user
+        }
+
+    def save_model(self, request, obj, form, change):
+        if obj.user is None:
+            obj.user = request.user
+        super().save_model(request, obj, form, change)

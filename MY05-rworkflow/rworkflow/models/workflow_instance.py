@@ -137,7 +137,8 @@ class WorkflowInstance(BaseModel):
                 # transition_meta_list = self.workflow.transition_metas.filter(source_state=self.workflow.initial_state)
 
                 # 获取所有初始流转元数据
-                transition_meta_list = self.workflow.transition_metas.filter(source_state__is_start=True)
+                transition_meta_list = self.workflow.transition_metas.filter(
+                    source_state__is_start=True)
                 LOGGER.debug(transition_meta_list)
 
                 # 迭代次数
@@ -167,7 +168,8 @@ class WorkflowInstance(BaseModel):
                                 can_take=transition_approval_meta.can_take,
                                 meta=transition_approval_meta,
                             )
-                            users = transition_approval_meta.get_users_from_handler_type(request, workflow_object)
+                            users = transition_approval_meta.get_users_from_handler_type(
+                                request, workflow_object)
                             LOGGER.debug(f'{users}')
                             if users:
                                 transition_approval.users.add(*users)
@@ -176,7 +178,8 @@ class WorkflowInstance(BaseModel):
                         processed_transitions.append(transition_meta.pk)
                     # 下一个 transition_meta 列表
                     transition_meta_list = self.workflow.transition_metas.filter(
-                        source_state__in=transition_meta_list.values_list("destination_state", flat=True)
+                        source_state__in=transition_meta_list.values_list(
+                            "destination_state", flat=True)
                     ).exclude(pk__in=processed_transitions)
 
                     iteration += 1
@@ -188,7 +191,8 @@ class WorkflowInstance(BaseModel):
                 init_state = self.workflow.states.filter(is_start=True).first()
                 self.set_state(init_state)
 
-                LOGGER.debug("Transition approvals are initialized for the workflow object %s" % self.workflow_object)
+                LOGGER.debug(
+                    "Transition approvals are initialized for the workflow object %s" % self.workflow_object)
 
     @property
     def status_field(self):
@@ -240,7 +244,8 @@ class WorkflowInstance(BaseModel):
                 iteration__gte=recent_iteration, destination_state=state, status=Transition.PENDING
             ).earliest("iteration")
 
-            jumped_transitions = _transitions_before(jumped_transition.iteration).filter(status=Transition.PENDING)
+            jumped_transitions = _transitions_before(
+                jumped_transition.iteration).filter(status=Transition.PENDING)
             for approval in TransitionApproval.objects.filter(pk__in=jumped_transitions.values_list("transition_approvals__pk", flat=True)):
                 approval.status = TransitionApproval.JUMPED
                 approval.save()
@@ -251,7 +256,8 @@ class WorkflowInstance(BaseModel):
         except Transition.DoesNotExist:
             # raise RiverException(ErrorCode.STATE_IS_NOT_AVAILABLE_TO_BE_JUMPED,
             #                      "This state is not available to be jumped in the future of this object")
-            ValueError("This state is not available to be jumped in the future of this object")
+            ValueError(
+                "This state is not available to be jumped in the future of this object")
 
     def get_available_states(self, as_user=None):
         """获取可用的状态"""
@@ -284,7 +290,8 @@ class WorkflowInstance(BaseModel):
             #                      "There is no available approval for the user.")
             raise ValueError("There is no available approval for the user.")
         elif next_state:
-            available_approvals = available_approvals.filter(transition__destination_state=next_state)
+            available_approvals = available_approvals.filter(
+                transition__destination_state=next_state)
             if available_approvals.count() == 0:
                 available_states = self.get_available_states(as_user)
                 # raise RiverException(ErrorCode.INVALID_NEXT_STATE_FOR_USER, "Invalid state is given(%s). Valid states is(are) %s" % (
@@ -293,7 +300,8 @@ class WorkflowInstance(BaseModel):
         elif number_of_available_approvals > 1 and not next_state:
             # raise RiverException(ErrorCode.NEXT_STATE_IS_REQUIRED,
             #                      "State must be given when there are multiple states for destination")
-            raise ValueError("State must be given when there are multiple states for destination")
+            raise ValueError(
+                "State must be given when there are multiple states for destination")
 
         approval = available_approvals.first()
         approval.status = TransitionApproval.APPROVED
@@ -309,14 +317,18 @@ class WorkflowInstance(BaseModel):
         if approval.peers.filter(status=TransitionApproval.PENDING).count() == 0:
             approval.transition.status = Transition.DONE
             approval.transition.save()
+            # 前一个状态
             previous_state = self.get_state()
             # 设置新的状态
-            # LOGGER.debug(approval.transition.destination_state)
+            LOGGER.debug(
+                f'destination_state:{approval.transition.destination_state}')
             self.set_state(approval.transition.destination_state)
 
             has_transit = True
+            # 检查是否循环
             if self._check_if_it_cycled(approval.transition):
                 self._re_create_cycled_path(approval.transition)
+
             LOGGER.debug("Workflow object '%s' is proceeded for next transition. Transition: %s -> %s" % (
                 self.workflow_object, previous_state, self.get_state()))
 
@@ -341,9 +353,11 @@ class WorkflowInstance(BaseModel):
                 source_state__id__in=possible_next_states
             ).exclude(pk__in=possible_transition_ids)
 
-            possible_transition_ids.update(set(possible_transitions.values_list("pk", flat=True)))
+            possible_transition_ids.update(
+                set(possible_transitions.values_list("pk", flat=True)))
 
-            possible_next_states = set(possible_transitions.values_list("destination_state__id", flat=True))
+            possible_next_states = set(possible_transitions.values_list(
+                "destination_state__id", flat=True))
 
         cancelled_transitions = Transition.objects.filter(
             workflow=self.workflow,
@@ -378,7 +392,8 @@ class WorkflowInstance(BaseModel):
         )
 
     def _re_create_cycled_path(self, done_transition):
-        old_transitions = self._get_transition_images([done_transition.destination_state.pk])
+        old_transitions = self._get_transition_images(
+            [done_transition.destination_state.pk])
 
         iteration = done_transition.iteration + 1
         regenerated_transitions = set()
@@ -405,10 +420,13 @@ class WorkflowInstance(BaseModel):
                         status=TransitionApproval.PENDING,
                         meta=old_approval.meta
                     )
-                    cycled_approval.permissions.set(old_approval.permissions.all())
-                    cycled_approval.groups.set(old_approval.groups.all())
+                    cycled_approval.users.set(old_approval.users.all())
+                    # cycled_approval.permissions.set(
+                    #     old_approval.permissions.all())
+                    # cycled_approval.groups.set(old_approval.groups.all())
 
-            regenerated_transitions.add((old_transition.source_state, old_transition.destination_state))
+            regenerated_transitions.add(
+                (old_transition.source_state, old_transition.destination_state))
 
             old_transitions = self._get_transition_images(old_transitions.values_list("destination_state__pk", flat=True)).exclude(
                 six.moves.reduce(lambda agg, q: q | agg, [Q(source_state=source_state, destination_state=destination_state)
@@ -424,5 +442,6 @@ class WorkflowInstance(BaseModel):
     def set_state(self, state_value, commit=True):
         workflow_object = self.workflow_object
         setattr(workflow_object, self.status_field, state_value)
+        # workflow_object.set_status(state_value)
         if commit:
             workflow_object.save(update_fields=[self.status_field])

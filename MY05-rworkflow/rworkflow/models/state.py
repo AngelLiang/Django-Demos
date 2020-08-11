@@ -29,8 +29,8 @@ class State(BaseModel):
     # can_edit = models.BooleanField(_('可编辑？'), default=False)
     # can_take = models.BooleanField(_('可接单？'), default=False)
 
-    status_field = models.CharField(_('状态字段'), max_length=40, blank=True, null=True)
-    status_value = models.CharField(_('状态值'), max_length=40, blank=True, null=True)
+    # status_field = models.CharField(_('状态字段'), max_length=40, blank=True, null=True)
+    # status_value = models.CharField(_('状态值'), max_length=40, blank=True, null=True)
 
     ################################################################
     # 状态信息
@@ -38,7 +38,7 @@ class State(BaseModel):
     # 是否在用
     is_active = models.BooleanField(_('在用？'), default=True)
     # 排序权重
-    weight = models.IntegerField(_('权重'), blank=True, null=True, default=99)
+    weight = models.IntegerField(_('权重'), blank=True, null=True, default=9)
 
     def __str__(self):
         return f'{self.name}'

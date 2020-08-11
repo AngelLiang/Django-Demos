@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .base import BaseAdmin
 from ..models import State, TransitionMeta, TransitionApprovalMeta
-from ..forms import WorkflowForm
+from ..forms import WorkflowForm, TransitionMetaForm, TransitionApprovalMetaForm
 
 
 class StateInline(admin.TabularInline):
@@ -18,6 +18,7 @@ class TransitionMetaInline(admin.TabularInline):
     extra = 0
     ordering = ('weight',)
     show_change_link = True
+    form = TransitionMetaForm
 
 
 class TransitionApprovalMetaInline(admin.TabularInline):
@@ -26,6 +27,7 @@ class TransitionApprovalMetaInline(admin.TabularInline):
     extra = 0
     ordering = ('priority', 'parents')
     show_change_link = True
+    form = TransitionApprovalMetaForm
 
 
 class WorkflowAdmin(BaseAdmin):
@@ -47,7 +49,8 @@ class WorkflowAdmin(BaseAdmin):
         ('weight',),
     )
     # readonly_fields = ('app_label', 'model_name',)
-    readonly_fields = ('content_type', 'app_label', 'model_name', 'status_field',)
+    readonly_fields = ('content_type', 'app_label',
+                       'model_name', 'status_field',)
 
     inlines = (StateInline, TransitionMetaInline, TransitionApprovalMetaInline)
 

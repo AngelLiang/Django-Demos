@@ -42,7 +42,7 @@ class TransitionMeta(BaseModel):
     # )
 
     # 权重
-    weight = models.IntegerField(_('权重'), blank=True, null=True, default=99)
+    weight = models.IntegerField(_('权重'), blank=True, null=True, default=9)
 
     def __str__(self):
         return '工作流:%s, %s -> %s' % (

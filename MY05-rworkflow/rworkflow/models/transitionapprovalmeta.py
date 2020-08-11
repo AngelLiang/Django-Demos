@@ -69,7 +69,7 @@ class TransitionApprovalMeta(BaseModel):
         (HT_CUSTOM_FUNCTION, _('自定义审批处理类')),
         (HT_CUSTOM_SQL, _('自定义SQL处理人')),
     )
-    HT_DEFAULT = HT_DESIGNATED_USERS
+    HT_DEFAULT = HT_SUBBMITER
     # 处理类型
     handler_type = models.CharField(
         _('审批处理类型'),
@@ -133,6 +133,13 @@ class TransitionApprovalMeta(BaseModel):
         verbose_name = _('批准元数据')
         verbose_name_plural = _('批准元数据')
         # unique_together = [('workflow', 'transition_meta', 'priority')]
+
+    @property
+    def peers(self):
+        return TransitionApprovalMeta.objects.filter(
+            workflow=self.workflow,
+            # transition_meta=self.transition_meta,
+        ).exclude(pk=self.pk)
 
     # def can_handle(self, request):
     #     user = request.user

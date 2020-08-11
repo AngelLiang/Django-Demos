@@ -98,13 +98,19 @@ class Wforder(BaseModel):
         verbose_name_plural = _('工单')
 
     def can_edit(self):
-        return self.rstatus is None or (self.rstatus and self.rstatus.can_edit)
+        return self.get_status() is None or self.get_status() == self.workflow.get_initial_state()
 
     def is_wf_start(self):
-        return self.rstatus is not None
+        # return self.get_status() != self.workflow.get_initial_state()
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            return workflow_instance.initialized
 
     def get_status(self):
         return self.rstatus
+
+    def set_status(self, value):
+        self.rstatus = value
 
     def get_workflow(self):
         return self.workflow
@@ -158,7 +164,8 @@ class Wforder(BaseModel):
         if not workflow_instance:
             workflow_instance = self.get_workflow_instance_from_content_type()
         if not workflow_instance:
-            workflow_instance, is_created = self.get_or_create_workflow_instance(request=request)
+            workflow_instance, is_created = self.get_or_create_workflow_instance(
+                request=request)
 
         # init_status_value = workflow.init_status_value
         # workflow_instance.set_state(init_status_value)
@@ -166,3 +173,13 @@ class Wforder(BaseModel):
             # 提交之后再初始化
             workflow_instance.initialize_approvals(request)
         return True
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.workflow and self.get_status() is None:
+            status = self.workflow.get_initial_state()
+            self.set_status(status)
+
+        super().save(force_insert, force_update, using, update_fields)
+        if not self.code:
+            self.code = 'WO%05d' % self.id
+            self.save(update_fields=['code'])
