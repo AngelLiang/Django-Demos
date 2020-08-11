@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from .base import BaseModel
+from ..managers import TransitionApprovalManager
 
 LOGGER = logging.getLogger(__name__)
 
@@ -55,6 +56,17 @@ class Transition(models.Model):
         related_name='transition_as_destination',
     )
 
+    source_state_value = models.CharField(
+        _('初始状态值'),
+        max_length=40,
+        blank=True, null=True,
+    )
+    destination_state_value = models.CharField(
+        _('目的状态值'),
+        max_length=40,
+        blank=True, null=True,
+    )
+
     PENDING = "pending"
     CANCELLED = "cancelled"
     DONE = "done"
@@ -91,5 +103,7 @@ class Transition(models.Model):
         ).exclude(pk=self.pk)
 
     class Meta:
-        verbose_name = _('流转')
-        verbose_name_plural = _('流转')
+        verbose_name = _('流程流转')
+        verbose_name_plural = _('流程流转')
+
+    objects = TransitionApprovalManager()

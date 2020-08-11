@@ -12,7 +12,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from rworkflow.models import State
 from rworkflow.models import TransitionApproval
 from rworkflow.models import Transition
-
+# from rworkflow.models import WorkflowInstance
 
 LOGGER = logging.getLogger(__name__)
 
@@ -42,12 +42,11 @@ class StateField(models.ForeignKey):
 
         self.field_name = name
 
-        # 添加 transition_approval 类
+        # 建立反向查询
         self._add_to_class(cls, self.field_name + "_transition_approvals",
                            GenericRelation('%s.%s' % (TransitionApproval._meta.app_label, TransitionApproval._meta.object_name)))
-        # 添加 transition 类
-        self._add_to_class(cls, self.field_name + "_transitions", GenericRelation('%s.%s' %
-                                                                                  (Transition._meta.app_label, Transition._meta.object_name)))
+        self._add_to_class(cls, self.field_name + "_transitions",
+                           GenericRelation('%s.%s' % (Transition._meta.app_label, Transition._meta.object_name)))
 
         # if id(cls) not in workflow_registry.workflows:
         #     self._add_to_class(cls, "river", river)
@@ -81,7 +80,6 @@ class StateField(models.ForeignKey):
 
 
 # def _on_workflow_object_deleted(sender, instance, *args, **kwargs):
-#     pass
 #     # OnApprovedHook.objects.filter(
 #     #     object_id=instance.pk, content_type=ContentType.objects.get_for_model(instance.__class__)).delete()
 #     # OnTransitHook.objects.filter(

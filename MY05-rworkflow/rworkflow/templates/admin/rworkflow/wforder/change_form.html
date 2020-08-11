@@ -1,0 +1,26 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n admin_urls %}
+
+
+{% block field_sets %}
+    {{ block.super }}
+{% endblock %}
+
+
+{% block after_related_objects %}
+
+{% for approval in next_approvals %}
+    <input
+        type="button"
+        style="margin:2px;2px;2px;2px;"
+        value="{{ approval.value }}"
+        onclick="location.href='{{ approval.url }}'"
+    />
+{% endfor %}
+
+{% endblock %}
+
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+{% endblock %}

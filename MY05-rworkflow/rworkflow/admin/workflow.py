@@ -7,8 +7,9 @@ from ..forms import WorkflowForm
 
 class StateInline(admin.TabularInline):
     model = State
-    fields = ('code', 'name', 'is_start', 'is_stop')
+    fields = ('code', 'name', 'is_start', 'is_stop', 'weight')
     extra = 0
+    show_change_link = True
 
 
 class TransitionMetaInline(admin.TabularInline):
@@ -16,6 +17,7 @@ class TransitionMetaInline(admin.TabularInline):
     fields = ('source_state', 'destination_state', 'weight',)
     extra = 0
     ordering = ('weight',)
+    show_change_link = True
 
 
 class TransitionApprovalMetaInline(admin.TabularInline):
@@ -23,6 +25,7 @@ class TransitionApprovalMetaInline(admin.TabularInline):
     fields = ('transition_meta', 'parents', 'priority')
     extra = 0
     ordering = ('priority', 'parents')
+    show_change_link = True
 
 
 class WorkflowAdmin(BaseAdmin):
@@ -33,13 +36,14 @@ class WorkflowAdmin(BaseAdmin):
     fields = (
         ('name',),
         ('rstatus',),
+        # ('init_status_value',),
         # ('content_type', 'object_id',),
         ('content_type',),
         ('app_label', 'model_name',),
-        ('status_field',),
+        # ('status_field',),
         ('order_relation_config',),
 
-        ('is_inuse',),
+        ('is_active',),
         ('weight',),
     )
     # readonly_fields = ('app_label', 'model_name',)

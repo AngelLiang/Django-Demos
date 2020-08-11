@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 
 from .base import BaseModel
+from .state import State
 
 
 class Workflow(BaseModel):
@@ -56,14 +57,22 @@ class Workflow(BaseModel):
     # field_name = models.CharField(_('状态字段'), max_length=128, blank=True, null=True)
     # 状态字段
     status_field = models.CharField(_('状态字段'), max_length=128, blank=True, null=True)
-    # 状态值
-    status_value = models.CharField(_('状态值'), max_length=128, blank=True, null=True)
+    # 初始状态值
+    init_status_value = models.CharField(_('初始状态值'), max_length=128, blank=True, null=True)
 
+    category = models.ForeignKey(
+        'WorkflowCategory',
+        verbose_name=_('类别'),
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        db_constraint=False,
+        related_name='workflows',
+    )
     ################################################################
     # 状态信息
     ################################################################
     # 是否在用
-    is_inuse = models.BooleanField(_('在用？'), default=True)
+    is_active = models.BooleanField(_('在用？'), default=True)
     # 排序权重
     weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=99)
 
@@ -71,8 +80,8 @@ class Workflow(BaseModel):
         return f'{self.name}'
 
     class Meta:
-        verbose_name = _('工作流')
-        verbose_name_plural = _('工作流')
+        verbose_name = _('工作流程')
+        verbose_name_plural = _('工作流程')
         # content_type 和 field_name 是唯一字段
         # unique_together = [("content_type", "field_name")]
 
@@ -81,3 +90,10 @@ class Workflow(BaseModel):
             self.app_label = self.content_type.app_label
             self.model_name = self.content_type.model
         super().save(force_insert, force_update, using, update_fields)
+
+    def get_initial_state(self):
+        try:
+            init_state = self.states.filter(is_start=True).first()
+        except State.DoesNotExist:
+            init_state = self.states.order('weight', 'code',).first()
+        return init_state

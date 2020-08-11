@@ -14,7 +14,7 @@ class TransitionApprovalMeta(BaseModel):
     # 工作流
     workflow = models.ForeignKey(
         'Workflow',
-        verbose_name=_('工作流'),
+        verbose_name=_('工作流程'),
         on_delete=models.PROTECT,
         related_name='transition_approval_metas',
     )
@@ -38,7 +38,9 @@ class TransitionApprovalMeta(BaseModel):
     # 父级 多对多
     parents = models.ManyToManyField(
         'self', verbose_name=_('父级'),
-        symmetrical=False, db_index=True, blank=True,
+        symmetrical=False,
+        db_index=True,
+        blank=True,
         related_name='children',
     )
 
@@ -105,22 +107,22 @@ class TransitionApprovalMeta(BaseModel):
         return '流转: %s, 排序: %s' % (self.transition_meta, self.priority)
 
     class Meta:
-        verbose_name = _('流转批准元数据')
-        verbose_name_plural = _('流转批准元数据')
+        verbose_name = _('批准元数据')
+        verbose_name_plural = _('批准元数据')
         # unique_together = [('workflow', 'transition_meta', 'priority')]
 
-    def can_handle(self, request):
-        user = request.user
+    # def can_handle(self, request):
+    #     user = request.user
 
-        tp = self.handler_type
-        if tp == self.HT_DESIGNATED_USERS and self.users:
-            user = self.users.filter(id=user.id).first()
-            if user:
-                return True
-        elif tp == self.HT_SUBBMITER:
-            pass
+    #     tp = self.handler_type
+    #     if tp == self.HT_DESIGNATED_USERS and self.users:
+    #         user = self.users.filter(id=user.id).first()
+    #         if user:
+    #             return True
+    #     elif tp == self.HT_SUBBMITER:
+    #         pass
 
-        return qs
+    #     return qs
 
     # def filter_handle_users(self, qs):
     #     pass

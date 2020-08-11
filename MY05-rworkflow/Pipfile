@@ -9,6 +9,7 @@ verify_ssl = true
 django = "<3.0"
 django-mptt = "*"
 django-cte = "*"
+six = "*"
 
 [requires]
 python_version = "3.6"

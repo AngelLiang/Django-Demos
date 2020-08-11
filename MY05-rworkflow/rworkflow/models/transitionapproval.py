@@ -11,14 +11,13 @@ from mptt.models import MPTTModel
 from mptt.fields import TreeOneToOneField
 
 from .base import BaseModel
+from ..managers import TransitionApprovalManager
 
 LOGGER = logging.getLogger(__name__)
 
 
 class TransitionApproval(BaseModel):
     """流转批准"""
-
-    # objects = TransitionApprovalManager()
 
     # 关联的对象
     content_type = models.ForeignKey(
@@ -70,15 +69,16 @@ class TransitionApproval(BaseModel):
     transaction_at = models.DateTimeField(null=True, blank=True)
 
     PENDING = "pending"
-    CANCELLED = "cancelled"
-    DONE = "done"
+    APPROVED = "approved"
     JUMPED = "jumped"
-    STATUS_CHOICES = (
-        (PENDING, _('准备中')),
-        (CANCELLED, _('已取消')),
-        (DONE, _('已完成')),
-        (JUMPED, _('已跳转')),
-    )
+    CANCELLED = "cancelled"
+
+    STATUS_CHOICES = [
+        (PENDING, _('Pending')),
+        (APPROVED, _('Approved')),
+        (CANCELLED, _('Cancelled')),
+        (JUMPED, _('Jumped')),
+    ]
     # 流转批准状态
     status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
 
@@ -99,9 +99,14 @@ class TransitionApproval(BaseModel):
         db_constraint=False,
     )
 
+    def __str__(self):
+        return f'{self.meta} - {self.status}'
+
     class Meta:
-        verbose_name = _('流转批准')
-        verbose_name_plural = _('流转批准')
+        verbose_name = _('流程批准')
+        verbose_name_plural = _('流程批准')
+
+    objects = TransitionApprovalManager()
 
     @property
     def peers(self):

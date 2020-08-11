@@ -4,8 +4,8 @@
 
 {% block submit-row %}
 
-    {% if original and workflow %}
-        <input type="submit" value="{% trans '提交' %}" name="_workflow-start">
+    {% if original and workflow and not original.is_wf_start %}
+        <input type="submit" value="{% trans '启动流程' %}" name="_workflow-start">
         {% comment %} <a href='/admin/selfhelp/workorder/{{original.id}}/change/start/' class='button'>{% trans '提交' %}</a> {% endcomment %}
     {% endif %}
 

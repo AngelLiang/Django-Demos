@@ -93,38 +93,42 @@ class WorkflowInstance(BaseModel):
             self.save(update_fields=['code'])
 
     class Meta:
-        verbose_name = _('工作流实例')
-        verbose_name_plural = _('工作流实例')
+        verbose_name = _('流程实例')
+        verbose_name_plural = _('流程实例')
         default_permissions = ('view',)
 
     def get_content_type(self):
-        workflow = self.workflow
-        app_label = workflow.app_label
-        model_name = workflow.model_name
+        app_label = self.workflow.app_label
+        model_name = self.workflow.model_name
         return ContentType.objects.get(app_label=app_label, model=model_name)
 
     def get_object_id(self):
         return self.object_id
 
-    @property
-    def workflow_object(self):
-        workflow = self.workflow
-        app_label = workflow.app_label
-        model_name = workflow.model_name
-        object_id = self.object_id
-
-        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
+    def get_workflow_object(self):
+        if hasattr(self, '_workflow_object'):
+            return self._workflow_object
+        content_type = self.get_content_type()
+        object_id = self.get_object_id()
         obj = content_type.get_object_for_this_type(id=int(object_id))
+        self._workflow_object = obj
         return obj
+    workflow_object = property(get_workflow_object)
+
+    # @property
+    # def workflow_object(self):
+    #     self.get_workflow_object()
+    #     return obj
 
     @transaction.atomic
     def initialize_approvals(self):
         """初始化批准流程"""
 
         if not self.initialized:
-            workflow_object = self.workflow_object
             object_id = self.get_object_id()
             content_type = self.get_content_type()
+            workflow_object = self.get_workflow_object()
+
             # if self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() == 0:
             if self.workflow and self.workflow.transition_approvals.filter(
                 object_id=object_id, content_type=content_type
@@ -132,9 +136,11 @@ class WorkflowInstance(BaseModel):
                 # 获取工作流流转元数据
                 # transition_meta_list = self.workflow.transition_metas.filter(source_state=self.workflow.initial_state)
 
+                # 获取所有初始流转元数据
                 transition_meta_list = self.workflow.transition_metas.filter(source_state__is_start=True)
-                # print(transition_meta_list)
+                LOGGER.debug(transition_meta_list)
 
+                # 迭代次数
                 iteration = 0
                 # 已经处理过的 transitions
                 processed_transitions = []
@@ -171,11 +177,19 @@ class WorkflowInstance(BaseModel):
                 self.initialized = True
                 self.save(update_fields=['initialized'])
 
-                workflow_object = self.workflow_object
+                # 设置 workflow_object 初始状态
+                # status_field = self.workflow.status_field
                 init_state = self.workflow.states.filter(is_start=True).first()
-                status_field = self.workflow.status_field
-                setattr(workflow_object, status_field, init_state)
-                workflow_object.save(update_fields=[status_field])
+                self.set_state(init_state)
+                # setattr(workflow_object, status_field, init_state)
+                # workflow_object.save(update_fields=[status_field])
+
+                # 设置 workflow_object 初始状态
+                # workflow_object = self.workflow_object
+                # status_field = self.workflow.status_field
+                # init_status_value = self.workflow.init_status_value
+                # setattr(workflow_object, status_field, init_status_value)
+                # workflow_object.save(update_fields=[status_field])
 
                 LOGGER.debug("Transition approvals are initialized for the workflow object %s" % self.workflow_object)
 
@@ -197,13 +211,15 @@ class WorkflowInstance(BaseModel):
         state = self.get_state()
         return state.is_stop is True
 
-    @property
-    def next_approvals(self):
+    def get_next_approvals(self):
+        """获取下一个批准"""
         workflow_object = self.workflow_object
+        state = self.get_state()
         transitions = Transition.objects.filter(
-            workflow=self.workflow, object_id=workflow_object.pk, source_state=self.get_state()
+            workflow=self.workflow, object_id=workflow_object.pk, source_state=state
         )
         return TransitionApproval.objects.filter(transition__in=transitions)
+    next_approvals = property(get_next_approvals)
 
     @property
     def recent_approval(self):
@@ -211,8 +227,8 @@ class WorkflowInstance(BaseModel):
             workflow_object = self.workflow_object
             TransitionApproval.objects.filter(
                 workflow=self.workflow, object_id=workflow_object.pk
-            ).filter(transaction_date__isnull=False).latest('transaction_date')
-            # return getattr(self.workflow_object, self.field_name + "_transition_approvals").filter(transaction_date__isnull=False).latest('transaction_date')
+            ).filter(transaction_at__isnull=False).latest('transaction_at')
+            # return getattr(self.workflow_object, self.field_name + "_transition_approvals").filter(transaction_at__isnull=False).latest('transaction_at')
         except TransitionApproval.DoesNotExist:
             return None
 
@@ -246,10 +262,12 @@ class WorkflowInstance(BaseModel):
         return State.objects.filter(pk__in=all_destination_state_ids)
 
     def get_available_approvals(self, as_user=None, destination_state=None):
-        """获取所有可用的批准流程"""
+        """获取所有相关用户可用的批准流程"""
+        # 需要重写
         # qs = self.class_workflow.get_available_approvals(as_user, ).filter(object_id=self.workflow_object.pk)
 
         qs = self.next_approvals
+        qs = qs.filter(status=TransitionApproval.PENDING)
 
         if destination_state:
             qs = qs.filter(transition__destination_state=destination_state)
@@ -258,6 +276,7 @@ class WorkflowInstance(BaseModel):
 
     @transaction.atomic
     def approve(self, as_user, next_state=None):
+        """批准"""
         available_approvals = self.get_available_approvals(as_user=as_user)
         number_of_available_approvals = available_approvals.count()
         if number_of_available_approvals == 0:
@@ -279,7 +298,7 @@ class WorkflowInstance(BaseModel):
         approval = available_approvals.first()
         approval.status = TransitionApproval.APPROVED
         approval.transactioner = as_user
-        approval.transaction_date = timezone.now()
+        approval.transaction_at = timezone.now()
         approval.previous = self.recent_approval
         approval.save()
 
@@ -288,19 +307,24 @@ class WorkflowInstance(BaseModel):
 
         has_transit = False
         if approval.peers.filter(status=TransitionApproval.PENDING).count() == 0:
-            approval.transition.status = TransitionApproval.DONE
+            approval.transition.status = Transition.DONE
             approval.transition.save()
             previous_state = self.get_state()
+            # 设置新的状态
+            # LOGGER.debug(approval.transition.destination_state)
             self.set_state(approval.transition.destination_state)
+
             has_transit = True
             if self._check_if_it_cycled(approval.transition):
                 self._re_create_cycled_path(approval.transition)
-            LOGGER.debug("Workflow object %s is proceeded for next transition. Transition: %s -> %s" % (
+            LOGGER.debug("Workflow object '%s' is proceeded for next transition. Transition: %s -> %s" % (
                 self.workflow_object, previous_state, self.get_state()))
 
         # with self._approve_signal(approval), self._transition_signal(has_transit, approval), self._on_complete_signal():
         #     self.workflow_object.save()
-        self.workflow_object.save()
+
+        workflow_object = self.workflow_object
+        workflow_object.save()
 
     @transaction.atomic
     def cancel_impossible_future(self, approved_approval):
@@ -308,18 +332,18 @@ class WorkflowInstance(BaseModel):
 
         possible_transition_ids = {transition.pk}
 
-        possible_next_states = {transition.destination_state.label}
+        possible_next_states = {transition.destination_state.id}
         while possible_next_states:
             possible_transitions = Transition.objects.filter(
                 workflow=self.workflow,
                 object_id=self.workflow_object.pk,
                 status=Transition.PENDING,
-                source_state__label__in=possible_next_states
+                source_state__id__in=possible_next_states
             ).exclude(pk__in=possible_transition_ids)
 
             possible_transition_ids.update(set(possible_transitions.values_list("pk", flat=True)))
 
-            possible_next_states = set(possible_transitions.values_list("destination_state__label", flat=True))
+            possible_next_states = set(possible_transitions.values_list("destination_state__id", flat=True))
 
         cancelled_transitions = Transition.objects.filter(
             workflow=self.workflow,
@@ -335,7 +359,7 @@ class WorkflowInstance(BaseModel):
     def _check_if_it_cycled(self, done_transition):
         qs = Transition.objects.filter(
             workflow_object=self.workflow_object,
-            workflow=self.class_workflow.workflow,
+            workflow=self.workflow,
             source_state=done_transition.destination_state
         )
 
@@ -349,8 +373,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
-            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
+            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):
@@ -394,7 +418,11 @@ class WorkflowInstance(BaseModel):
             iteration += 1
 
     def get_state(self):
-        return getattr(self.workflow_object, self.status_field)
+        workflow_object = self.workflow_object
+        return getattr(workflow_object, self.status_field)
 
-    def set_state(self, state):
-        return setattr(self.workflow_object, self.status_field, state)
+    def set_state(self, state_value, commit=True):
+        workflow_object = self.workflow_object
+        setattr(workflow_object, self.status_field, state_value)
+        if commit:
+            workflow_object.save(update_fields=[self.status_field])

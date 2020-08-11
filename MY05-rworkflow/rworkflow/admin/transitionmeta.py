@@ -8,3 +8,13 @@ class TransitionMetaAdmin(BaseAdmin):
 
     list_display = ('__str__', 'weight',)
     list_filter = ('workflow',)
+    fieldsets = (
+        (None, {
+            'fields': (
+                'workflow',
+                'source_state',
+                'destination_state',
+                'weight',
+            ),
+        }),
+    )

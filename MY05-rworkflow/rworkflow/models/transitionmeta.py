@@ -30,8 +30,19 @@ class TransitionMeta(BaseModel):
         db_constraint=False,
     )
 
+    source_state_value = models.CharField(
+        _('初始状态值'),
+        max_length=40,
+        blank=True, null=True,
+    )
+    destination_state_value = models.CharField(
+        _('目的状态值'),
+        max_length=40,
+        blank=True, null=True,
+    )
+
     # 权重
-    weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=99)
+    weight = models.IntegerField(_('权重'), blank=True, null=True, default=99)
 
     def __str__(self):
         return '工作流:%s, %s -> %s' % (
@@ -43,5 +54,5 @@ class TransitionMeta(BaseModel):
     class Meta:
         verbose_name = _('流转元数据')
         verbose_name_plural = _('流转元数据')
-        unique_together = [('workflow', 'source_state', 'destination_state')]
+        unique_together = (('workflow', 'source_state', 'destination_state'))
         ordering = ('workflow', 'weight',)

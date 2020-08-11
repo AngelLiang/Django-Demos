@@ -124,3 +124,46 @@ STATIC_URL = '/static/'
 
 
 SESSION_COOKIE_NAME = 'rworkflow'
+
+
+LOGGING = {
+    'version': 1,  # 保留字
+    'disable_existing_loggers': False,  # 禁用已经存在的logger实例
+    # 日志文件的格式
+    'formatters': {
+        # 详细的日志格式
+        'standard': {
+            'format': '[%(asctime)s][%(threadName)s:%(thread)d][task_id:%(name)s][%(filename)s:%(lineno)d]'
+                      '[%(levelname)s][%(message)s]'
+        },
+        # 简单的日志格式
+        'simple': {
+            'format': '[%(levelname)s][%(asctime)s][%(filename)s:%(lineno)d]%(message)s'
+        },
+    },
+    # 过滤器
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    # 处理器
+    'handlers': {
+        'console': {     # 在终端打印
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],  # 只有在Django debug为True时才在屏幕打印日志
+            'class': 'logging.StreamHandler',  #
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'rworkflow.admin.wforder.py': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+        },
+        'rworkflow.models.workflow_instance': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+        },
+    },
+}
