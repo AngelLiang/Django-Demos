@@ -30,16 +30,16 @@ class TransitionMeta(BaseModel):
         db_constraint=False,
     )
 
-    source_state_value = models.CharField(
-        _('初始状态值'),
-        max_length=40,
-        blank=True, null=True,
-    )
-    destination_state_value = models.CharField(
-        _('目的状态值'),
-        max_length=40,
-        blank=True, null=True,
-    )
+    # source_state_value = models.CharField(
+    #     _('初始状态值'),
+    #     max_length=40,
+    #     blank=True, null=True,
+    # )
+    # destination_state_value = models.CharField(
+    #     _('目的状态值'),
+    #     max_length=40,
+    #     blank=True, null=True,
+    # )
 
     # 权重
     weight = models.IntegerField(_('权重'), blank=True, null=True, default=99)

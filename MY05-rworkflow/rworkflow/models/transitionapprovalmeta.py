@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib.auth.models import Permission, Group
 
-from django.db import models, transaction
+from django.db import models
+from django.db import transaction
+from django.db import connection
 from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,10 +30,10 @@ class TransitionApprovalMeta(BaseModel):
         related_name='transition_approval_meta',
     )
 
-    # 权限
-    permissions = models.ManyToManyField(Permission, verbose_name=_('权限'), blank=True)
-    # 权限组
-    groups = models.ManyToManyField(Group, verbose_name=_('权限组'), blank=True)
+    # # 权限
+    # permissions = models.ManyToManyField(Permission, verbose_name=_('权限'), blank=True)
+    # # 权限组
+    # groups = models.ManyToManyField(Group, verbose_name=_('权限组'), blank=True)
 
     priority = models.IntegerField(_('排序'), default=0, null=True, blank=True)
 
@@ -45,8 +47,51 @@ class TransitionApprovalMeta(BaseModel):
     )
 
     ################################################################
+    can_edit = models.BooleanField(_('可编辑？'), default=False)
+    can_take = models.BooleanField(_('可接单？'), default=False)
+
+    ################################################################
     # 指定处理人字段
     ################################################################
+
+    # 处理类型
+    HT_DESIGNATED_USERS = '00'
+    HT_DESIGNATED_POSITIONS = '10'
+    HT_DESIGNATED_ROLES = '20'
+    HT_SUBBMITER = '30'
+    HT_CUSTOM_FUNCTION = '90'
+    HT_CUSTOM_SQL = '91'
+    HT_CHOICES = (
+        (HT_DESIGNATED_USERS, _('指定用户')),  # 指定用户
+        (HT_DESIGNATED_POSITIONS, _('指定岗位')),  # 指定岗位
+        (HT_DESIGNATED_ROLES, _('指定角色')),  # 指定角色
+        (HT_SUBBMITER, _('提交人')),    # 提交人
+        (HT_CUSTOM_FUNCTION, _('自定义审批处理类')),
+        (HT_CUSTOM_SQL, _('自定义SQL处理人')),
+    )
+    HT_DEFAULT = HT_DESIGNATED_USERS
+    # 处理类型
+    handler_type = models.CharField(
+        _('审批处理类型'),
+        max_length=16,
+        choices=HT_CHOICES,
+        default=HT_DEFAULT,
+    )
+
+    # 岗位 多对多
+    # positions = models.ManyToManyField('hr.Position', verbose_name=_('指定岗位'), db_constraint=False, blank=True)
+    # 角色 多对多
+    # roles = models.ManyToManyField('account.Role', verbose_name=_('指定角色'), db_constraint=False, blank=True)
+    # 用户 多对多
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_('指定用户'),
+        db_constraint=False,
+        blank=True,
+        related_name='+'
+    )
+    # 部门单元 多对多
+    # orgunits = models.ManyToManyField('organization.OrgUnit', verbose_name=_('指定部门单元'), db_constraint=False, blank=True)
 
     handler = models.TextField(
         _('处理人SQL'),
@@ -64,34 +109,12 @@ class TransitionApprovalMeta(BaseModel):
         choices=NUH_CHOICES,
     )
 
-    # 处理类型
-    HT_DESIGNATED_USERS = '00'
-    HT_DESIGNATED_POSITIONS = '10'
-    HT_DESIGNATED_ROLES = '20'
-    HT_SUBBMITER = '90'
-    HT_CHOICES = (
-        (HT_DESIGNATED_USERS, _('指定用户')),  # 指定用户
-        # (HT_DESIGNATED_POSITIONS, _('指定岗位')),  # 指定岗位
-        # (HT_DESIGNATED_ROLES, _('指定角色')),  # 指定角色
-        (HT_SUBBMITER, _('提交人')),    # 提交人
+    # 自定义处理人SQL
+    handler = models.TextField(
+        _('处理人SQL'),
+        blank=True, null=True,
+        # help_text=u'自定义SQL语句，优先高于指定用户、岗位、角色'
     )
-    HT_DEFAULT = HT_DESIGNATED_USERS
-    # 处理类型
-    handler_type = models.CharField(
-        _('处理类型'),
-        max_length=16,
-        choices=HT_CHOICES,
-        default=HT_DEFAULT,
-    )
-
-    # 岗位 多对多
-    # positions = models.ManyToManyField('hr.Position', verbose_name=_('指定岗位'), blank=True)
-    # 角色 多对多
-    # roles = models.ManyToManyField('account.Role', verbose_name=_('指定角色'), blank=True)
-    # 用户 多对多
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, verbose_name=_('指定用户'), blank=True)
-    # 部门单元 多对多
-    # orgunits = models.ManyToManyField('organization.OrgUnit', verbose_name=_('指定部门单元'), blank=True)
 
     ################################################################
     # 通知字段
@@ -127,7 +150,7 @@ class TransitionApprovalMeta(BaseModel):
     # def filter_handle_users(self, qs):
     #     pass
 
-    def get_users_from_handler_type(self, request):
+    def get_users_from_handler_type(self, request, obj):
         tp = self.handler_type
         if tp == self.HT_DESIGNATED_USERS and self.users:
             # user
@@ -148,8 +171,34 @@ class TransitionApprovalMeta(BaseModel):
         #             users.append(user)
         #     return users
         elif tp == self.HT_SUBBMITER:
-            # submitter
-            return [request.user]
+            # 申请人
+            return [obj.user]
+        elif tp == self.HT_CUSTOM_FUNCTION and self.next_user_handler:
+            # 自定义处理函数
+            from workflow.handlers.wfusers import wfusers_mapping
+            handler_func = wfusers_mapping.get(self.next_user_handler)
+            if handler_func:
+                return handler_func(request, obj, self)
+        elif tp == self.HT_CUSTOM_SQL and self.handler:
+            # 自定义SQL
+            handler = self.handler
+            if handler and handler != '':
+                handler = handler.replace("submitter()", request.user.username)
+                handler = handler.replace("suber()", request.user.username)
+                fields = obj._meta.fields
+                for field in fields:
+                    name = field.name
+                    temp = f"{{name}}"
+                    val = getattr(obj, name, None)
+                    if val:
+                        if not isinstance(val, str):
+                            val = str(val)
+                        handler = handler.replace(temp, val)
+                cursor = connection.cursor()
+                cursor.execute(handler)
+                rows = [row for row in cursor.fetchall()]
+                return rows
+
         return []
 
     def get_handle_users(self):

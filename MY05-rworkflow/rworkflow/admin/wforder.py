@@ -34,8 +34,8 @@ class WforderAdmin(BaseAdmin):
 
     def has_change_permission(self, request, obj=None):
         if obj:
-            can_edit = obj.can_edit()
-            if can_edit is False:
+            approval = obj.get_current_approval()
+            if approval and approval.can_edit is False:
                 return False
         return super().has_change_permission(request, obj)
 
@@ -95,7 +95,6 @@ class WforderAdmin(BaseAdmin):
                     next_approvals = []
                     approvals = workflow_instance.get_available_approvals(user).all()
                     # LOGGER.debug(approvals)
-                    print(approvals)
                     for approval in approvals:
                         url = reverse(f'admin:wf_approve',
                                       kwargs={'object_id': obj.pk,

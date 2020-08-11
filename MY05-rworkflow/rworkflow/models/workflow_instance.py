@@ -121,7 +121,7 @@ class WorkflowInstance(BaseModel):
     #     return obj
 
     @transaction.atomic
-    def initialize_approvals(self):
+    def initialize_approvals(self, request):
         """初始化批准流程"""
 
         if not self.initialized:
@@ -157,15 +157,22 @@ class WorkflowInstance(BaseModel):
                         )
                         # 通过 transition_approval_meta 创建 transition_approval
                         for transition_approval_meta in transition_meta.transition_approval_meta.all():
+
                             transition_approval = TransitionApproval.objects.create(
                                 workflow=self.workflow,
                                 workflow_object=workflow_object,
                                 transition=transition,
                                 priority=transition_approval_meta.priority,
-                                meta=transition_approval_meta
+                                can_edit=transition_approval_meta.can_edit,
+                                can_take=transition_approval_meta.can_take,
+                                meta=transition_approval_meta,
                             )
-                            transition_approval.permissions.add(*transition_approval_meta.permissions.all())
-                            transition_approval.groups.add(*transition_approval_meta.groups.all())
+                            users = transition_approval_meta.get_users_from_handler_type(request, workflow_object)
+                            LOGGER.debug(f'{users}')
+                            if users:
+                                transition_approval.users.add(*users)
+                            # transition_approval.permissions.add(*transition_approval_meta.permissions.all())
+                            # transition_approval.groups.add(*transition_approval_meta.groups.all())
                         processed_transitions.append(transition_meta.pk)
                     # 下一个 transition_meta 列表
                     transition_meta_list = self.workflow.transition_metas.filter(
@@ -178,18 +185,8 @@ class WorkflowInstance(BaseModel):
                 self.save(update_fields=['initialized'])
 
                 # 设置 workflow_object 初始状态
-                # status_field = self.workflow.status_field
                 init_state = self.workflow.states.filter(is_start=True).first()
                 self.set_state(init_state)
-                # setattr(workflow_object, status_field, init_state)
-                # workflow_object.save(update_fields=[status_field])
-
-                # 设置 workflow_object 初始状态
-                # workflow_object = self.workflow_object
-                # status_field = self.workflow.status_field
-                # init_status_value = self.workflow.init_status_value
-                # setattr(workflow_object, status_field, init_status_value)
-                # workflow_object.save(update_fields=[status_field])
 
                 LOGGER.debug("Transition approvals are initialized for the workflow object %s" % self.workflow_object)
 
@@ -221,8 +218,7 @@ class WorkflowInstance(BaseModel):
         return TransitionApproval.objects.filter(transition__in=transitions)
     next_approvals = property(get_next_approvals)
 
-    @property
-    def recent_approval(self):
+    def get_current_approval(self):
         try:
             workflow_object = self.workflow_object
             TransitionApproval.objects.filter(
@@ -231,32 +227,34 @@ class WorkflowInstance(BaseModel):
             # return getattr(self.workflow_object, self.field_name + "_transition_approvals").filter(transaction_at__isnull=False).latest('transaction_at')
         except TransitionApproval.DoesNotExist:
             return None
+    recent_approval = property(get_current_approval)
 
-    # @transaction.atomic
-    # def jump_to(self, state):
-    #     def _transitions_before(iteration):
-    #         return Transition.objects.filter(workflow=self.workflow, workflow_object=self.workflow_object, iteration__lte=iteration)
+    @transaction.atomic
+    def jump_to(self, state):
+        def _transitions_before(iteration):
+            return Transition.objects.filter(workflow=self.workflow, workflow_object=self.workflow_object, iteration__lte=iteration)
 
-    #     try:
-    #         recent_iteration = self.recent_approval.transition.iteration if self.recent_approval else 0
-    #         jumped_transition = getattr(self.workflow_object, self.field_name + "_transitions").filter(
-    #             iteration__gte=recent_iteration, destination_state=state, status=Transition.PENDING
-    #         ).earliest("iteration")
+        try:
+            recent_iteration = self.recent_approval.transition.iteration if self.recent_approval else 0
+            jumped_transition = getattr(self.workflow_object, self.field_name + "_transitions").filter(
+                iteration__gte=recent_iteration, destination_state=state, status=Transition.PENDING
+            ).earliest("iteration")
 
-    #         jumped_transitions = _transitions_before(jumped_transition.iteration).filter(status=Transition.PENDING)
-    #         for approval in TransitionApproval.objects.filter(pk__in=jumped_transitions.values_list("transition_approvals__pk", flat=True)):
-    #             approval.status = TransitionApproval.JUMPED
-    #             approval.save()
-    #         jumped_transitions.update(status=Transition.JUMPED)
-    #         self.set_state(state)
-    #         self.workflow_object.save()
+            jumped_transitions = _transitions_before(jumped_transition.iteration).filter(status=Transition.PENDING)
+            for approval in TransitionApproval.objects.filter(pk__in=jumped_transitions.values_list("transition_approvals__pk", flat=True)):
+                approval.status = TransitionApproval.JUMPED
+                approval.save()
+            jumped_transitions.update(status=Transition.JUMPED)
+            self.set_state(state)
+            self.workflow_object.save()
 
-    #     except Transition.DoesNotExist:
-    #         # raise RiverException(ErrorCode.STATE_IS_NOT_AVAILABLE_TO_BE_JUMPED,
-    #         #                      "This state is not available to be jumped in the future of this object")
-    #         ValueError("This state is not available to be jumped in the future of this object")
+        except Transition.DoesNotExist:
+            # raise RiverException(ErrorCode.STATE_IS_NOT_AVAILABLE_TO_BE_JUMPED,
+            #                      "This state is not available to be jumped in the future of this object")
+            ValueError("This state is not available to be jumped in the future of this object")
 
     def get_available_states(self, as_user=None):
+        """获取可用的状态"""
         all_destination_state_ids = self.get_available_approvals(
             as_user=as_user).values_list('transition__destination_state', flat=True)
         return State.objects.filter(pk__in=all_destination_state_ids)
@@ -268,6 +266,8 @@ class WorkflowInstance(BaseModel):
 
         qs = self.next_approvals
         qs = qs.filter(status=TransitionApproval.PENDING)
+        if as_user:
+            qs = qs.filter(users__id=as_user.id)
 
         if destination_state:
             qs = qs.filter(transition__destination_state=destination_state)
@@ -373,8 +373,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
-            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
+            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):

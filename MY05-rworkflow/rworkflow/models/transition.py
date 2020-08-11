@@ -56,16 +56,16 @@ class Transition(models.Model):
         related_name='transition_as_destination',
     )
 
-    source_state_value = models.CharField(
-        _('初始状态值'),
-        max_length=40,
-        blank=True, null=True,
-    )
-    destination_state_value = models.CharField(
-        _('目的状态值'),
-        max_length=40,
-        blank=True, null=True,
-    )
+    # source_state_value = models.CharField(
+    #     _('初始状态值'),
+    #     max_length=40,
+    #     blank=True, null=True,
+    # )
+    # destination_state_value = models.CharField(
+    #     _('目的状态值'),
+    #     max_length=40,
+    #     blank=True, null=True,
+    # )
 
     PENDING = "pending"
     CANCELLED = "cancelled"

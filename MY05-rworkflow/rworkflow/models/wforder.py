@@ -112,6 +112,11 @@ class Wforder(BaseModel):
     def get_workflow_instance(self):
         return self.workflow_instance
 
+    def get_current_approval(self):
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            return workflow_instance.get_current_approval()
+
     # def get_common_workflow(self):
     #     opts = self._meta
     #     app_label = opts.app_label
@@ -159,5 +164,5 @@ class Wforder(BaseModel):
         # workflow_instance.set_state(init_status_value)
         if workflow_instance:
             # 提交之后再初始化
-            workflow_instance.initialize_approvals()
+            workflow_instance.initialize_approvals(request)
         return True

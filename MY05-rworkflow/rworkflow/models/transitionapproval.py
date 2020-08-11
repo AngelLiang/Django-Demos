@@ -7,8 +7,8 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-from mptt.models import MPTTModel
-from mptt.fields import TreeOneToOneField
+# from mptt.models import MPTTModel
+# from mptt.fields import TreeOneToOneField
 
 from .base import BaseModel
 from ..managers import TransitionApprovalManager
@@ -64,6 +64,7 @@ class TransitionApproval(BaseModel):
         db_constraint=False,
         null=True, blank=True,
         on_delete=models.SET_NULL,
+        related_name='+',
     )
     # 流转日期时间
     transaction_at = models.DateTimeField(null=True, blank=True)
@@ -82,13 +83,14 @@ class TransitionApproval(BaseModel):
     # 流转批准状态
     status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
 
-    # 权限
-    permissions = models.ManyToManyField(Permission, verbose_name=_('权限'))
-    # 权限组
-    groups = models.ManyToManyField(Group, verbose_name=_('权限组'))
+    # # 权限
+    # permissions = models.ManyToManyField(Permission, verbose_name=_('权限'))
+    # # 权限组
+    # groups = models.ManyToManyField(Group, verbose_name=_('权限组'))
 
     # 优先级
     priority = models.IntegerField(_('优先级'), default=0)
+
     # 前一个流转
     # previous = TreeOneToOneField(
     previous = models.OneToOneField(
@@ -98,6 +100,31 @@ class TransitionApproval(BaseModel):
         on_delete=models.CASCADE,
         db_constraint=False,
     )
+
+    ################################################################
+    can_edit = models.BooleanField(_('可编辑？'), default=False)
+    can_take = models.BooleanField(_('可接单？'), default=False)
+
+    ################################################################
+    # 指定处理人字段
+    ################################################################
+    users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_('处理人'),
+        db_constraint=False,
+        blank=True,
+        related_name='+',
+    )
+
+    ################################################################
+    # 通知字段
+    ################################################################
+    # 邮件通知
+    email_notice = models.BooleanField(_('邮件通知'), default=True)
+    # 短信通知
+    short_message_notice = models.BooleanField(_('短信通知'), default=False)
+    # 微信通知
+    weixin_notice = models.BooleanField(_('微信通知'), default=False)
 
     def __str__(self):
         return f'{self.meta} - {self.status}'
