@@ -225,11 +225,12 @@ class WorkflowInstance(BaseModel):
     def get_current_approval(self):
         try:
             workflow_object = self.workflow_object
-            TransitionApproval.objects.filter(
-                workflow=self.workflow, object_id=workflow_object.pk
+            return TransitionApproval.objects.filter(
+                workflow_object=workflow_object,
             ).filter(transaction_at__isnull=False).latest('transaction_at')
             # return getattr(self.workflow_object, self.field_name + "_transition_approvals").filter(transaction_at__isnull=False).latest('transaction_at')
-        except TransitionApproval.DoesNotExist:
+        except TransitionApproval.DoesNotExist as e:
+            LOGGER.info(e)
             return None
     recent_approval = property(get_current_approval)
 

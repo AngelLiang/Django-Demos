@@ -75,10 +75,10 @@ class TransitionApproval(BaseModel):
     CANCELLED = "cancelled"
 
     STATUS_CHOICES = [
-        (PENDING, _('Pending')),
-        (APPROVED, _('Approved')),
-        (CANCELLED, _('Cancelled')),
-        (JUMPED, _('Jumped')),
+        (PENDING, _('准备中')),
+        (APPROVED, _('已批准')),
+        (CANCELLED, _('已取消')),
+        (JUMPED, _('已跳转')),
     ]
     # 流转批准状态
     status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
