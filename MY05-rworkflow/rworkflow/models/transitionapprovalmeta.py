@@ -94,9 +94,9 @@ class TransitionApprovalMeta(BaseModel):
     )
 
     # 岗位 多对多
-    # positions = models.ManyToManyField('hr.Position', verbose_name=_('指定岗位'), db_constraint=False, blank=True)
+    positions = models.ManyToManyField('hr.Position', verbose_name=_('指定岗位'), db_constraint=False, blank=True)
     # 角色 多对多
-    # roles = models.ManyToManyField('account.Role', verbose_name=_('指定角色'), db_constraint=False, blank=True)
+    roles = models.ManyToManyField('customauth.Role', verbose_name=_('指定角色'), db_constraint=False, blank=True)
     # 用户 多对多
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -106,7 +106,7 @@ class TransitionApprovalMeta(BaseModel):
         related_name='+'
     )
     # 部门单元 多对多
-    # orgunits = models.ManyToManyField('organization.OrgUnit', verbose_name=_('指定部门单元'), db_constraint=False, blank=True)
+    orgunits = models.ManyToManyField('organization.OrgUnit', verbose_name=_('指定部门单元'), db_constraint=False, blank=True)
 
     handler = models.TextField(
         _('处理人SQL'),
@@ -168,26 +168,26 @@ class TransitionApprovalMeta(BaseModel):
             # user
             users = [user for user in self.users.all()]
             return users
-        # elif tp == self.HT_DESIGNATED_POSITIONS and self.positions:
-        #     # position
-        #     users = []
-        #     for position in self.positions.all():
-        #         for employee in position.employee_set.all():
-        #             users.append(employee.user)
-        #     return users
-        # elif tp == self.HT_DESIGNATED_ROLES and self.roles:
-        #     # role
-        #     users = []
-        #     for role in self.roles.all():
-        #         for user in role.users.all():
-        #             users.append(user)
-        #     return users
+        elif tp == self.HT_DESIGNATED_POSITIONS and self.positions:
+            # position
+            users = []
+            for position in self.positions.all():
+                for employee in position.employee_set.all():
+                    users.append(employee.user)
+            return users
+        elif tp == self.HT_DESIGNATED_ROLES and self.roles:
+            # role
+            users = []
+            for role in self.roles.all():
+                for user in role.users.all():
+                    users.append(user)
+            return users
         elif tp == self.HT_SUBBMITER:
             # 申请人
             return [obj.user]
         elif tp == self.HT_CUSTOM_FUNCTION and self.next_user_handler:
             # 自定义处理函数
-            from workflow.handlers.wfusers import wfusers_mapping
+            from rworkflow.handlers.wfusers import wfusers_mapping
             handler_func = wfusers_mapping.get(self.next_user_handler)
             if handler_func:
                 return handler_func(request, obj, self)
