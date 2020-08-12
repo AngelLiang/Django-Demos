@@ -21,7 +21,7 @@ def get_workflow_choices():
 
 
 class WorkflowForm(forms.ModelForm):
-    rstatus = forms.ChoiceField(label=_('工作流对象状态字段'), choices=[], required=False)
+    rstatus = forms.ChoiceField(label=_('工作流对象状态字段'), choices=[], required=True)
 
     class Meta:
         model = Workflow

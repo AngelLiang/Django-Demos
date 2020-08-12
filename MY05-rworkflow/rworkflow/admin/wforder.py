@@ -90,14 +90,12 @@ class WforderAdmin(BaseAdmin):
             workflow = self.get_workflow(request, obj)
             extra_context.update({'workflow': workflow})
             if workflow:
-                workflow_instance, is_created = obj.get_or_create_workflow_instance(
-                    request)
+                workflow_instance, is_created = obj.get_or_create_workflow_instance(request)
                 extra_context.update({'workflow_instance': workflow_instance})
 
                 if workflow_instance:
                     next_approvals = []
-                    approvals = workflow_instance.get_available_approvals(
-                        user).all()
+                    approvals = workflow_instance.get_available_approvals(user).all()
                     LOGGER.debug(approvals)
                     for approval in approvals:
                         url = reverse(f'admin:wf_approve',

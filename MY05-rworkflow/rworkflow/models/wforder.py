@@ -175,11 +175,16 @@ class Wforder(BaseModel):
         return True
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        if self.workflow and self.get_status() is None:
+
+        # 如果当前状态不是所配的工作流的初始状态，则设置该初始状态
+        if self.workflow:
             status = self.workflow.get_initial_state()
-            self.set_status(status)
+            if self.get_status() is not status:
+                self.set_status(status)
 
         super().save(force_insert, force_update, using, update_fields)
+
+        # code为空的时候自动生成
         if not self.code:
             self.code = 'WO%05d' % self.id
             self.save(update_fields=['code'])

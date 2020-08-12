@@ -7,10 +7,8 @@ from ..models import TransitionMeta, State
 
 
 class TransitionMetaForm(forms.ModelForm):
-    source_state = forms.ModelChoiceField(
-        label=_('初始状态'), queryset=State.objects, required=True)
-    destination_state = forms.ModelChoiceField(
-        label=_('目的状态'), queryset=State.objects, required=True)
+    source_state = forms.ModelChoiceField(label=_('初始状态'), queryset=State.objects, required=True)
+    destination_state = forms.ModelChoiceField(label=_('目的状态'), queryset=State.objects, required=True)
 
     class Meta:
         model = TransitionMeta

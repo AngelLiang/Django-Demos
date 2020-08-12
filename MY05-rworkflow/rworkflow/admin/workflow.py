@@ -49,8 +49,10 @@ class WorkflowAdmin(BaseAdmin):
         ('weight',),
     )
     # readonly_fields = ('app_label', 'model_name',)
-    readonly_fields = ('content_type', 'app_label',
-                       'model_name', 'status_field',)
+    readonly_fields = (
+        'content_type', 'app_label',
+        'model_name', 'status_field',
+    )
 
     inlines = (StateInline, TransitionMetaInline, TransitionApprovalMetaInline)
 
