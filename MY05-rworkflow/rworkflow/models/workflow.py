@@ -11,7 +11,7 @@ from .state import State
 class Workflow(BaseModel):
     """工作流"""
 
-    name = models.CharField(_('名称'), max_length=128)
+    name = models.CharField(_('名称'), max_length=80)
     code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
     ################################################################
     # 关联的对象

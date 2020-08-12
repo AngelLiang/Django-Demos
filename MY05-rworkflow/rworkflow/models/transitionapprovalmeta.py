@@ -13,8 +13,8 @@ from .base import BaseModel
 class TransitionApprovalMeta(BaseModel):
     """流转批准元数据"""
 
-    name = models.CharField(_('名称'), max_length=128, default='')
-    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+    name = models.CharField(_('名称'), max_length=80, default='', null=True)
+    code = models.CharField(_('编号'), max_length=40, default='', null=True)
 
     # 工作流
     workflow = models.ForeignKey(
@@ -50,8 +50,20 @@ class TransitionApprovalMeta(BaseModel):
     )
 
     ################################################################
-    can_edit = models.BooleanField(_('可编辑？'), default=False)
-    can_take = models.BooleanField(_('可接单？'), default=False)
+    can_edit = models.BooleanField(_('处理人可编辑？'), default=False)
+    can_suggestion = models.BooleanField(_('处理人可填写处理意见？'), default=False)
+    is_suggestion_required = models.BooleanField(_('处理意见是否必填？'), default=False)
+    need_take = models.BooleanField(_('需要处理人接单？'), default=False)
+
+    ################################################################
+    # 通知字段
+    ################################################################
+    # 邮件通知
+    email_notice = models.BooleanField(_('邮件通知'), default=False)
+    # 短信通知
+    short_message_notice = models.BooleanField(_('短信通知'), default=False)
+    # 微信通知
+    weixin_notice = models.BooleanField(_('微信通知'), default=False)
 
     ################################################################
     # 指定处理人字段
@@ -118,16 +130,6 @@ class TransitionApprovalMeta(BaseModel):
         blank=True, null=True,
         # help_text=u'自定义SQL语句，优先高于指定用户、岗位、角色'
     )
-
-    ################################################################
-    # 通知字段
-    ################################################################
-    # 邮件通知
-    email_notice = models.BooleanField(_('邮件通知'), default=True)
-    # 短信通知
-    short_message_notice = models.BooleanField(_('短信通知'), default=False)
-    # 微信通知
-    weixin_notice = models.BooleanField(_('微信通知'), default=False)
 
     def __str__(self):
         return '流转: %s, 排序: %s' % (self.transition_meta, self.priority)

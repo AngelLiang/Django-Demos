@@ -19,8 +19,8 @@ LOGGER = logging.getLogger(__name__)
 class TransitionApproval(BaseModel):
     """流转批准"""
 
-    name = models.CharField(_('名称'), max_length=128, default='')
-    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+    name = models.CharField(_('名称'), max_length=80, default='', null=True)
+    code = models.CharField(_('编号'), max_length=40, default='', null=True)
 
     # 关联的对象
     content_type = models.ForeignKey(
@@ -54,7 +54,7 @@ class TransitionApproval(BaseModel):
     # 关联的流转
     transition = models.ForeignKey(
         'Transition',
-        verbose_name=_('流转'),
+        verbose_name=_('关联的流转'),
         on_delete=models.PROTECT,
         db_constraint=False,
         related_name='transition_approvals',
@@ -63,15 +63,15 @@ class TransitionApproval(BaseModel):
     # 流转者
     transactioner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        verbose_name=_('流转者'),
+        verbose_name=_('处理者'),
         db_constraint=False,
         null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name='+',
     )
     # 流转日期时间
-    transaction_at = models.DateTimeField(_('流转时间'), null=True, blank=True)
-    memo = models.TextField(_('批准意见'), max_length=10000, default='')
+    transaction_at = models.DateTimeField(_('处理时间'), null=True, blank=True)
+    memo = models.TextField(_('处理意见'), max_length=10000, default='')
 
     PENDING = "pending"
     APPROVED = "approved"
@@ -80,7 +80,7 @@ class TransitionApproval(BaseModel):
 
     STATUS_CHOICES = [
         (PENDING, _('准备中')),
-        (APPROVED, _('已批准')),
+        (APPROVED, _('已处理')),
         (CANCELLED, _('已取消')),
         (JUMPED, _('已跳转')),
     ]
@@ -98,7 +98,7 @@ class TransitionApproval(BaseModel):
     # 前一个流转
     # previous = TreeOneToOneField(
     previous = models.OneToOneField(
-        'self', verbose_name=_('前一个流转'),
+        'self', verbose_name=_('前一个批准'),
         related_name="next_transition",
         null=True, blank=True,
         on_delete=models.CASCADE,
@@ -106,8 +106,20 @@ class TransitionApproval(BaseModel):
     )
 
     ################################################################
-    can_edit = models.BooleanField(_('可编辑？'), default=False)
-    can_take = models.BooleanField(_('可接单？'), default=False)
+    can_edit = models.BooleanField(_('处理人可编辑？'), default=False)
+    can_suggestion = models.BooleanField(_('处理人可填写处理意见？'), default=False)
+    is_suggestion_required = models.BooleanField(_('处理意见是否必填？'), default=False)
+    need_take = models.BooleanField(_('需要处理人接单？'), default=False)
+
+    ################################################################
+    # 通知字段
+    ################################################################
+    # 邮件通知
+    email_notice = models.BooleanField(_('邮件通知'), default=True)
+    # 短信通知
+    short_message_notice = models.BooleanField(_('短信通知'), default=False)
+    # 微信通知
+    weixin_notice = models.BooleanField(_('微信通知'), default=False)
 
     ################################################################
     # 指定处理人字段
@@ -119,16 +131,6 @@ class TransitionApproval(BaseModel):
         blank=True,
         related_name='+',
     )
-
-    ################################################################
-    # 通知字段
-    ################################################################
-    # 邮件通知
-    email_notice = models.BooleanField(_('邮件通知'), default=True)
-    # 短信通知
-    short_message_notice = models.BooleanField(_('短信通知'), default=False)
-    # 微信通知
-    weixin_notice = models.BooleanField(_('微信通知'), default=False)
 
     def __str__(self):
         return f'{self.meta} - {self.status}'

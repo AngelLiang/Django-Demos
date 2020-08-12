@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
+
 from .base import BaseAdmin
 
 
@@ -19,11 +21,24 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'name',
+                # 'name',
                 'workflow',
+                'transition_meta',
                 'parents',
-                ('can_edit', 'can_take',),
+            ),
+        }),
+        (_('杂项'), {
+            'fields': (
+                ('can_edit', 'can_suggestion', 'need_take',),
+            ),
+        }),
+        (_('通知'), {
+            'fields': (
                 ('email_notice', 'short_message_notice', 'weixin_notice'),
+            ),
+        }),
+        (_('处理类型'), {
+            'fields': (
                 'handler_type',
                 'users',
             ),

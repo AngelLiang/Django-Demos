@@ -14,7 +14,7 @@ class StateInline(admin.TabularInline):
 
 class TransitionMetaInline(admin.TabularInline):
     model = TransitionMeta
-    fields = ('name', 'source_state', 'destination_state', 'weight',)
+    fields = ('source_state', 'destination_state', 'weight',)
     extra = 0
     ordering = ('weight',)
     show_change_link = True
@@ -23,7 +23,7 @@ class TransitionMetaInline(admin.TabularInline):
 
 class TransitionApprovalMetaInline(admin.TabularInline):
     model = TransitionApprovalMeta
-    fields = ('name', 'transition_meta', 'parents', 'priority')
+    fields = ('transition_meta', 'parents', 'priority')
     extra = 0
     ordering = ('priority', 'parents')
     show_change_link = True

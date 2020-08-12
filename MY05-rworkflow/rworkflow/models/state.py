@@ -22,15 +22,10 @@ class State(BaseModel):
     # 基本字段
     ################################################################
     name = models.CharField(_('名称'), max_length=80)
-    code = models.CharField(_('编号'), max_length=80, null=True, blank=True)
+    code = models.CharField(_('编号'), max_length=40, blank=True, null=True)
 
     is_start = models.BooleanField(_('起始状态？'), default=False)
     is_stop = models.BooleanField(_('结束状态？'), default=False)
-    # can_edit = models.BooleanField(_('可编辑？'), default=False)
-    # can_take = models.BooleanField(_('可接单？'), default=False)
-
-    # status_field = models.CharField(_('状态字段'), max_length=40, blank=True, null=True)
-    # status_value = models.CharField(_('状态值'), max_length=40, blank=True, null=True)
 
     ################################################################
     # 状态信息

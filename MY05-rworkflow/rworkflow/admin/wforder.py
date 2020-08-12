@@ -20,6 +20,9 @@ class WforderAdmin(BaseAdmin):
     CODE_PREFIX = 'WO'
     CODE_NUMBER_WIDTH = 5
 
+    list_display = ('code', 'title', 'workflow', 'rstatus')
+    list_display_links = ('code', 'title',)
+    list_filter = ('workflow',)
     fieldsets = (
         (None, {
             'fields': (
@@ -32,6 +35,14 @@ class WforderAdmin(BaseAdmin):
         }),
     )
     readonly_fields = ('code', 'rstatus',)
+
+    def get_readonly_fields(self, request, obj):
+        readonly_fields = list(super().get_readonly_fields(request, obj) or [])
+
+        if obj and obj.is_wf_start():
+            readonly_fields.append('workflow_category')
+            readonly_fields.append('workflow')
+        return readonly_fields
 
     def has_change_permission(self, request, obj=None):
         if obj:

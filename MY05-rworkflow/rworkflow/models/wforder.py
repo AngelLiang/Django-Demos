@@ -18,21 +18,21 @@ LOGGER = logging.getLogger(__name__)
 
 class Wforder(BaseModel):
     """工单"""
-    code = models.CharField(_('工单编号'), max_length=80, null=True, blank=True)
     title = models.CharField(_('工单标题'), max_length=128)
+    code = models.CharField(_('工单编号'), max_length=40, default='')
 
-    TP_CHOICES = (
-        ('00', '加班申请'),
-        ('10', '调休申请'),
-        ('20', '假期申请'),
-    )
-    tp = models.CharField(
-        _('工单类型'),
-        max_length=16,
-        blank=True, null=True,
-        choices=TP_CHOICES,
-        # default='D'
-    )
+    # TP_CHOICES = (
+    #     ('00', '加班申请'),
+    #     ('10', '调休申请'),
+    #     ('20', '假期申请'),
+    # )
+    # tp = models.CharField(
+    #     _('工单类型'),
+    #     max_length=16,
+    #     blank=True, null=True,
+    #     choices=TP_CHOICES,
+    #     # default='D'
+    # )
 
     description = models.TextField(
         _('描述'), max_length=10000,
@@ -100,6 +100,12 @@ class Wforder(BaseModel):
 
     def can_edit(self):
         return self.get_status() is None or self.get_status() == self.workflow.get_initial_state()
+
+    def can_suggestion(self):
+        approval = self.get_current_approval()
+        if approval:
+            return approval.can_suggestion
+        return False
 
     def is_wf_start(self):
         workflow_instance = self.get_workflow_instance()

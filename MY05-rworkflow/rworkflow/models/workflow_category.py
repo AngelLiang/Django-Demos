@@ -11,9 +11,9 @@ class WorkflowCategory(BaseModel):
     # 基本字段
     ################################################################
     name = models.CharField(_('名称'), max_length=80)
-    short = models.CharField(_('简称'), max_length=80, null=True, blank=True)
-    code = models.CharField(_('编号'), max_length=80, null=True, blank=True)
-    pinyin = models.CharField(_('拼音/英文'), max_length=80, null=True, blank=True)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
+    short = models.CharField(_('简称'), max_length=80, default='', blank=True)
+    pinyin = models.CharField(_('拼音/英文'), max_length=128, default='', blank=True)
     spec = models.CharField(_('简单描述'), max_length=255, default='', blank=True)
 
     # 是否在用
