@@ -33,11 +33,6 @@ class TransitionApprovalMeta(BaseModel):
         related_name='transition_approval_meta',
     )
 
-    # # 权限
-    # permissions = models.ManyToManyField(Permission, verbose_name=_('权限'), blank=True)
-    # # 权限组
-    # groups = models.ManyToManyField(Group, verbose_name=_('权限组'), blank=True)
-
     priority = models.IntegerField(_('排序'), default=0, null=True, blank=True)
 
     # 父级 多对多
@@ -70,16 +65,19 @@ class TransitionApprovalMeta(BaseModel):
     ################################################################
 
     # 处理类型
-    HT_DESIGNATED_USERS = '00'
-    HT_DESIGNATED_POSITIONS = '10'
-    HT_DESIGNATED_ROLES = '20'
-    HT_SUBBMITER = '30'
-    HT_CUSTOM_FUNCTION = '90'
-    HT_CUSTOM_SQL = '91'
+    HT_DESIGNATED_USERS = 'users'
+    HT_DESIGNATED_POSITIONS = 'positions'
+    HT_DESIGNATED_ROLES = 'roles'
+    HT_DESIGNATED_UNITS = 'units'
+    HT_SUBBMITER = 'subbmiter'
+    HT_CUSTOM_FUNCTION = 'custom_function'
+    HT_CUSTOM_SQL = 'custom_sql'
+
     HT_CHOICES = (
         (HT_DESIGNATED_USERS, _('指定用户')),  # 指定用户
         (HT_DESIGNATED_POSITIONS, _('指定岗位')),  # 指定岗位
         (HT_DESIGNATED_ROLES, _('指定角色')),  # 指定角色
+        (HT_DESIGNATED_UNITS, _('指定部门')),  # 指定部门
         (HT_SUBBMITER, _('提交人')),    # 提交人
         (HT_CUSTOM_FUNCTION, _('自定义审批处理类')),
         (HT_CUSTOM_SQL, _('自定义SQL处理人')),
@@ -88,15 +86,25 @@ class TransitionApprovalMeta(BaseModel):
     # 处理类型
     handler_type = models.CharField(
         _('审批处理类型'),
-        max_length=16,
+        max_length=40,
         choices=HT_CHOICES,
         default=HT_DEFAULT,
     )
 
     # 岗位 多对多
-    positions = models.ManyToManyField('hr.Position', verbose_name=_('指定岗位'), db_constraint=False, blank=True)
+    positions = models.ManyToManyField(
+        'hr.Position',
+        verbose_name=_('指定岗位'),
+        db_constraint=False,
+        blank=True
+    )
     # 角色 多对多
-    roles = models.ManyToManyField('customauth.Role', verbose_name=_('指定角色'), db_constraint=False, blank=True)
+    roles = models.ManyToManyField(
+        'customauth.Role',
+        verbose_name=_('指定角色'),
+        db_constraint=False,
+        blank=True
+    )
     # 用户 多对多
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -106,18 +114,17 @@ class TransitionApprovalMeta(BaseModel):
         related_name='+'
     )
     # 部门单元 多对多
-    orgunits = models.ManyToManyField('organization.OrgUnit', verbose_name=_('指定部门单元'), db_constraint=False, blank=True)
-
-    handler = models.TextField(
-        _('处理人SQL'),
-        blank=True, null=True,
-        # help_text=u'自定义SQL语句，优先高于指定用户、岗位、角色'
+    orgunits = models.ManyToManyField(
+        'organization.OrgUnit',
+        verbose_name=_('指定部门单元'),
+        db_constraint=False,
+        blank=True
     )
 
     NUH_CHOICES = (
         ('ParentPosition', _('提交人的上级')),
     )
-    next_user_handler = models.CharField(
+    user_handler_function = models.CharField(
         _('next用户处理类'),
         max_length=80,
         blank=True, null=True,
@@ -125,11 +132,13 @@ class TransitionApprovalMeta(BaseModel):
     )
 
     # 自定义处理人SQL
-    handler = models.TextField(
+    user_handler_sql = models.TextField(
         _('处理人SQL'),
         blank=True, null=True,
         # help_text=u'自定义SQL语句，优先高于指定用户、岗位、角色'
     )
+
+    ################################################################
 
     def __str__(self):
         return '流转: %s, 排序: %s' % (self.transition_meta, self.priority)
@@ -137,7 +146,7 @@ class TransitionApprovalMeta(BaseModel):
     class Meta:
         verbose_name = _('批准元数据')
         verbose_name_plural = _('批准元数据')
-        # unique_together = [('workflow', 'transition_meta', 'priority')]
+        unique_together = [('workflow', 'transition_meta', 'priority')]
 
     @property
     def peers(self):
@@ -146,56 +155,51 @@ class TransitionApprovalMeta(BaseModel):
             # transition_meta=self.transition_meta,
         ).exclude(pk=self.pk)
 
-    # def can_handle(self, request):
-    #     user = request.user
-
-    #     tp = self.handler_type
-    #     if tp == self.HT_DESIGNATED_USERS and self.users:
-    #         user = self.users.filter(id=user.id).first()
-    #         if user:
-    #             return True
-    #     elif tp == self.HT_SUBBMITER:
-    #         pass
-
-    #     return qs
-
-    # def filter_handle_users(self, qs):
-    #     pass
-
     def get_users_from_handler_type(self, request, obj):
+        """通过处理类型获取处理用户"""
         tp = self.handler_type
         if tp == self.HT_DESIGNATED_USERS and self.users:
-            # user
+            # 用户
             users = [user for user in self.users.all()]
             return users
         elif tp == self.HT_DESIGNATED_POSITIONS and self.positions:
-            # position
+            # 岗位
             users = []
             for position in self.positions.all():
                 for employee in position.employee_set.all():
-                    users.append(employee.user)
+                    if employee.user:
+                        users.append(employee.user)
             return users
         elif tp == self.HT_DESIGNATED_ROLES and self.roles:
-            # role
+            # 角色
             users = []
             for role in self.roles.all():
                 for user in role.users.all():
                     users.append(user)
             return users
+        elif tp == self.HT_DESIGNATED_UNITS and self.orgunits:
+            # 部门
+            users = []
+            for unit in self.orgunits.all():
+                for position in unit.positions.all():
+                    for employee in position.employee_set.all():
+                        if employee.user:
+                            users.append(employee.user)
         elif tp == self.HT_SUBBMITER:
             # 申请人
             return [obj.user]
-        elif tp == self.HT_CUSTOM_FUNCTION and self.next_user_handler:
+        elif tp == self.HT_CUSTOM_FUNCTION and self.user_handler_function:
             # 自定义处理函数
             from rworkflow.handlers.wfusers import wfusers_mapping
-            handler_func = wfusers_mapping.get(self.next_user_handler)
+            handler_func = wfusers_mapping.get(self.user_handler_function)
             if handler_func:
                 return handler_func(request, obj, self)
-        elif tp == self.HT_CUSTOM_SQL and self.handler:
+        elif tp == self.HT_CUSTOM_SQL and self.user_handler_sql:
             # 自定义SQL
-            handler = self.handler
-            if handler and handler != '':
-                handler = handler.replace("submitter()", request.user.username)
+            handler = self.user_handler_sql
+            if handler:
+                handler = handler.replace(
+                    "submitter()", obj.user.username)  # 提交人
                 handler = handler.replace("suber()", request.user.username)
                 fields = obj._meta.fields
                 for field in fields:

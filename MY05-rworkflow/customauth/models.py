@@ -4,20 +4,20 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import ugettext_lazy as _
 
 
-class User(AbstractUser):
-    orgunit = models.ForeignKey(
-        'organization.OrgUnit',
-        verbose_name=_('所属单元部门'),
-        on_delete=models.PROTECT,
-        null=True, blank=True,
-        db_constraint=False,
-        related_name='+',
-    )
+# class User(AbstractUser):
+#     orgunit = models.ForeignKey(
+#         'organization.OrgUnit',
+#         verbose_name=_('所属单元部门'),
+#         on_delete=models.PROTECT,
+#         null=True, blank=True,
+#         db_constraint=False,
+#         related_name='+',
+#     )
 
-    class Meta:
-        verbose_name = _('user')
-        verbose_name_plural = _('users')
-        default_permissions = ('view', 'add', 'change')
+#     class Meta:
+#         verbose_name = _('user')
+#         verbose_name_plural = _('users')
+#         default_permissions = ('view', 'add', 'change')
 
 
 class Role(models.Model):

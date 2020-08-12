@@ -130,7 +130,6 @@ STATIC_URL = '/static/'
 
 SESSION_COOKIE_NAME = 'rworkflow'
 
-AUTH_USER_MODEL = 'customauth.User'
 
 LOGGING = {
     'version': 1,  # 保留字

@@ -18,12 +18,6 @@ def parent_position_handler(request, obj, node):
 
     emp = emp_query.all()
     # 获取该职员的上级
-    # parent = []
-    # for e in emp:
-    #     if e.position and e.position.parent:
-    #         parent.append(e.position.parent)
-
-    # 获取该职员的上级
     parent = [e.position.parent for e in emp if e.position and e.position.parent]
 
     # 获取上级职员
