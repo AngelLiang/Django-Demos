@@ -9,18 +9,51 @@
 
 {% block after_related_objects %}
 
-{% for approval in next_approvals %}
-    <input
-        type="button"
-        style="margin:2px;2px;2px;2px;"
-        value="{{ approval.value }}"
-        onclick="location.href='{{ approval.url }}'"
-    />
-{% endfor %}
+    {% comment %} {% for approval in next_approvals %}
+        <input
+            type="button"
+            style="margin:2px;2px;2px;2px;"
+            value="{{ approval.value }}"
+            onclick="location.href='{{ approval.url }}'"
+        />
+    {% endfor %} {% endcomment %}
 
 {% endblock %}
 
 
 {% block admin_change_form_document_ready %}
     {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    {{ block.super }}
+
+    {% if original and workflow and original.is_wf_start %}
+    <div>
+        <form action="" method="post" id="workflow_form">
+            {% csrf_token %}
+            <label style="display:block">{% trans "处理意见" %}：</label>
+            <textarea name="memo" rows="3" cols="80"></textarea>
+            <br>
+            {% for approval in next_approvals %}
+                <input class="workflow_btn" type="submit" value="{{ approval.value }}" url="{{ approval.url }}"/>
+                {% comment %} <input class="workflow_btn" type="button" value="{{ approval.value }}" url="{{ approval.url }}" style="padding: 10px 15px;"/> {% endcomment %}
+            {% endfor %}
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function() {
+                $(".workflow_btn").on("click", function() {
+                    url = $(this).attr("url")
+                    console.log(url)
+                    $("#workflow_form").attr("action", url);
+                });
+            });
+        })(django.jQuery);
+    </script>
+    {% endif %}
+
 {% endblock %}

@@ -13,6 +13,9 @@ from .base import BaseModel
 class TransitionApprovalMeta(BaseModel):
     """流转批准元数据"""
 
+    name = models.CharField(_('名称'), max_length=128, default='')
+    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+
     # 工作流
     workflow = models.ForeignKey(
         'Workflow',

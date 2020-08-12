@@ -12,6 +12,7 @@ from .fields.state import StateField
 
 from .workflow_instance import WorkflowInstance
 
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -101,10 +102,8 @@ class Wforder(BaseModel):
         return self.get_status() is None or self.get_status() == self.workflow.get_initial_state()
 
     def is_wf_start(self):
-        # return self.get_status() != self.workflow.get_initial_state()
         workflow_instance = self.get_workflow_instance()
-        if workflow_instance:
-            return workflow_instance.initialized
+        return workflow_instance and workflow_instance.is_wf_start()
 
     def get_status(self):
         return self.rstatus
@@ -122,6 +121,11 @@ class Wforder(BaseModel):
         workflow_instance = self.get_workflow_instance()
         if workflow_instance:
             return workflow_instance.get_current_approval()
+
+    def get_history_approvals(self):
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            return workflow_instance.get_history_approvals()
 
     # def get_common_workflow(self):
     #     opts = self._meta
@@ -164,8 +168,7 @@ class Wforder(BaseModel):
         if not workflow_instance:
             workflow_instance = self.get_workflow_instance_from_content_type()
         if not workflow_instance:
-            workflow_instance, is_created = self.get_or_create_workflow_instance(
-                request=request)
+            workflow_instance, is_created = self.get_or_create_workflow_instance(request=request)
 
         # init_status_value = workflow.init_status_value
         # workflow_instance.set_state(init_status_value)
@@ -176,8 +179,8 @@ class Wforder(BaseModel):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
 
-        # 如果当前状态不是所配的工作流的初始状态，则设置该初始状态
-        if self.workflow:
+        # 如果当前状态不是所配的工作流的初始状态，并且工作流也没有启动，则设置该初始状态
+        if self.workflow and not self.is_wf_start():
             status = self.workflow.get_initial_state()
             if self.get_status() is not status:
                 self.set_status(status)

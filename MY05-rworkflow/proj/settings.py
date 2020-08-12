@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_tables2',
     'mptt',
+
     'rworkflow',
 ]
 
@@ -157,7 +159,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'rworkflow.admin.wforder.py': {
+        'rworkflow.admin.wforder': {
             'handlers': ['console', ],
             'level': 'DEBUG',
         },

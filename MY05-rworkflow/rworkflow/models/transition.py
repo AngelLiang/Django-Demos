@@ -14,6 +14,9 @@ LOGGER = logging.getLogger(__name__)
 class Transition(models.Model):
     """流转"""
 
+    name = models.CharField(_('名称'), max_length=128, default='')
+    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+
     content_type = models.ForeignKey(
         ContentType,
         verbose_name=_('Content Type'),
@@ -105,5 +108,6 @@ class Transition(models.Model):
     class Meta:
         verbose_name = _('流程流转')
         verbose_name_plural = _('流程流转')
+        # default_permissions = ('view', 'change')
 
     objects = TransitionApprovalManager()

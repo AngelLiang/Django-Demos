@@ -57,31 +57,8 @@ class WorkflowInstance(BaseModel):
     )
     # 发起时间
     start_at = models.DateTimeField(_('发起时间'), auto_now_add=True)
-    # 批准时间
-    # approved_at = models.DateTimeField(_('批准时间'), blank=True, null=True)
 
-    # # STATUS_CHOICES = (
-    # #     ('00', _("NEW")),          # 新建
-    # #     ('10', _("IN PROGRESS")),  # 在处理
-    # #     ('20', _("DENY")),         # 拒绝
-    # #     ('40', _("TERMINATED")),   # 终止
-    # #     ('80', _("APPROVED")),     # 批准
-    # #     ('90', _("COMPLETED"))     # 结束
-    # # )
-    # STATUS_INPROGRESS = '10'
-    # STATUS_DENY = '20'
-
-    # STATUS_CHOICES = const.get_value_list('S072')
-    # STATUS_CHOICES_MAPPING = dict(const.get_value_list('S072') or {})
-    # STATUS_DEFAULT = const.get_default_value('S072')
-    # STATUS_QUERYSET = const.get_value_queryset('S072')
-    # # 状态
-    # status = models.CharField(_('状态'), max_length=const.DB_STATUS_LENGTH)
-
-    # # 当前节点 多对多
-    # current_nodes = models.ManyToManyField('Node', verbose_name=_('当前节点'), blank=True)
-
-    initialized = models.BooleanField(_('已初始化？'), default=False)
+    initialized = models.BooleanField(_('已初始化？'), default=False, editable=False)
 
     def __str__(self):
         return f'{self.code}'
@@ -120,19 +97,26 @@ class WorkflowInstance(BaseModel):
     #     self.get_workflow_object()
     #     return obj
 
+    def is_wf_start(self):
+        """判断工作流是否已经启动"""
+        if self.initialized:
+            return self.initialized
+        workflow_object = self.get_workflow_object()
+        return self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() != 0
+
     @transaction.atomic
     def initialize_approvals(self, request):
         """初始化批准流程"""
 
         if not self.initialized:
-            object_id = self.get_object_id()
-            content_type = self.get_content_type()
+            # object_id = self.get_object_id()
+            # content_type = self.get_content_type()
             workflow_object = self.get_workflow_object()
 
-            # if self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() == 0:
-            if self.workflow and self.workflow.transition_approvals.filter(
-                object_id=object_id, content_type=content_type
-            ).count() == 0:
+            if self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() == 0:
+                # if self.workflow and self.workflow.transition_approvals.filter(
+                #     object_id=object_id, content_type=content_type
+                # ).count() == 0:
                 # 获取工作流流转元数据
                 # transition_meta_list = self.workflow.transition_metas.filter(source_state=self.workflow.initial_state)
 
@@ -149,6 +133,7 @@ class WorkflowInstance(BaseModel):
                     for transition_meta in transition_meta_list:
                         # 通过 transition_meta 创建 transition
                         transition = Transition.objects.create(
+                            name=transition_meta.name,
                             workflow=self.workflow,
                             workflow_object=workflow_object,
                             source_state=transition_meta.source_state,
@@ -158,8 +143,8 @@ class WorkflowInstance(BaseModel):
                         )
                         # 通过 transition_approval_meta 创建 transition_approval
                         for transition_approval_meta in transition_meta.transition_approval_meta.all():
-
                             transition_approval = TransitionApproval.objects.create(
+                                name=transition_approval_meta.name,
                                 workflow=self.workflow,
                                 workflow_object=workflow_object,
                                 transition=transition,
@@ -233,6 +218,13 @@ class WorkflowInstance(BaseModel):
             return None
     recent_approval = property(get_current_approval)
 
+    def get_history_approvals(self):
+        """"获取所有历史批准"""
+        workflow_object = self.workflow_object
+        return TransitionApproval.objects.filter(
+            workflow_object=workflow_object,
+        ).filter(transaction_at__isnull=False).order_by('transaction_at')
+
     @transaction.atomic
     def jump_to(self, state):
         def _transitions_before(iteration):
@@ -280,7 +272,7 @@ class WorkflowInstance(BaseModel):
         return qs
 
     @transaction.atomic
-    def approve(self, as_user, next_state=None):
+    def approve(self, as_user, next_state=None, *args, **kwargs):
         """批准"""
         available_approvals = self.get_available_approvals(as_user=as_user)
         number_of_available_approvals = available_approvals.count()
@@ -302,25 +294,29 @@ class WorkflowInstance(BaseModel):
             raise ValueError(
                 "State must be given when there are multiple states for destination")
 
+        # 更新审批
         approval = available_approvals.first()
-        approval.status = TransitionApproval.APPROVED
-        approval.transactioner = as_user
-        approval.transaction_at = timezone.now()
-        approval.previous = self.recent_approval
+        approval.status = TransitionApproval.APPROVED  # 批准状态
+        approval.transactioner = as_user  # 流转人
+        approval.transaction_at = timezone.now()  # 流转时间
+        approval.memo = kwargs.get('memo', '')  # 批准意见
+        LOGGER.debug(f'memo:{approval.memo}')
+        approval.previous = self.recent_approval  # 上一个批准
         approval.save()
 
         if next_state:
             self.cancel_impossible_future(approval)
 
         has_transit = False
+        # 如果该 approval 的其他 approval 都没有 预备 状态
         if approval.peers.filter(status=TransitionApproval.PENDING).count() == 0:
+            # 更新审批的流转
             approval.transition.status = Transition.DONE
             approval.transition.save()
             # 前一个状态
             previous_state = self.get_state()
             # 设置新的状态
-            LOGGER.debug(
-                f'destination_state:{approval.transition.destination_state}')
+            LOGGER.debug(f'destination_state:{approval.transition.destination_state}')
             self.set_state(approval.transition.destination_state)
 
             has_transit = True
@@ -399,6 +395,7 @@ class WorkflowInstance(BaseModel):
         while old_transitions:
             for old_transition in old_transitions:
                 cycled_transition = Transition.objects.create(
+                    name=old_transition.name,
                     source_state=old_transition.source_state,
                     destination_state=old_transition.destination_state,
                     workflow=old_transition.workflow,
@@ -411,6 +408,7 @@ class WorkflowInstance(BaseModel):
 
                 for old_approval in old_transition.transition_approvals.all():
                     cycled_approval = TransitionApproval.objects.create(
+                        name=old_approval.name,
                         transition=cycled_transition,
                         workflow=old_approval.workflow,
                         object_id=old_approval.workflow_object.pk,

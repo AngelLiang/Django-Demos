@@ -7,6 +7,9 @@ from .base import BaseModel
 class TransitionMeta(BaseModel):
     """流转元数据"""
 
+    name = models.CharField(_('名称'), max_length=128, default='')
+    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+
     # 工作流
     workflow = models.ForeignKey(
         'Workflow', verbose_name=_("工作流"),

@@ -10,6 +10,8 @@ from django.contrib.admin.utils import quote
 
 from .base import BaseAdmin
 from .. import models
+from ..tables import TransitionApprovalTable
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -21,9 +23,8 @@ class WforderAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                'code',
+                ('code', 'rstatus',),
                 'title',
-                'rstatus',
                 ('workflow_category', 'workflow',),
                 # 'workflow_instance',
                 'description',
@@ -61,11 +62,15 @@ class WforderAdmin(BaseAdmin):
             if obj is None:
                 return self._get_obj_does_not_exist_redirect(request, opts, object_id)
 
+        memo = request.POST.get('memo', '')
+        LOGGER.debug(memo)
+
         next_state = get_object_or_404(models.State, pk=next_state_id)
         LOGGER.debug(f'next_state:{next_state}')
 
         workflow_instance = obj.get_workflow_instance()
-        workflow_instance.approve(as_user=request.user, next_state=next_state)
+        workflow_instance.approve(as_user=request.user, next_state=next_state, memo=memo)
+
         # admin:<app>_<model>_change
         return redirect(
             reverse(f'admin:{app_label}_{model_name}_change',
@@ -120,6 +125,25 @@ class WforderAdmin(BaseAdmin):
             return HttpResponseRedirect('.')
 
         return super().response_change(request, obj)
+
+    def history_view(self, request, object_id, extra_context=None):
+        extra_context = extra_context or {}
+        opts = self.opts
+        if object_id:
+            # 获取对象
+            obj = self.get_object(request, object_id)
+            if obj is None:
+                return self._get_obj_does_not_exist_redirect(request, opts, object_id)
+
+            approvals = obj.get_history_approvals()
+            LOGGER.debug(approvals)
+
+            approvals_table = TransitionApprovalTable(approvals.all())
+            approvals_table.paginate(page=request.GET.get('page', 1), per_page=25)
+            LOGGER.debug(approvals_table)
+            extra_context.update(dict(approvals=approvals_table))
+
+        return super().history_view(request, object_id, extra_context)
 
     def get_workflow(self, request, obj):
         workflow = getattr(obj, 'workflow', None)

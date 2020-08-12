@@ -19,6 +19,9 @@ LOGGER = logging.getLogger(__name__)
 class TransitionApproval(BaseModel):
     """流转批准"""
 
+    name = models.CharField(_('名称'), max_length=128, default='')
+    code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
+
     # 关联的对象
     content_type = models.ForeignKey(
         ContentType,
@@ -42,7 +45,7 @@ class TransitionApproval(BaseModel):
     # 工作流
     workflow = models.ForeignKey(
         'Workflow',
-        verbose_name=_('工作流'),
+        verbose_name=_('工作流程'),
         on_delete=models.PROTECT,
         db_constraint=False,
         related_name='transition_approvals',
@@ -67,7 +70,8 @@ class TransitionApproval(BaseModel):
         related_name='+',
     )
     # 流转日期时间
-    transaction_at = models.DateTimeField(null=True, blank=True)
+    transaction_at = models.DateTimeField(_('流转时间'), null=True, blank=True)
+    memo = models.TextField(_('批准意见'), max_length=10000, default='')
 
     PENDING = "pending"
     APPROVED = "approved"

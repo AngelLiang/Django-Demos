@@ -11,6 +11,7 @@ class TransitionMetaAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'name',
                 'workflow',
                 'source_state',
                 'destination_state',

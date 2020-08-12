@@ -19,6 +19,7 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'name',
                 'workflow',
                 'parents',
                 ('can_edit', 'can_take',),
