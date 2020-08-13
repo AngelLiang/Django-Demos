@@ -52,15 +52,15 @@ class Wforder(BaseModel):
         blank=True, null=True,
         on_delete=models.CASCADE,
         db_constraint=False,
+        related_name='+',
     )
 
-    # workflow = models.ForeignKey(
-    #     'Workflow',
-    #     verbose_name=_('工作流程'),
-    #     blank=True, null=True,
-    #     on_delete=models.PROTECT,
+    # related_users = models.ManyToManyField(
+    #     settings.AUTH_USER_MODEL,
+    #     verbose_name=_('相关人员'),
     #     db_constraint=False,
-    #     limit_choices_to={'order_relation_config': '10'},
+    #     related_name='+',
+    #     # related_name='related_%(app_label)s_%(class)s',
     # )
 
     workflow_category = models.ForeignKey(
