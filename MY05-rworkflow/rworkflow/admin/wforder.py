@@ -1,12 +1,16 @@
 
 import logging
 
+from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.conf.urls import url
 from django.contrib.admin.utils import quote
+from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
+
 
 from .base import BaseAdmin
 from .. import models
@@ -16,13 +20,46 @@ from ..tables import TransitionApprovalTable
 LOGGER = logging.getLogger(__name__)
 
 
+class WfOrderRelatedListFilter(admin.SimpleListFilter):
+
+    title = _('工单关系')
+    parameter_name = 'wo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('mine', _('我创建的')),
+            ('todo', _('我的待办')),
+            ('related', _('与我相关')),
+            ('done', _('处理完成')),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        user = request.user
+        if value == 'mine':
+            return queryset.filter(user=user)
+        elif value == 'todo':
+            pass
+            # qfilter = Q(workflow_instance__todolist__user=user, workflow_instance__todolist__is_done=False)
+            # return queryset.filter(qfilter)
+        elif value == 'related':
+            qfilter = Q(related_users__id=user.id)
+            return queryset.filter(qfilter)
+        elif value == 'done':
+            # qfilter = Q(workflow_instance__todolist__user=user, workflow_instance__todolist__is_done=True)
+            # return queryset.filter(qfilter)
+            pass
+
+        return queryset
+
+
 class WforderAdmin(BaseAdmin):
     CODE_PREFIX = 'WO'
     CODE_NUMBER_WIDTH = 5
 
-    list_display = ('code', 'title', 'workflow', 'rstatus')
+    list_display = ('code', 'title', 'workflow', 'rstatus', 'applier')
     list_display_links = ('code', 'title',)
-    list_filter = ('workflow',)
+    list_filter = (WfOrderRelatedListFilter, 'workflow', )
     fieldsets = (
         (None, {
             'fields': (

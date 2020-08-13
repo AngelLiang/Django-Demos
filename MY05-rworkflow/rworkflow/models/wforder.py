@@ -98,6 +98,17 @@ class Wforder(BaseModel):
         verbose_name = _('工单')
         verbose_name_plural = _('工单')
 
+    def applier(self):
+        if self.user:
+            username = self.user.get_username()
+            fullname = self.user.get_full_name()
+            value = username
+            if fullname:
+                value += f'（{fullname}）'
+            return value
+        return ''
+    applier.short_description = _('申请人')
+
     def can_edit(self):
         status = self.get_status()
         return status and status.can_edit
@@ -130,12 +141,20 @@ class Wforder(BaseModel):
     def get_workflow_instance(self):
         return self.workflow_instance
 
-    def get_current_approval(self):
+    def get_next_approvals(self):
+        """获取下一批准集合"""
         workflow_instance = self.get_workflow_instance()
         if workflow_instance:
-            return workflow_instance.get_current_approval()
+            return workflow_instance.get_next_approvals()
+
+    def get_recent_approval(self):
+        """获取最近的批准"""
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            return workflow_instance.get_recent_approval()
 
     def get_history_approvals(self):
+        """获取历史批准数据"""
         workflow_instance = self.get_workflow_instance()
         if workflow_instance:
             return workflow_instance.get_history_approvals()

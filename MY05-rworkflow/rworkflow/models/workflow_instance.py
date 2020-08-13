@@ -214,7 +214,7 @@ class WorkflowInstance(BaseModel):
         return state and state.is_stop
 
     def get_next_approvals(self):
-        """获取下一个批准"""
+        """获取下一批准集合"""
         workflow_object = self.workflow_object
         state = self.get_state()
         transitions = Transition.objects.filter(
@@ -223,7 +223,8 @@ class WorkflowInstance(BaseModel):
         return TransitionApproval.objects.filter(transition__in=transitions)
     next_approvals = property(get_next_approvals)
 
-    def get_current_approval(self):
+    def get_recent_approval(self):
+        """"获取最近的批准"""
         try:
             workflow_object = self.workflow_object
             return TransitionApproval.objects.filter(
@@ -233,7 +234,7 @@ class WorkflowInstance(BaseModel):
         except TransitionApproval.DoesNotExist as e:
             LOGGER.info(e)
             return None
-    recent_approval = property(get_current_approval)
+    recent_approval = property(get_recent_approval)
 
     def get_history_approvals(self):
         """"获取所有历史批准"""
@@ -274,7 +275,7 @@ class WorkflowInstance(BaseModel):
         return State.objects.filter(pk__in=all_destination_state_ids)
 
     def get_available_approvals(self, as_user=None, destination_state=None):
-        """获取所有相关用户可用的批准流程"""
+        """获取相关用户可用的批准"""
         # 需要重写
         # qs = self.class_workflow.get_available_approvals(as_user, ).filter(object_id=self.workflow_object.pk)
 
@@ -282,10 +283,8 @@ class WorkflowInstance(BaseModel):
         qs = qs.filter(status=TransitionApproval.PENDING)
         if as_user:
             qs = qs.filter(users__id=as_user.id)
-
         if destination_state:
             qs = qs.filter(transition__destination_state=destination_state)
-
         return qs
 
     @transaction.atomic
