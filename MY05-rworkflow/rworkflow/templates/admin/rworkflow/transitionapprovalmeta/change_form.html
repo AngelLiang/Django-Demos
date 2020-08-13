@@ -5,46 +5,74 @@
 
     <script type="text/javascript">
         (function($) {
-            $(document).ready(function() {
-                $('.add-another').click(function(e) {
-                    e.preventDefault();
-                    showAddAnotherPopup(this);
-                });
-                $('.related-lookup').click(function(e) {
-                    e.preventDefault();
-                    showRelatedObjectLookupPopup(this);
-                });
 
             function handlerTypeChange() {
                 v = $("input[name='handler_type']:checked").val();
                 console.log(v)
-                if(v=='00'){
-                    {% comment %} 指定用户 {% endcomment %}
+                if(v=='users'){
+                    // 指定用户
                     $('div.field-users').show();
                     $('div.field-positions').hide();
                     $('div.field-roles').hide();
-                }else if(v=='10'){
-                    {% comment %} 指定岗位 {% endcomment %}
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-next_user_handler').hide();
+                }else if(v=='positions'){
+                    // 指定岗位
                     $('div.field-users').hide();
                     $('div.field-positions').show();
                     $('div.field-roles').hide();
-                }else if(v=='20'){
-                    {% comment %} 指定角色 {% endcomment %}
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-user_handler_function').hide();
+                }else if(v=='roles'){
+                    // 指定角色
                     $('div.field-users').hide();
                     $('div.field-positions').hide();
                     $('div.field-roles').show();
-                }else if(v=='90'){
-                    {% comment %} 提交人 {% endcomment %}
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-user_handler_function').hide();
+                }else if(v=='subbmiter'){
+                    // 提交人
                     $('div.field-users').hide();
                     $('div.field-positions').hide();
                     $('div.field-roles').hide();
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-user_handler_function').hide();
+                }else if(v=='units'){
+                    // 部门
+                    $('div.field-users').hide();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').hide();
+                    $('div.field-orgunits').show();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-user_handler_function').hide();
+                
+                }else if(v=='custom_function'){
+                    // 自定义审批处理类
+                    $('div.field-users').hide();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').hide();
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').hide();
+                    $('div.field-user_handler_function').show();
+                }else if(v=='custom_sql'){
+                    // 自定义SQL
+                    $('div.field-users').hide();
+                    $('div.field-positions').hide();
+                    $('div.field-roles').hide();
+                    $('div.field-orgunits').hide();
+                    $('div.field-user_handler_sql').show();
+                    $('div.field-user_handler_function').hide();
                 }
             }
 
-            $("input[name='handler_type']").bind('click',function(){
+            $("input[name='handler_type']").bind('click', function() {
                 handlerTypeChange()
             });
-            //handlerTypeChange()
+            handlerTypeChange()
 
         })(django.jQuery);
     </script>

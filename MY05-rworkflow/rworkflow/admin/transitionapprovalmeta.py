@@ -15,7 +15,7 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
     filter_horizontal = (
         'parents',
         'users',
-        # 'positions', 'roles', 'orgunits',
+        'positions', 'roles', 'orgunits',
     )
     radio_fields = {'handler_type': admin.HORIZONTAL}
     fieldsets = (
@@ -40,7 +40,12 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
         (_('处理类型'), {
             'fields': (
                 'handler_type',
+                'positions',
+                'roles',
                 'users',
+                'orgunits',
+                'user_handler_function',
+                'user_handler_sql',
             ),
         }),
     )

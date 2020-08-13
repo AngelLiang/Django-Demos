@@ -157,6 +157,8 @@ class TransitionApprovalMeta(BaseModel):
 
     def get_users_from_handler_type(self, request, obj):
         """通过处理类型获取处理用户"""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
         tp = self.handler_type
         if tp == self.HT_DESIGNATED_USERS and self.users:
             # 用户
@@ -164,11 +166,18 @@ class TransitionApprovalMeta(BaseModel):
             return users
         elif tp == self.HT_DESIGNATED_POSITIONS and self.positions:
             # 岗位
-            users = []
-            for position in self.positions.all():
-                for employee in position.employee_set.all():
-                    if employee.user:
-                        users.append(employee.user)
+            # users = []
+            # for position in self.positions.all():
+            #     for employee in position.employee_set.all():
+            #         if employee.user:
+            #             users.append(employee.user)
+
+            # positions = self.positions.all()
+            # users = User.objects.filter(employee__position__in=positions).all()
+
+            positions_pks = self.positions.values_list('pk', flat=True)
+            users = User.objects.filter(employee__position___pk__in=positions_pks).all()
+
             return users
         elif tp == self.HT_DESIGNATED_ROLES and self.roles:
             # 角色
