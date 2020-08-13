@@ -36,7 +36,7 @@
 
             {% if original.can_suggestion %}
                 <label style="display:block">{% trans "处理意见" %}：</label>
-                <textarea name="memo" rows="3" cols="80"></textarea>
+                <textarea name="memo" rows="3" cols="80" {% if original.is_suggestion_required %} required {% endif %}></textarea>
                 <br>
             {% endif %}
 

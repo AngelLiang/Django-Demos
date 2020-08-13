@@ -45,12 +45,6 @@ class TransitionApprovalMeta(BaseModel):
     )
 
     ################################################################
-    can_edit = models.BooleanField(_('处理人可编辑？'), default=False)
-    can_suggestion = models.BooleanField(_('处理人可填写处理意见？'), default=False)
-    is_suggestion_required = models.BooleanField(_('处理意见是否必填？'), default=False)
-    need_take = models.BooleanField(_('需要处理人接单？'), default=False)
-
-    ################################################################
     # 通知字段
     ################################################################
     # 邮件通知

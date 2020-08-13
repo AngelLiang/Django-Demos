@@ -99,13 +99,20 @@ class Wforder(BaseModel):
         verbose_name_plural = _('工单')
 
     def can_edit(self):
-        return self.get_status() is None or self.get_status() == self.workflow.get_initial_state()
+        status = self.get_status()
+        return status and status.can_edit
 
     def can_suggestion(self):
-        approval = self.get_current_approval()
-        if approval:
-            return approval.can_suggestion
-        return False
+        status = self.get_status()
+        return status and status.can_suggestion
+
+    def is_suggestion_required(self):
+        status = self.get_status()
+        return status and status.is_suggestion_required
+
+    def need_take(self):
+        status = self.get_status()
+        return status and status.need_take
 
     def is_wf_start(self):
         workflow_instance = self.get_workflow_instance()

@@ -35,6 +35,14 @@ class State(BaseModel):
     # 排序权重
     weight = models.IntegerField(_('权重'), blank=True, null=True, default=9)
 
+    ################################################################
+    # 工单在该状态的配置
+    ################################################################
+    can_edit = models.BooleanField(_('可编辑？'), default=False)
+    can_suggestion = models.BooleanField(_('可填写处理意见？'), default=False)
+    is_suggestion_required = models.BooleanField(_('处理意见是否必填？'), default=False)
+    need_take = models.BooleanField(_('需要处理人接单？'), default=False)
+
     def __str__(self):
         return f'{self.name}'
 

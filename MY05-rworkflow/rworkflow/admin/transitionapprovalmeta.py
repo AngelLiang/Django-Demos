@@ -27,11 +27,6 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
                 'parents',
             ),
         }),
-        (_('杂项'), {
-            'fields': (
-                ('can_edit', 'can_suggestion', 'need_take',),
-            ),
-        }),
         (_('通知'), {
             'fields': (
                 ('email_notice', 'short_message_notice', 'weixin_notice'),

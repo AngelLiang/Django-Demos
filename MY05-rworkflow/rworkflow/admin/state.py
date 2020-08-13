@@ -1,5 +1,6 @@
 
 from .base import BaseAdmin
+from django.utils.translation import ugettext_lazy as _
 
 
 class StateAdmin(BaseAdmin):
@@ -12,3 +13,24 @@ class StateAdmin(BaseAdmin):
     )
     list_filter = ('workflow',)
     ordering = ('workflow', 'weight', 'code')
+    fieldsets = (
+        (None, {
+            'fields': (
+                'name',
+                'workflow',
+            ),
+        }),
+        (_('信息'), {
+            'fields': (
+                'code',
+                ('is_active', 'is_start', 'is_stop',),
+                'weight',
+            ),
+        }),
+
+        (_('工单状态'), {
+            'fields': (
+                ('can_edit', 'can_suggestion', 'is_suggestion_required', 'need_take'),
+            ),
+        }),
+    )

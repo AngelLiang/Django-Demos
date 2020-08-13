@@ -1,5 +1,6 @@
 
 from .base import BaseAdmin
+from django.utils.translation import ugettext_lazy as _
 
 
 class TransitionApprovalAdmin(BaseAdmin):
@@ -15,15 +16,27 @@ class TransitionApprovalAdmin(BaseAdmin):
             'fields': (
                 'workflow',
                 'workflow_object',
-                'previous',
+                'meta',
                 'status',
+            ),
+        }),
+        (_('流转信息'), {
+            'fields': (
+                'previous',
                 'transactioner',
                 'transaction_at',
                 'memo',
-                'meta',
-                ('can_edit', 'can_take',),
+            ),
+        }),
+
+        (_('通知'), {
+            'fields': (
                 ('email_notice', 'short_message_notice', 'weixin_notice'),
-                'users',
+            ),
+        }),
+        (_('处理者'), {
+            'fields': (
+                ('users',),
             ),
         }),
     )

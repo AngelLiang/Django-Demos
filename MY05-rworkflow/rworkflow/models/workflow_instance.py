@@ -149,9 +149,6 @@ class WorkflowInstance(BaseModel):
                                 workflow_object=workflow_object,
                                 transition=transition,
                                 priority=transition_approval_meta.priority,
-                                can_suggestion=transition_approval_meta.can_suggestion,
-                                can_edit=transition_approval_meta.can_edit,
-                                need_take=transition_approval_meta.need_take,
                                 meta=transition_approval_meta,
                             )
                             users = transition_approval_meta.get_users_from_handler_type(
@@ -382,8 +379,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
-            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
+            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):
@@ -418,9 +415,6 @@ class WorkflowInstance(BaseModel):
                         content_type=old_approval.content_type,
                         priority=old_approval.priority,
                         meta=old_approval.meta,
-                        can_suggestion=old_approval.can_suggestion,
-                        can_edit=old_approval.can_edit,
-                        need_take=old_approval.need_take,
                     )
                     cycled_approval.users.set(old_approval.users.all())
 

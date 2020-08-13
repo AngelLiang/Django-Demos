@@ -45,10 +45,8 @@ class WforderAdmin(BaseAdmin):
         return readonly_fields
 
     def has_change_permission(self, request, obj=None):
-        if obj:
-            approval = obj.get_current_approval()
-            if approval and approval.can_edit is False:
-                return False
+        if obj and obj.can_edit() is False:
+            return False
         return super().has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
