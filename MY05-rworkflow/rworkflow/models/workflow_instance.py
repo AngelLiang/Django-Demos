@@ -352,8 +352,7 @@ class WorkflowInstance(BaseModel):
             possible_transition_ids.update(
                 set(possible_transitions.values_list("pk", flat=True)))
 
-            possible_next_states = set(possible_transitions.values_list(
-                "destination_state__id", flat=True))
+            possible_next_states = set(possible_transitions.values_list("destination_state__id", flat=True))
 
         cancelled_transitions = Transition.objects.filter(
             workflow=self.workflow,
@@ -383,8 +382,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
-            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
+            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):
