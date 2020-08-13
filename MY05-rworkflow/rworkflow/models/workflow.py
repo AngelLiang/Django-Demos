@@ -29,20 +29,6 @@ class Workflow(BaseModel):
     app_label = models.CharField(_('应用名称'), max_length=128, blank=True, null=True)
     model_name = models.CharField(_('模型名称'), max_length=128, blank=True, null=True)
 
-    ORC_ALLORDER = '00'
-    ORC_SELECT = '10'
-    ORC_DEFAULT = ORC_ALLORDER
-    ORC_CHOICES = (
-        (ORC_ALLORDER, '通过Content Type配置给所有工单'),
-        (ORC_SELECT, '通过工单外键主动选择工作流'),
-    )
-    order_relation_config = models.CharField(
-        _('工作流与工单的关系配置'),
-        max_length=16,
-        choices=ORC_CHOICES,
-        default=ORC_DEFAULT,
-    )
-
     ################################################################
     # 状态
     ################################################################

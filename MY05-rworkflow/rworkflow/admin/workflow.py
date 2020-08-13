@@ -38,17 +38,14 @@ class WorkflowAdmin(BaseAdmin):
     fields = (
         ('name',),
         ('rstatus',),
-        # ('init_status_value',),
         # ('content_type', 'object_id',),
         ('content_type',),
         ('app_label', 'model_name',),
         # ('status_field',),
-        ('order_relation_config',),
 
         ('is_active',),
         ('weight',),
     )
-    # readonly_fields = ('app_label', 'model_name',)
     readonly_fields = (
         'content_type', 'app_label',
         'model_name', 'status_field',
