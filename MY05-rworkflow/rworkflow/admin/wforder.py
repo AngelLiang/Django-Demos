@@ -37,18 +37,32 @@ class WfOrderRelatedListFilter(admin.SimpleListFilter):
         value = self.value()
         user = request.user
         if value == 'mine':
+            # 我创建的
             return queryset.filter(user=user)
         elif value == 'todo':
-            pass
-            # qfilter = Q(workflow_instance__todolist__user=user, workflow_instance__todolist__is_done=False)
-            # return queryset.filter(qfilter)
+            # 我的待办
+            approvals = models.TransitionApproval.objects.filter(
+                status=models.TransitionApproval.PENDING,
+                users__id=user.id
+            )
+            ids = approvals.values_list('object_id', flat=True).distinct()
+            return queryset.filter(id__in=ids)
         elif value == 'related':
-            qfilter = Q(related_users__id=user.id)
-            return queryset.filter(qfilter)
+            # 与我相关：等待我处理的和我处理完成的工单
+            approvals = models.TransitionApproval.objects.filter(
+                status__in=(models.TransitionApproval.PENDING, models.TransitionApproval.APPROVED),
+                users__id=user.id
+            )
+            ids = approvals.values_list('object_id', flat=True).distinct()
+            return queryset.filter(id__in=ids)
         elif value == 'done':
-            # qfilter = Q(workflow_instance__todolist__user=user, workflow_instance__todolist__is_done=True)
-            # return queryset.filter(qfilter)
-            pass
+            # 处理完成
+            approvals = models.TransitionApproval.objects.filter(
+                status=models.TransitionApproval.APPROVED,
+                users__id=user.id
+            )
+            ids = approvals.values_list('object_id', flat=True).distinct()
+            return queryset.filter(id__in=ids)
 
         return queryset
 
