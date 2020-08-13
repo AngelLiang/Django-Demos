@@ -19,8 +19,8 @@ LOGGER = logging.getLogger(__name__)
 class TransitionApproval(BaseModel):
     """流转批准"""
 
-    name = models.CharField(_('名称'), max_length=80, default='', null=True)
-    code = models.CharField(_('编号'), max_length=40, default='', null=True)
+    name = models.CharField(_('名称'), max_length=80, default='', blank=True)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 
     # 关联的对象
     content_type = models.ForeignKey(
@@ -92,8 +92,8 @@ class TransitionApproval(BaseModel):
     # # 权限组
     # groups = models.ManyToManyField(Group, verbose_name=_('权限组'))
 
-    # 优先级
     priority = models.IntegerField(_('优先级'), default=0)
+    weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=9)
 
     # 前一个流转
     # previous = TreeOneToOneField(

@@ -129,6 +129,10 @@ class Wforder(BaseModel):
         workflow_instance = self.get_workflow_instance()
         return workflow_instance and workflow_instance.is_wf_start()
 
+    def is_wf_finish(self):
+        workflow_instance = self.get_workflow_instance()
+        return workflow_instance and workflow_instance.is_wf_finish()
+
     def get_status(self):
         return self.rstatus
 

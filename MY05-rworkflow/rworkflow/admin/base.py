@@ -10,3 +10,7 @@ class BaseAdmin(admin.ModelAdmin):
         if not change:
             obj.created_by = user.username
         super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.distinct()

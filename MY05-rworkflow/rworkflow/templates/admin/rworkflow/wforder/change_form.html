@@ -29,36 +29,38 @@
 {% block content %}
     {{ block.super }}
 
-    {% if original and original.is_wf_start %}
-    <div>
-        <form action="" method="post" id="workflow_form">
-            {% csrf_token %}
+    {% if original %}
+        {% if original.is_wf_start %}
+        <div>
+            <form action="" method="post" id="workflow_form">
+                {% csrf_token %}
 
-            {% if original.can_suggestion %}
-                <label style="display:block">{% trans "处理意见" %}：</label>
-                <textarea name="memo" rows="3" cols="80" {% if original.is_suggestion_required %} required {% endif %}></textarea>
-                <br>
-            {% endif %}
+                {% if original.can_suggestion %}
+                    <label style="display:block">{% trans "处理意见" %}：</label>
+                    <textarea name="memo" rows="3" cols="80" {% if original.is_suggestion_required %} required {% endif %}></textarea>
+                    <br>
+                {% endif %}
 
-            {% for approval in next_approvals %}
-                <input class="workflow_btn" type="submit" value="{{ approval.value }}" url="{{ approval.url }}" style="float:left; padding:10px 15px; margin:5px"/>
-                {% comment %} <input class="workflow_btn" type="button" value="{{ approval.value }}" url="{{ approval.url }}" style="padding: 10px 15px;"/> {% endcomment %}
-            {% endfor %}
+                {% for approval in next_approvals %}
+                    <input class="workflow_btn" type="submit" value="{{ approval.value }}" url="{{ approval.url }}" style="float:left; padding:10px 15px; margin:5px"/>
+                    {% comment %} <input class="workflow_btn" type="button" value="{{ approval.value }}" url="{{ approval.url }}" style="padding: 10px 15px;"/> {% endcomment %}
+                {% endfor %}
 
-        </form>
-    </div>
+            </form>
+        </div>
 
-    <script type="text/javascript">
-        (function($) {
-            $(document).ready(function() {
-                $(".workflow_btn").on("click", function() {
-                    url = $(this).attr("url")
-                    console.log(url)
-                    $("#workflow_form").attr("action", url);
+        <script type="text/javascript">
+            (function($) {
+                $(document).ready(function() {
+                    $(".workflow_btn").on("click", function() {
+                        url = $(this).attr("url")
+                        console.log(url)
+                        $("#workflow_form").attr("action", url);
+                    });
                 });
-            });
-        })(django.jQuery);
-    </script>
+            })(django.jQuery);
+        </script>
+        {% endif %}
     {% endif %}
 
 {% endblock %}

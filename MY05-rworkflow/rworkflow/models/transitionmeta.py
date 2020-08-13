@@ -7,8 +7,8 @@ from .base import BaseModel
 class TransitionMeta(BaseModel):
     """流转元数据"""
 
-    name = models.CharField(_('名称'), max_length=80, default='', null=True)
-    code = models.CharField(_('编号'), max_length=40, default='', null=True)
+    name = models.CharField(_('名称'), max_length=80, default='', blank=True)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 
     # 工作流
     workflow = models.ForeignKey(
@@ -44,8 +44,7 @@ class TransitionMeta(BaseModel):
     #     blank=True, null=True,
     # )
 
-    # 权重
-    weight = models.IntegerField(_('权重'), blank=True, null=True, default=9)
+    weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=9)
 
     def __str__(self):
         return '工作流:%s, %s -> %s' % (

@@ -23,9 +23,10 @@ class TransitionMetaInline(admin.TabularInline):
 
 class TransitionApprovalMetaInline(admin.TabularInline):
     model = TransitionApprovalMeta
-    fields = ('transition_meta', 'parents', 'priority')
+    fields = ('name', 'transition_meta', 'parents', 'weight')
     extra = 0
-    ordering = ('priority', 'parents')
+    # 如果按 parents 排序，当有多个 parents 时会出现重复的数据
+    ordering = ('weight', 'id')
     show_change_link = True
     form = TransitionApprovalMetaForm
 

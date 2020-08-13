@@ -9,9 +9,9 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
     CODE_PREFIX = 'TAM'
     CODE_NUMBER_WIDTH = 3
 
-    list_display = ('__str__', 'priority')
+    list_display = ('__str__', 'weight')
     list_filter = ('workflow',)
-    ordering = ('workflow', 'priority')
+    ordering = ('workflow', 'weight')
 
     filter_horizontal = (
         'parents',
@@ -22,10 +22,11 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
     fieldsets = (
         (None, {
             'fields': (
-                # 'name',
+                'name',
                 'workflow',
                 'transition_meta',
                 'parents',
+                'weight',
             ),
         }),
         (_('通知'), {

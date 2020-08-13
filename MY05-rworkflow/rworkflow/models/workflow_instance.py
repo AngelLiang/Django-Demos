@@ -57,10 +57,13 @@ class WorkflowInstance(BaseModel):
         on_delete=models.PROTECT,
         related_name='+',
     )
-    # 发起时间
+
+    # 时间
     start_at = models.DateTimeField(_('发起时间'), auto_now_add=True)
+    finish_at = models.DateTimeField(_('结束时间'), blank=True, null=True)
 
     initialized = models.BooleanField(_('已初始化？'), default=False, editable=False)
+    is_finish = models.BooleanField(_('已结束？'), default=False, editable=False)
 
     def __str__(self):
         return f'{self.code}'
@@ -106,6 +109,9 @@ class WorkflowInstance(BaseModel):
         workflow_object = self.get_workflow_object()
         return self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() != 0
 
+    def is_wf_finish(self):
+        return self.on_final_state
+
     @transaction.atomic
     def initialize_approvals(self, request):
         """初始化批准流程"""
@@ -127,7 +133,7 @@ class WorkflowInstance(BaseModel):
                     source_state__is_start=True)
                 LOGGER.debug(transition_meta_list)
 
-                # 迭代次数
+                # 迭代层级
                 iteration = 0
                 # 已经处理过的 transitions
                 processed_transitions = []
@@ -402,8 +408,7 @@ class WorkflowInstance(BaseModel):
         )
 
     def _re_create_cycled_path(self, done_transition):
-        old_transitions = self._get_transition_images(
-            [done_transition.destination_state.pk])
+        old_transitions = self._get_transition_images([done_transition.destination_state.pk])
 
         iteration = done_transition.iteration + 1
         regenerated_transitions = set()
@@ -445,8 +450,7 @@ class WorkflowInstance(BaseModel):
                     # cycled_approval.memo = ''
                     # cycled_approval.save()
 
-            regenerated_transitions.add(
-                (old_transition.source_state, old_transition.destination_state))
+            regenerated_transitions.add((old_transition.source_state, old_transition.destination_state))
 
             old_transitions = self._get_transition_images(old_transitions.values_list("destination_state__pk", flat=True)).exclude(
                 six.moves.reduce(lambda agg, q: q | agg, [Q(source_state=source_state, destination_state=destination_state)

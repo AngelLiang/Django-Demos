@@ -7,6 +7,12 @@ from ..models import TransitionApprovalMeta, TransitionMeta
 
 
 class TransitionApprovalMetaForm(forms.ModelForm):
+    name = forms.CharField(
+        label=_('名称'), max_length=16, required=False,
+        widget=forms.TextInput(attrs={'size': '40'}),
+        help_text=_('该名称将显示在界面上')
+    )
+
     transition_meta = forms.ModelChoiceField(
         label=_('流转元数据'), queryset=TransitionMeta.objects, required=True)
     parents = forms.ModelMultipleChoiceField(

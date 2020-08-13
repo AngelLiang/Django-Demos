@@ -13,8 +13,8 @@ from .base import BaseModel
 class TransitionApprovalMeta(BaseModel):
     """流转批准元数据"""
 
-    name = models.CharField(_('名称'), max_length=80, default='', null=True)
-    code = models.CharField(_('编号'), max_length=40, default='', null=True)
+    name = models.CharField(_('名称'), max_length=80, default='', blank=True)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 
     # 工作流
     workflow = models.ForeignKey(
@@ -33,7 +33,8 @@ class TransitionApprovalMeta(BaseModel):
         related_name='transition_approval_meta',
     )
 
-    priority = models.IntegerField(_('排序'), default=0, null=True, blank=True)
+    priority = models.IntegerField(_('优先级'), default=0, null=True, blank=True)
+    weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=9)
 
     # 父级 多对多
     parents = models.ManyToManyField(
@@ -135,7 +136,7 @@ class TransitionApprovalMeta(BaseModel):
     ################################################################
 
     def __str__(self):
-        return '流转: %s, 排序: %s' % (self.transition_meta, self.priority)
+        return '流转: %s, 优先级: %s' % (self.transition_meta, self.priority)
 
     class Meta:
         verbose_name = _('批准元数据')

@@ -14,8 +14,8 @@ LOGGER = logging.getLogger(__name__)
 class Transition(models.Model):
     """流转"""
 
-    name = models.CharField(_('名称'), max_length=80, default='', null=True)
-    code = models.CharField(_('编号'), max_length=40, default='', null=True)
+    name = models.CharField(_('名称'), max_length=80, default='', blank=True)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 
     content_type = models.ForeignKey(
         ContentType,
@@ -84,7 +84,7 @@ class Transition(models.Model):
     # 状态
     status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
 
-    iteration = models.IntegerField(_('iteration'), default=0)
+    iteration = models.IntegerField(_('迭代层级'), default=0)
 
     @property
     def next_transitions(self):

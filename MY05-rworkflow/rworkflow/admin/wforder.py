@@ -152,7 +152,7 @@ class WforderAdmin(BaseAdmin):
                         url = reverse(f'admin:wf_approve',
                                       kwargs={'object_id': obj.pk,
                                               'next_state_id': approval.transition.destination_state.pk})
-                        value = f'{approval.transition.source_state} -> {approval.transition.destination_state}'
+                        value = approval.name or f'{approval.transition.source_state} -> {approval.transition.destination_state}'
                         next_approvals.append({'value': value, 'url': url})
                     extra_context.update({'next_approvals': next_approvals})
 

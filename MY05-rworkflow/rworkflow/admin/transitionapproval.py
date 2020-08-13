@@ -7,13 +7,14 @@ class TransitionApprovalAdmin(BaseAdmin):
     CODE_PREFIX = 'TA'
     CODE_NUMBER_WIDTH = 3
 
-    list_display = ('__str__', 'workflow_object', 'status', 'previous')
+    list_display = ('__str__', 'workflow_object', 'status', 'previous', 'weight')
     list_filter = ('status',)
     ordering = ('content_type', 'object_id', )
 
     fieldsets = (
         (None, {
             'fields': (
+                'name',
                 'workflow',
                 'workflow_object',
                 'meta',
@@ -26,6 +27,7 @@ class TransitionApprovalAdmin(BaseAdmin):
                 'transactioner',
                 'transaction_at',
                 'memo',
+                'weight',
             ),
         }),
 
