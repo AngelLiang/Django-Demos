@@ -242,13 +242,26 @@ def post_save_model(sender, instance, *args, **kwargs):
     for child in children:
         child.parents.add(instance)
 
+    # 有 parents 表示 source_state 非起始节点
+    if instance.parents.count() == 0:
+        instance.transition_meta.source_state.is_start = True
+    else:
+        instance.transition_meta.source_state.is_start = False
+    instance.transition_meta.source_state.save(update_fields=['is_start'])
+
+    # 有 children 表示 destination_state 非终止节点
+    if instance.children.count() == 0:
+        instance.transition_meta.destination_state.is_stop = True
+    else:
+        instance.transition_meta.destination_state.is_stop = False
+    instance.transition_meta.destination_state.save(update_fields=['is_stop'])
+
 
 @transaction.atomic
 def pre_delete_model(sender, instance, *args, **kwargs):
     from .transitionapproval import TransitionApproval
-    PENDING = TransitionApproval.PENDING
-    # 删除所有 PENDING 的 transition_approval
-    instance.transition_approvals.filter(status=PENDING).delete()
+    # 删除所有 PENDING 状态 的 transition_approval
+    instance.transition_approvals.filter(status=TransitionApproval.PENDING).delete()
 
 
 post_save.connect(post_save_model, sender=TransitionApprovalMeta)
