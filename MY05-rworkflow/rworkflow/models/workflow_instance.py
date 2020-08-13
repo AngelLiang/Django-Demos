@@ -15,8 +15,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 
 # from common import const
 from .base import BaseModel
+from .workflow import Workflow
 from .transition import Transition
 from .transitionapproval import TransitionApproval
+from .transitionapprovalmeta import TransitionApprovalMeta
 from .state import State
 
 LOGGER = logging.getLogger(__name__)
@@ -180,6 +182,23 @@ class WorkflowInstance(BaseModel):
     def status_field(self):
         return self.workflow.status_field
 
+    def get_initial_state(self):
+        """获取初始状态
+        TransitionApprovalMeta 没有 parents 时，对应的源状态就是初始状态
+        """
+        initial_approvals = TransitionApprovalMeta.objects.filter(workflow=self.workflow, parents__isnull=True)
+        return State.objects.filter(pk__in=initial_approvals.values_list("transition_meta__source_state", flat=True))
+        # return State.objects.filter(workflow=self.workflow, is_start=True).first()
+    initial_state = property(get_initial_state)
+
+    def get_final_states(self):
+        """获取终止状态
+        TransitionApprovalMeta 没有 children 时，对应的目的状态就是终止状态
+        """
+        final_approvals = TransitionApprovalMeta.objects.filter(workflow=self.workflow, children__isnull=True)
+        return State.objects.filter(pk__in=final_approvals.values_list("transition_meta__destination_state", flat=True))
+    final_states = property(get_final_states)
+
     @property
     def on_initial_state(self):
         """处于初始状态"""
@@ -190,7 +209,7 @@ class WorkflowInstance(BaseModel):
     @property
     def on_final_state(self):
         """处于结束状态"""
-        # return self.class_workflow.final_states.filter(pk=self.get_state().pk).count() > 0
+        # return self.final_states.filter(pk=self.get_state().pk).count() > 0
         state = self.get_state()
         return state and state.is_stop
 

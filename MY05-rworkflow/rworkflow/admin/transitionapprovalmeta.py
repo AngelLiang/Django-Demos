@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from .base import BaseAdmin
+from ..forms import TransitionApprovalMetaForm
 
 
 class TransitionApprovalMetaAdmin(BaseAdmin):
@@ -44,3 +45,4 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
             ),
         }),
     )
+    form = TransitionApprovalMetaForm
