@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from django.contrib.auth.models import Permission, Group
 
@@ -8,6 +9,9 @@ from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 
 from .base import BaseModel
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TransitionApprovalMeta(BaseModel):
@@ -171,9 +175,10 @@ class TransitionApprovalMeta(BaseModel):
             # positions = self.positions.all()
             # users = User.objects.filter(employee__position__in=positions).all()
 
-            positions_pks = self.positions.values_list('pk', flat=True)
-            users = User.objects.filter(employee__position___pk__in=positions_pks).all()
-
+            positions_ids = self.positions.values_list('id', flat=True)
+            LOGGER.debug(f'positions_ids:{positions_ids}')
+            users = User.objects.filter(employee__position__id__in=positions_ids).all()
+            LOGGER.debug(f'users:{users}')
             return users
         elif tp == self.HT_DESIGNATED_ROLES and self.roles:
             # 角色

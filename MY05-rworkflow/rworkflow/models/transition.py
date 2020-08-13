@@ -82,7 +82,7 @@ class Transition(models.Model):
         (JUMPED, _('已跳转')),
     )
     # 状态
-    status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
+    status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING, db_index=True)
 
     iteration = models.IntegerField(_('迭代层级'), default=0)
 

@@ -164,9 +164,13 @@ LOGGING = {
     'loggers': {
         'rworkflow.admin.wforder': {
             'handlers': ['console', ],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'rworkflow.models.workflow_instance': {
+            'handlers': ['console', ],
+            'level': 'INFO',
+        },
+        'rworkflow.models.transitionapprovalmeta': {
             'handlers': ['console', ],
             'level': 'DEBUG',
         },

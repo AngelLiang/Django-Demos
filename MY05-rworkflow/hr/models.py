@@ -17,6 +17,15 @@ class Position(models.Model):
         related_name='positions',
     )
 
+    parent = models.ForeignKey(
+        'self',
+        verbose_name='上级岗位',
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        db_constraint=False,
+        related_name='children',
+    )
+
     def __str__(self):
         return f'{self.name}'
 

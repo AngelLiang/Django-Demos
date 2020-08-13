@@ -8,6 +8,15 @@ class OrgUnit(models.Model):
 
     name = models.CharField(_('名称'), max_length=80)
 
+    parent = models.ForeignKey(
+        'self',
+        verbose_name='上级部门',
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        db_constraint=False,
+        related_name='children',
+    )
+
     def __str__(self):
         return f'{self.name}'
 

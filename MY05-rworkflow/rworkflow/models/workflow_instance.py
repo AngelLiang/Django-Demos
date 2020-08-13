@@ -238,7 +238,7 @@ class WorkflowInstance(BaseModel):
             ).filter(transaction_at__isnull=False).latest('transaction_at')
             # return getattr(self.workflow_object, self.field_name + "_transition_approvals").filter(transaction_at__isnull=False).latest('transaction_at')
         except TransitionApproval.DoesNotExist as e:
-            LOGGER.info(e)
+            LOGGER.debug(e)
             return None
     recent_approval = property(get_recent_approval)
 

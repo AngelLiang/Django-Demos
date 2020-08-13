@@ -15,9 +15,8 @@ class TransitionMetaForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance', None)
-        if instance and instance.workflow:
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        if instance and instance.workflow_id:
             self.declared_fields['source_state'].queryset = instance.workflow.states
             self.declared_fields['destination_state'].queryset = instance.workflow.states
-
-        super().__init__(*args, **kwargs)

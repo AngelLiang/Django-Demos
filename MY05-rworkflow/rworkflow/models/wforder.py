@@ -133,6 +133,18 @@ class Wforder(BaseModel):
         workflow_instance = self.get_workflow_instance()
         return workflow_instance and workflow_instance.is_wf_finish()
 
+    def is_on_initial_state(self):
+        workflow_instance = self.get_workflow_instance()
+        return workflow_instance and workflow_instance.on_initial_state
+
+    def get_current_handle_users(self):
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            approval = workflow_instance.get_recent_approval()
+            if approval:
+                return approval.users.all()
+        return []
+
     def get_status(self):
         return self.rstatus
 

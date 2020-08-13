@@ -96,7 +96,17 @@ class WforderAdmin(BaseAdmin):
         return readonly_fields
 
     def has_change_permission(self, request, obj=None):
-        if obj and obj.can_edit() is False:
+        """
+        - 流程初始状态下，根据状态所配置的编辑权限来确定申请人是否可编辑
+        - 其他状态下，根据工单当前的状态来判断处理人是否可以编辑，其他人不可编辑
+        """
+        user = request.user
+        if obj:
+            if obj.is_on_initial_state():
+                return obj.can_edit()
+            # users = obj.get_current_handle_users() or []
+            # if user in users:
+            #     return obj.can_edit()
             return False
         return super().has_change_permission(request, obj)
 
@@ -161,7 +171,7 @@ class WforderAdmin(BaseAdmin):
                 if workflow_instance:
                     next_approvals = []
                     approvals = workflow_instance.get_available_approvals(user).all()
-                    LOGGER.debug(approvals)
+                    LOGGER.debug(f'approvals:{approvals}')
                     for approval in approvals:
                         url = reverse(f'admin:wf_approve',
                                       kwargs={'object_id': obj.pk,
@@ -234,3 +244,23 @@ class WforderAdmin(BaseAdmin):
         if obj.user is None:
             obj.user = request.user
         super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+        if user.is_superuser:
+            # 超级管理员能查看所有数据
+            return qs
+
+        qfilter = Q()
+        qfilter |= Q(created_by=user.username)
+
+        # 与我相关：等待我处理的和我处理完成的工单
+        approvals = models.TransitionApproval.objects.filter(
+            status__in=(models.TransitionApproval.PENDING, models.TransitionApproval.APPROVED),
+            users__id=user.id
+        )
+        ids = approvals.values_list('object_id', flat=True).distinct()
+        qfilter |= Q(id__in=ids)
+
+        return qs.filter(qfilter)
