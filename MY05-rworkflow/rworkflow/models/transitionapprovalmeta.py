@@ -40,6 +40,7 @@ class TransitionApprovalMeta(BaseModel):
     parents = models.ManyToManyField(
         'self', verbose_name=_('父级'),
         symmetrical=False,
+        db_constraint=False,
         db_index=True,
         blank=True,
         related_name='children',

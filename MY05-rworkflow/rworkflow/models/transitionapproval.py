@@ -85,7 +85,7 @@ class TransitionApproval(BaseModel):
         (JUMPED, _('已跳转')),
     ]
     # 流转批准状态
-    status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING)
+    status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING, db_index=True)
 
     # # 权限
     # permissions = models.ManyToManyField(Permission, verbose_name=_('权限'))
