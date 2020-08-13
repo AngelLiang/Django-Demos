@@ -424,9 +424,15 @@ class WorkflowInstance(BaseModel):
                         need_take=old_approval.need_take,
                     )
                     cycled_approval.users.set(old_approval.users.all())
-                    # cycled_approval.permissions.set(
-                    #     old_approval.permissions.all())
-                    # cycled_approval.groups.set(old_approval.groups.all())
+
+                    # cycled_approval = old_approval
+                    # cycled_approval.pk = None
+                    # cycled_approval.transition = cycled_transition
+                    # cycled_approval.status = TransitionApproval.PENDING
+                    # cycled_approval.transactioner = None
+                    # cycled_approval.transaction_at = None
+                    # cycled_approval.memo = ''
+                    # cycled_approval.save()
 
             regenerated_transitions.add(
                 (old_transition.source_state, old_transition.destination_state))
