@@ -8,6 +8,9 @@ class OrgUnit(models.Model):
 
     name = models.CharField(_('名称'), max_length=80)
 
+    def __str__(self):
+        return f'{self.name}'
+
     class Meta:
         verbose_name = _('部门单元')
         verbose_name_plural = _('部门单元')
