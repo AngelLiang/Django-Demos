@@ -11,7 +11,7 @@ from .transitionapproval import TransitionApprovalAdmin
 from .transitionmeta import TransitionMetaAdmin
 from .transition import TransitionAdmin
 from .wforder import WforderAdmin
-from .extra_param import ExtraParamMetaAdmin, ExtraParamAdmin
+from .extraparam import ExtraParamMetaAdmin, ExtraParamAdmin
 
 
 from .. import models

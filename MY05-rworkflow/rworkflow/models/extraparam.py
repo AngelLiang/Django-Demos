@@ -3,6 +3,8 @@ from django.conf import settings
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 from .base import BaseModel
 from ..managers import EatraParamManager
@@ -72,6 +74,7 @@ class ExtraParamMeta(BaseModel):
         choices=VALUE_TP_CHOICES,
         default=VALUE_TP_DEFAULT,
     )
+    required = models.BooleanField(_('必填？'), default=False)
     is_choice_combo = models.BooleanField(_('choice控件是否以combo方式选择'), default=False)
     is_choice_async = models.BooleanField(_('choice控件是否异步加载'), default=False)
 
@@ -95,7 +98,6 @@ class ExtraParamMeta(BaseModel):
 class ExtraParam(models.Model):
     """额外参数"""
 
-    # 工作流
     wo = models.ForeignKey(
         'Wforder',
         verbose_name=_('工单'),
@@ -103,6 +105,20 @@ class ExtraParam(models.Model):
         db_constraint=False,
         related_name='extra_params',
     )
+
+    ################################################################
+    # 关联的对象
+    ################################################################
+    content_type = models.ForeignKey(
+        ContentType,
+        verbose_name=_('Content Type'),
+        on_delete=models.PROTECT,
+        blank=True, null=True,
+        db_constraint=False,
+        related_name='+',
+    )
+    object_id = models.PositiveIntegerField(_('对象ID'), blank=True, null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     # 元数据
     meta = models.ForeignKey(
@@ -145,7 +161,7 @@ class ExtraParam(models.Model):
     posint_value = models.PositiveIntegerField(_('正整型值'), null=True, blank=True)
     float_value = models.FloatField(_('浮点值'), null=True, blank=True)
     binary_value = models.BinaryField(_('二进制值'), null=True, blank=True)
-    decimal_value = models.DecimalField(_('定点值'), max_digits=14, decimal_places=6, null=True, blank=True)
+    decimal_value = models.DecimalField(_('定点值'), max_digits=14, decimal_places=2, null=True, blank=True)
     # 时间
     time_value = models.TimeField(_('时间值'), null=True, blank=True)
     date_value = models.DateField(_('日期值'), null=True, blank=True)
@@ -159,11 +175,9 @@ class ExtraParam(models.Model):
     multiple_choice_value = models.TextField(_('多选值'), null=True, blank=True)
 
     ################################################################
-
+    required = models.BooleanField(_('必填？'), default=False)
     is_choice_combo = models.BooleanField(_('choice控件是否以combo方式选择'), default=False)
     is_choice_async = models.BooleanField(_('choice控件是否异步加载'), default=False)
-
-    # 排序权重
     weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=9)
 
     def __str__(self):
@@ -175,13 +189,17 @@ class ExtraParam(models.Model):
 
     objects = EatraParamManager()
 
+    def gen_value_attr(self):
+        return f'{self.value_tp}_value'
+
     def get_value(self):
-        tp = self.value_tp
-        return getattr(self, f'{tp}_value', None)
+        attr = self.gen_value_attr()
+        return getattr(self, attr, None)
+    get_value.description = _('数值')
 
     def set_value(self, value):
-        tp = self.value_tp
-        return setattr(self, f'{tp}_value', value)
+        attr = self.gen_value_attr()
+        return setattr(self, attr, value)
 
     value = property(get_value, set_value)
 

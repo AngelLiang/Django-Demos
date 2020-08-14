@@ -15,6 +15,7 @@ from django.db.models import Q
 from .base import BaseAdmin
 from .. import models
 from ..tables import TransitionApprovalTable
+from ..forms import ExtraParamForm
 
 
 LOGGER = logging.getLogger(__name__)
@@ -67,6 +68,31 @@ class WfOrderRelatedListFilter(admin.SimpleListFilter):
         return queryset
 
 
+class ExtraParamInline(admin.TabularInline):
+    model = models.ExtraParam
+    fields = ('name', 'value_tp', 'paramvalue', 'memo',)
+    ordering = ('weight', 'id')
+    readonly_fields = ('name', 'value_tp', 'memo',)
+    extra = 0
+    # can_delete = False
+    # show_change_link = True
+    form = ExtraParamForm
+
+    # def get_fields(self, request, obj=None):
+    #     # self.model.filter(wo=obj)
+    #     fields = list(super().get_fields(request, obj))
+    #     if obj:
+    #         value_attr = obj.gen_value_attr()
+    #         fields.append(value_attr)
+    #     return fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 class WforderAdmin(BaseAdmin):
     CODE_PREFIX = 'WO'
     CODE_NUMBER_WIDTH = 5
@@ -86,6 +112,7 @@ class WforderAdmin(BaseAdmin):
         }),
     )
     readonly_fields = ('code', 'rstatus',)
+    inlines = (ExtraParamInline,)
 
     def get_readonly_fields(self, request, obj):
         readonly_fields = list(super().get_readonly_fields(request, obj) or [])

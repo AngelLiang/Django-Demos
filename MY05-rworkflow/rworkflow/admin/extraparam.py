@@ -39,6 +39,6 @@ class ExtraParamMetaAdmin(BaseAdmin):
 class ExtraParamAdmin(BaseAdmin):
 
     list_display = (
-        'name', 'value_tp',
-        'memo', 'weight',
+        'name', 'value_tp', 'memo', 'weight',
     )
+    readonly_fields = ('name', 'value_tp', 'memo', 'weight')

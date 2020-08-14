@@ -1,5 +1,6 @@
-from .base import BaseManager
 from django.contrib.contenttypes.models import ContentType
+
+from .base import BaseManager
 
 
 class TransitionApprovalManager(BaseManager):
