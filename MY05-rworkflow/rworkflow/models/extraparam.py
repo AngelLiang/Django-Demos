@@ -62,7 +62,6 @@ class ExtraParamMeta(BaseModel):
 
     name = models.CharField(_('名称'), max_length=80)
     code = models.CharField(_('编号'), max_length=40, default='', blank=True)
-    is_active = models.BooleanField(_('在用？'), default=True)
     memo = models.CharField(_('备注'), max_length=255, default='', blank=True)
 
     VALUE_TP_CHOICES = VALUE_TP_CHOICES
@@ -78,7 +77,7 @@ class ExtraParamMeta(BaseModel):
     is_choice_combo = models.BooleanField(_('choice控件是否以combo方式选择'), default=False)
     is_choice_async = models.BooleanField(_('choice控件是否异步加载'), default=False)
 
-    # 排序权重
+    is_active = models.BooleanField(_('在用？'), default=True)
     weight = models.IntegerField(_('排序权重'), blank=True, null=True, default=9)
 
     def __str__(self):
@@ -149,7 +148,7 @@ class ExtraParam(models.Model):
         default=VALUE_TP_DEFAULT,
     )
 
-    # 字符串型
+    # 布尔值
     bool_value = models.BooleanField(_('布尔值'), null=True, blank=True)
     # 电话号码、IP等数值可用该字段
     char_value = models.CharField(_('字符串值'), max_length=255, null=True, blank=True)
