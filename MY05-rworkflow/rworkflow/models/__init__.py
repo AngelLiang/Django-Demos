@@ -7,3 +7,7 @@ from .transition import Transition
 from .transitionapprovalmeta import TransitionApprovalMeta
 from .transitionapproval import TransitionApproval
 from .wforder import Wforder
+from .extra_param import (
+    ExtraParamMeta, ExtraParam,
+    ExtraParamChoiceMeta, ExtraParamChoice
+)

@@ -11,6 +11,7 @@ django-mptt = "*"
 django-cte = "*"
 six = "*"
 django-tables2 = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.6"

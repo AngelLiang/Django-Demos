@@ -85,7 +85,7 @@ class TransitionApprovalMeta(BaseModel):
     HT_DEFAULT = HT_SUBBMITER
     # 处理类型
     handler_type = models.CharField(
-        _('审批处理类型'),
+        _('处理人类型'),
         max_length=40,
         choices=HT_CHOICES,
         default=HT_DEFAULT,
@@ -125,7 +125,7 @@ class TransitionApprovalMeta(BaseModel):
         ('ParentPosition', _('提交人的上级')),
     )
     user_handler_function = models.CharField(
-        _('next用户处理类'),
+        _('处理人处理函数'),
         max_length=80,
         blank=True, null=True,
         choices=NUH_CHOICES,

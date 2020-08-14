@@ -46,4 +46,5 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
             ),
         }),
     )
+    readonly_fields = ('workflow',)
     form = TransitionApprovalMetaForm

@@ -11,6 +11,8 @@ from .transitionapproval import TransitionApprovalAdmin
 from .transitionmeta import TransitionMetaAdmin
 from .transition import TransitionAdmin
 from .wforder import WforderAdmin
+from .extra_param import ExtraParamMetaAdmin, ExtraParamAdmin
+
 
 from .. import models
 
@@ -49,4 +51,5 @@ admin.site.register(models.TransitionApproval, TransitionApprovalAdmin)
 admin.site.register(models.TransitionApprovalMeta, TransitionApprovalMetaAdmin)
 admin.site.register(models.Transition, TransitionAdmin)
 admin.site.register(models.TransitionMeta, TransitionMetaAdmin)
-
+admin.site.register(models.ExtraParam, ExtraParamAdmin)
+admin.site.register(models.ExtraParamMeta, ExtraParamMetaAdmin)

@@ -16,7 +16,7 @@ class TransitionApprovalMetaForm(forms.ModelForm):
     transition_meta = forms.ModelChoiceField(
         label=_('流转元数据'), queryset=TransitionMeta.objects, required=True)
     parents = forms.ModelMultipleChoiceField(
-        label=_('父级'), queryset=TransitionApprovalMeta.objects, required=False
+        label=_('上级批准'), queryset=TransitionApprovalMeta.objects, required=False
     )
 
     class Meta:
