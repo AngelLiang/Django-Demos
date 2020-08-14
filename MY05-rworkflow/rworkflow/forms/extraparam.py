@@ -22,12 +22,12 @@ class ExtraParamForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        instance = self.instance
+        instance = kwargs.get('instance', None)
         if instance:
-            value = instance.get_value()
-            if value:
-                self.declared_fields['paramvalue'].initial = value
+            self.declared_fields['paramvalue'].required = instance.required
+            self.declared_fields['paramvalue'].initial = instance.get_value()
+
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         value = self.cleaned_data.get('paramvalue')
