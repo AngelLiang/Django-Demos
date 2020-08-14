@@ -59,17 +59,6 @@ class Transition(models.Model):
         related_name='transition_as_destination',
     )
 
-    # source_state_value = models.CharField(
-    #     _('初始状态值'),
-    #     max_length=40,
-    #     blank=True, null=True,
-    # )
-    # destination_state_value = models.CharField(
-    #     _('目的状态值'),
-    #     max_length=40,
-    #     blank=True, null=True,
-    # )
-
     PENDING = "pending"
     CANCELLED = "cancelled"
     DONE = "done"
@@ -85,6 +74,9 @@ class Transition(models.Model):
     status = models.CharField(_('状态'), max_length=16, choices=STATUS_CHOICES, default=PENDING, db_index=True)
 
     iteration = models.IntegerField(_('迭代层级'), default=0)
+
+    created_at = models.DateTimeField(_('创建时间'), null=True, blank=True, auto_now_add=True)
+    updated_at = models.DateTimeField(_('更新时间'), null=True, blank=True, auto_now=True)
 
     @property
     def next_transitions(self):

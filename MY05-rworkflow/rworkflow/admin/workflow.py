@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import ugettext_lazy as _
 
 from .base import BaseAdmin
 from ..models import State, TransitionMeta, TransitionApprovalMeta
@@ -36,17 +37,34 @@ class WorkflowAdmin(BaseAdmin):
     CODE_NUMBER_WIDTH = 3
 
     # raw_id_fields = ('content_type', )
-    fields = (
-        ('name',),
-        ('rstatus',),
-        # ('content_type', 'object_id',),
-        ('content_type',),
-        ('app_label', 'model_name',),
-        # ('status_field',),
+    # fields = (
+    #     ('name',),
+    #     ('rstatus',),
+    #     # ('content_type', 'object_id',),
+    #     ('content_type',),
+    #     ('app_label', 'model_name',),
+    #     # ('status_field',),
 
-        ('is_active',),
-        ('weight',),
+    #     ('is_active',),
+    #     ('weight',),
+    # )
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('name',),
+                ('rstatus',),
+            ),
+        }),
+        (_('信息'), {
+            'fields': (
+                ('content_type',),
+                ('app_label', 'model_name',),
+                ('is_active',),
+                ('weight',),
+            ),
+        }),
     )
+
     readonly_fields = (
         'content_type', 'app_label',
         'model_name', 'status_field',

@@ -7,16 +7,13 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.fields import GenericForeignKey
 
-# from mptt.models import MPTTModel
-# from mptt.fields import TreeOneToOneField
-
 from .base import BaseModel
 from ..managers import TransitionApprovalManager
 
 LOGGER = logging.getLogger(__name__)
 
 
-class TransitionApproval(BaseModel):
+class TransitionApproval(models.Model):
     """流转批准"""
 
     name = models.CharField(_('名称'), max_length=80, default='', blank=True)
@@ -104,6 +101,9 @@ class TransitionApproval(BaseModel):
         on_delete=models.CASCADE,
         db_constraint=False,
     )
+
+    created_at = models.DateTimeField(_('创建时间'), null=True, blank=True, auto_now_add=True)
+    updated_at = models.DateTimeField(_('更新时间'), null=True, blank=True, auto_now=True)
 
     ################################################################
     can_edit = models.BooleanField(_('处理人可编辑？'), default=False)
