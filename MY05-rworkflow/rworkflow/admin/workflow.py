@@ -35,7 +35,7 @@ class TransitionApprovalMetaInline(admin.TabularInline):
 
 class ExtraParamMetaInline(admin.TabularInline):
     model = models.ExtraParamMeta
-    fields = ('name', 'is_active', 'value_tp', 'memo', 'weight')
+    fields = ('name', 'is_active', 'value_tp', 'required', 'memo', 'weight')
     ordering = ('weight', 'id')
     extra = 0
     show_change_link = True

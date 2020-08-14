@@ -187,6 +187,7 @@ class WorkflowInstance(BaseModel):
                         name=meta.name,
                         memo=meta.memo,
                         value_tp=meta.value_tp,
+                        required=meta.required,
                     )
                     if content_type.app_label == 'rworkflow' and content_type.model == 'wforder':
                         extraparam.wo = workflow_object

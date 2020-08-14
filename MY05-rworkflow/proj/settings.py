@@ -127,6 +127,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# 用户上传的文件配置
+# https://docs.djangoproject.com/en/2.2/ref/settings/#media-url
+MEDIA_URL = '/media/'
+
+# https://docs.djangoproject.com/en/2.2/ref/settings/#media-root
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 SESSION_COOKIE_NAME = 'rworkflow'
 
