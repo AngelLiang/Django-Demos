@@ -208,6 +208,7 @@ class Wforder(BaseModel):
         return workflow_instance, is_created
 
     def wf_start(self, request):
+        """启动工作流程"""
         workflow = self.workflow
         if not workflow:
             raise ValueError('没有配置工作流程')
@@ -225,17 +226,20 @@ class Wforder(BaseModel):
             workflow_instance.initialize_approvals(request)
         return True
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-
-        # 如果当前状态不是所配的工作流的初始状态，并且工作流也没有启动，则设置该初始状态
+    def initialize_status(self):
+        """如果当前状态不是所配的工作流的初始状态，并且工作流也没有启动，则设置该初始状态"""
         if self.workflow and not self.is_wf_start():
             status = self.workflow.get_initial_state()
             if self.get_status() is not status:
                 self.set_status(status)
 
-        super().save(force_insert, force_update, using, update_fields)
-
-        # code为空的时候自动生成
+    def gen_code(self):
+        """code为空的时候自动生成"""
         if not self.code:
             self.code = 'WO%05d' % self.id
             self.save(update_fields=['code'])
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.initialize_status()
+        super().save(force_insert, force_update, using, update_fields)
+        self.gen_code()

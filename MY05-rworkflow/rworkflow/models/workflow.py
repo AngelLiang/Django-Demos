@@ -72,10 +72,13 @@ class Workflow(BaseModel):
         # content_type 和 field_name 是唯一字段
         # unique_together = [("content_type", "field_name")]
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def initialize_app_label_and_model_name(self):
         if self.content_type:
             self.app_label = self.content_type.app_label
             self.model_name = self.content_type.model
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.initialize_app_label_and_model_name()
         super().save(force_insert, force_update, using, update_fields)
 
     def get_initial_state(self):

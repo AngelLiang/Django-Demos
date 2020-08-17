@@ -92,6 +92,9 @@ class ExtraParamInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    # def paramvalue(self, request, obj=None):
+    #     return None
+
 
 class WforderAdmin(BaseAdmin):
     CODE_PREFIX = 'WO'

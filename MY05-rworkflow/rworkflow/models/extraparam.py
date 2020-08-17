@@ -194,13 +194,17 @@ class ExtraParam(models.Model):
     def get_value(self):
         attr = self.gen_value_attr()
         return getattr(self, attr, None)
-    get_value.description = _('数值')
+    get_value.short_description = _('数值')
 
     def set_value(self, value):
         attr = self.gen_value_attr()
         return setattr(self, attr, value)
 
     value = property(get_value, set_value)
+
+    def paramvalue(self):
+        return self.get_value()
+    paramvalue.short_description = _('数值')
 
 
 class ExtraParamChoiceMeta(BaseModel):

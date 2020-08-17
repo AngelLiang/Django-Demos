@@ -113,96 +113,94 @@ class WorkflowInstance(BaseModel):
     def is_wf_finish(self):
         return self.on_final_state
 
+    def initialize_transitions_and_approvals(self, request):
+        workflow_object = self.get_workflow_object()
+        transition_meta_list = self.workflow.transition_metas.filter(source_state__is_start=True)
+        LOGGER.debug(transition_meta_list)
+
+        # 迭代层级
+        iteration = 0
+        # 已经处理过的 transitions
+        processed_transitions = []
+        while transition_meta_list:
+            for transition_meta in transition_meta_list:
+                # 通过 transition_meta 创建 transition
+                transition = Transition.objects.create(
+                    meta=transition_meta,
+                    name=transition_meta.name,
+                    source_state=transition_meta.source_state,
+                    destination_state=transition_meta.destination_state,
+
+                    workflow=self.workflow,
+                    workflow_object=workflow_object,
+                    iteration=iteration
+                )
+                # 通过 transition_approval_meta 创建 transition_approval
+                for transition_approval_meta in transition_meta.transition_approval_meta.all():
+                    transition_approval = TransitionApproval.objects.create(
+                        meta=transition_approval_meta,
+                        name=transition_approval_meta.name,
+                        priority=transition_approval_meta.priority,
+
+                        workflow=self.workflow,
+                        workflow_object=workflow_object,
+                        transition=transition,
+                    )
+                    users = transition_approval_meta.get_users_from_handler_type(request, workflow_object)
+                    LOGGER.debug(f'approval users:{users}')
+                    if users:
+                        transition_approval.users.add(*users)
+                processed_transitions.append(transition_meta.pk)
+            # 下一个 transition_meta_list 列表
+            transition_meta_list = self.workflow.transition_metas.filter(
+                source_state__in=transition_meta_list.values_list("destination_state", flat=True)
+            ).exclude(pk__in=processed_transitions)
+
+            iteration += 1
+
+    def initialize_extraparams(self):
+        content_type = self.get_content_type()
+        workflow_object = self.get_workflow_object()
+        extra_param_meta_list = self.workflow.extra_param_metas.filter(is_active=True).all()
+        LOGGER.debug(extra_param_meta_list)
+        for meta in extra_param_meta_list:
+            extraparam = ExtraParam(
+                content_object=workflow_object,
+                meta=meta,
+                name=meta.name,
+                memo=meta.memo,
+                value_tp=meta.value_tp,
+                required=meta.required,
+            )
+            if content_type.app_label == 'rworkflow' and content_type.model == 'wforder':
+                extraparam.wo = workflow_object
+            extraparam.save()
+
+    def initialize_state(self):
+        init_state = self.workflow.states.filter(is_start=True).first()
+        self.set_state(init_state)
+
     @transaction.atomic
     def initialize_approvals(self, request):
         """初始化批准流程"""
 
         if not self.initialized:
-            # object_id = self.get_object_id()
-            content_type = self.get_content_type()
             workflow_object = self.get_workflow_object()
-
-            if self.workflow and self.workflow.transition_approvals.filter(workflow_object=workflow_object).count() == 0:
-                # if self.workflow and self.workflow.transition_approvals.filter(
-                #     object_id=object_id, content_type=content_type
-                # ).count() == 0:
-                # 获取工作流流转元数据
-                # transition_meta_list = self.workflow.transition_metas.filter(source_state=self.workflow.initial_state)
-
-                # 获取所有初始流转元数据
-                transition_meta_list = self.workflow.transition_metas.filter(source_state__is_start=True)
-                LOGGER.debug(transition_meta_list)
-
-                # 迭代层级
-                iteration = 0
-                # 已经处理过的 transitions
-                processed_transitions = []
-                while transition_meta_list:
-                    for transition_meta in transition_meta_list:
-                        # 通过 transition_meta 创建 transition
-                        transition = Transition.objects.create(
-                            name=transition_meta.name,
-                            workflow=self.workflow,
-                            workflow_object=workflow_object,
-                            source_state=transition_meta.source_state,
-                            destination_state=transition_meta.destination_state,
-                            meta=transition_meta,
-                            iteration=iteration
-                        )
-                        # 通过 transition_approval_meta 创建 transition_approval
-                        for transition_approval_meta in transition_meta.transition_approval_meta.all():
-                            transition_approval = TransitionApproval.objects.create(
-                                name=transition_approval_meta.name,
-                                workflow=self.workflow,
-                                workflow_object=workflow_object,
-                                transition=transition,
-                                priority=transition_approval_meta.priority,
-                                meta=transition_approval_meta,
-                            )
-                            users = transition_approval_meta.get_users_from_handler_type(
-                                request, workflow_object)
-                            LOGGER.debug(f'approval users:{users}')
-                            if users:
-                                transition_approval.users.add(*users)
-                            # transition_approval.permissions.add(*transition_approval_meta.permissions.all())
-                            # transition_approval.groups.add(*transition_approval_meta.groups.all())
-                        processed_transitions.append(transition_meta.pk)
-                    # 下一个 transition_meta 列表
-                    transition_meta_list = self.workflow.transition_metas.filter(
-                        source_state__in=transition_meta_list.values_list("destination_state", flat=True)
-                    ).exclude(pk__in=processed_transitions)
-
-                    iteration += 1
-                # while end
+            has_workflow = self.workflow is not None
+            workflow_without_approvals = self.workflow.transition_approvals.filter(
+                workflow_object=workflow_object).count() == 0
+            if has_workflow and workflow_without_approvals:
+                self.initialize_transitions_and_approvals(request)
+                self.initialize_extraparams()
+                self.initialize_state()
                 self.initialized = True
                 self.save(update_fields=['initialized'])
 
-                # 设置工单
-                extra_param_meta_list = self.workflow.extra_param_metas.filter(is_active=True).all()
-                LOGGER.debug(extra_param_meta_list)
-                for meta in extra_param_meta_list:
-                    extraparam = ExtraParam(
-                        content_object=workflow_object,
-                        meta=meta,
-                        name=meta.name,
-                        memo=meta.memo,
-                        value_tp=meta.value_tp,
-                        required=meta.required,
-                    )
-                    if content_type.app_label == 'rworkflow' and content_type.model == 'wforder':
-                        extraparam.wo = workflow_object
-                    extraparam.save()
-
-                # 设置 workflow_object 初始状态
-                init_state = self.workflow.states.filter(is_start=True).first()
-
-                self.set_state(init_state)
-
                 LOGGER.debug("Transition approvals are initialized for the workflow object %s" % self.workflow_object)
 
-    @property
-    def status_field(self):
+    def get_status_field(self):
         return self.workflow.status_field
+    status_field = property(get_status_field)
 
     def get_initial_state(self):
         """获取初始状态
@@ -309,6 +307,21 @@ class WorkflowInstance(BaseModel):
             qs = qs.filter(transition__destination_state=destination_state)
         return qs
 
+    def approve_update_approval(self, available_approvals, as_user, **kwargs):
+        approval = available_approvals.first()
+        approval.status = TransitionApproval.APPROVED  # 批准状态
+        approval.transactioner = as_user  # 流转人
+        approval.transaction_at = timezone.now()  # 流转时间
+        approval.memo = kwargs.get('memo', '')  # 批准意见
+        LOGGER.debug(f'memo:{approval.memo}')
+        approval.previous = self.recent_approval  # 上一个批准
+        approval.save()
+        return approval
+
+    def approve_update_approval_transition_status_done(self, approval):
+        approval.transition.status = Transition.DONE
+        approval.transition.save()
+
     @transaction.atomic
     def approve(self, as_user, next_state=None, *args, **kwargs):
         """批准"""
@@ -332,33 +345,24 @@ class WorkflowInstance(BaseModel):
             raise ValueError(
                 "State must be given when there are multiple states for destination")
 
-        # 更新审批
-        approval = available_approvals.first()
-        approval.status = TransitionApproval.APPROVED  # 批准状态
-        approval.transactioner = as_user  # 流转人
-        approval.transaction_at = timezone.now()  # 流转时间
-        approval.memo = kwargs.get('memo', '')  # 批准意见
-        LOGGER.debug(f'memo:{approval.memo}')
-        approval.previous = self.recent_approval  # 上一个批准
-        approval.save()
-
+        approval = self.approve_update_approval(available_approvals, as_user, **kwargs)
         if next_state:
             self.cancel_impossible_future(approval)
 
         has_transit = False
         # 如果该 approval 的其他 approval 都没有 预备 状态
-        if approval.peers.filter(status=TransitionApproval.PENDING).count() == 0:
-            # 更新审批的流转
-            approval.transition.status = Transition.DONE
-            approval.transition.save()
-            # 前一个状态
+        other_approvals_without_pending = approval.peers.filter(status=TransitionApproval.PENDING).count() == 0
+        if other_approvals_without_pending:
+            self.approve_update_approval_transition_status_done(approval)
+
+            # 获取前一个状态
             previous_state = self.get_state()
-            # 设置新的状态
-            LOGGER.debug(f'destination_state:{approval.transition.destination_state}')
-            self.set_state(approval.transition.destination_state)
+            new_state = approval.transition.destination_state
+            LOGGER.debug(f'new_state:{new_state}')
+            self.set_state(new_state)
 
             has_transit = True
-            # 检查是否循环
+            # 检查是否循环，如果是，则创建循环路径镜像
             if self._check_if_it_cycled(approval.transition):
                 self._re_create_cycled_path(approval.transition)
 
@@ -386,8 +390,7 @@ class WorkflowInstance(BaseModel):
                 source_state__id__in=possible_next_states
             ).exclude(pk__in=possible_transition_ids)
 
-            possible_transition_ids.update(
-                set(possible_transitions.values_list("pk", flat=True)))
+            possible_transition_ids.update(set(possible_transitions.values_list("pk", flat=True)))
 
             possible_next_states = set(possible_transitions.values_list("destination_state__id", flat=True))
 
@@ -419,8 +422,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
-            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
+            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):
