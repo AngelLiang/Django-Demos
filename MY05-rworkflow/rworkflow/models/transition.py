@@ -14,6 +14,9 @@ LOGGER = logging.getLogger(__name__)
 class Transition(models.Model):
     """流转"""
 
+    CODE_PREFIX = 'T'
+    CODE_NUMBER_WIDTH = 8
+
     name = models.CharField(_('名称'), max_length=80, default='', blank=True)
     code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 

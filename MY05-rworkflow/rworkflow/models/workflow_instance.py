@@ -28,6 +28,9 @@ LOGGER = logging.getLogger(__name__)
 class WorkflowInstance(BaseModel):
     """工作流实例"""
 
+    CODE_PREFIX = 'WFI'
+    CODE_NUMBER_WIDTH = 3
+
     code = models.CharField(_('编号'), max_length=80, null=True, blank=True)
 
     # 关联的工作流模型
@@ -68,12 +71,6 @@ class WorkflowInstance(BaseModel):
 
     def __str__(self):
         return f'{self.code}'
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        super().save(force_insert, force_update, using, update_fields)
-        if not self.code:
-            self.code = 'WFI%05d' % self.id
-            self.save(update_fields=['code'])
 
     class Meta:
         verbose_name = _('流程实例')
@@ -422,8 +419,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
-            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
+            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):

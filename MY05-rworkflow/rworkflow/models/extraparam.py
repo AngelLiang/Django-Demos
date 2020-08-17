@@ -52,6 +52,9 @@ VALUE_TP_DEFAULT = VALUE_TP_CHOICES[0][0]
 class ExtraParamMeta(BaseModel):
     """额外参数元数据"""
 
+    CODE_PREFIX = 'EPM'
+    CODE_NUMBER_WIDTH = 4
+
     workflow = models.ForeignKey(
         'Workflow',
         verbose_name=_('工作流程'),
@@ -89,13 +92,13 @@ class ExtraParamMeta(BaseModel):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
-        if not self.code:
-            self.code = 'EX%03d' % self.id
-            self.save(update_fields=['code'])
 
 
 class ExtraParam(models.Model):
     """额外参数"""
+
+    CODE_PREFIX = 'EP'
+    CODE_NUMBER_WIDTH = 8
 
     wo = models.ForeignKey(
         'Wforder',
@@ -132,6 +135,7 @@ class ExtraParam(models.Model):
     ################################################################
     # 基础信息
     name = models.CharField(_('名称'), max_length=80)
+    code = models.CharField(_('编号'), max_length=40, default='', blank=True)
     memo = models.CharField(_('备注'), max_length=255, default='', blank=True)
     created_at = models.DateTimeField(_('创建时间'), null=True, blank=True, auto_now_add=True)
     updated_at = models.DateTimeField(_('更新时间'), null=True, blank=True, auto_now=True)

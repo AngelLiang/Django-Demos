@@ -19,6 +19,10 @@ LOGGER = logging.getLogger(__name__)
 
 class Wforder(BaseModel):
     """工单"""
+
+    CODE_PREFIX = 'WO'
+    CODE_NUMBER_WIDTH = 5
+
     title = models.CharField(_('工单标题'), max_length=128)
     code = models.CharField(_('工单编号'), max_length=40, default='')
 
@@ -244,13 +248,6 @@ class Wforder(BaseModel):
             if self.get_status() is not status:
                 self.set_status(status)
 
-    def gen_code(self):
-        """code为空的时候自动生成"""
-        if not self.code:
-            self.code = 'WO%05d' % self.id
-            self.save(update_fields=['code'])
-
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.initialize_status()
         super().save(force_insert, force_update, using, update_fields)
-        self.gen_code()

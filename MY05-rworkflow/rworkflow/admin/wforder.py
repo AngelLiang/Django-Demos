@@ -85,6 +85,16 @@ class ExtraParamInline(admin.TabularInline):
     #         fields.append(value_attr)
     #     return fields
 
+    def has_view_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        user = request.user
+        if obj:
+            if obj.is_on_initial_state() or obj.is_current_handle_user(user):
+                return obj.can_edit()
+            return False
+
     def has_add_permission(self, request, obj=None):
         return False
 
@@ -131,11 +141,8 @@ class WforderAdmin(BaseAdmin):
         """
         user = request.user
         if obj:
-            if obj.is_on_initial_state():
+            if obj.is_on_initial_state() or obj.is_current_handle_user(user):
                 return obj.can_edit()
-            # users = obj.get_current_handle_users() or []
-            # if user in users:
-            #     return obj.can_edit()
             return False
         return super().has_change_permission(request, obj)
 

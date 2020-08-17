@@ -11,6 +11,9 @@ from .state import State
 class Workflow(BaseModel):
     """工作流"""
 
+    CODE_PREFIX = 'WF'
+    CODE_NUMBER_WIDTH = 3
+
     name = models.CharField(_('名称'), max_length=80)
     code = models.CharField(_('编号'), max_length=40, null=True, blank=True)
     ################################################################

@@ -16,6 +16,9 @@ LOGGER = logging.getLogger(__name__)
 class TransitionApproval(models.Model):
     """流转批准"""
 
+    CODE_PREFIX = 'TA'
+    CODE_NUMBER_WIDTH = 8
+
     name = models.CharField(_('名称'), max_length=80, default='', blank=True)
     code = models.CharField(_('编号'), max_length=40, default='', blank=True)
 

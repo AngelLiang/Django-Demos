@@ -7,6 +7,9 @@ from .base import BaseModel
 
 class WorkflowCategory(BaseModel):
 
+    CODE_PREFIX = 'WFC'
+    CODE_NUMBER_WIDTH = 3
+
     ################################################################
     # 基本字段
     ################################################################

@@ -9,6 +9,9 @@ from .base import BaseModel
 class State(BaseModel):
     """状态"""
 
+    CODE_PREFIX = 'S'
+    CODE_NUMBER_WIDTH = 3
+
     # 工作流
     workflow = models.ForeignKey(
         'Workflow',
@@ -53,9 +56,6 @@ class State(BaseModel):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
-        if not self.code:
-            self.code = 'S%03d' % self.id
-            self.save(update_fields=['code'])
 
     def get_status_field(self):
         if self.status_field:
