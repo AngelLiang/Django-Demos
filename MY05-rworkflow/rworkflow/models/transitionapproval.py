@@ -129,7 +129,7 @@ class TransitionApproval(models.Model):
         verbose_name=_('处理人'),
         db_constraint=False,
         blank=True,
-        related_name='+',
+        related_name='transition_approvals',
     )
 
     def __str__(self):

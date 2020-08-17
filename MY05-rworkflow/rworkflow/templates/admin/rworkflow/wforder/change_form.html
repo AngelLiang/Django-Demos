@@ -30,7 +30,7 @@
     {{ block.super }}
 
     {% if original %}
-        {% if original.is_wf_start %}
+        {% if original.is_wf_start and is_current_handle_user %}
         <div>
             <form action="" method="post" id="workflow_form">
                 {% csrf_token %}

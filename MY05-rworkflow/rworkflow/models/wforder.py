@@ -6,13 +6,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 # from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.auth import get_user_model
 
 from .base import BaseModel
 from .fields.state import StateField
 
 from .workflow_instance import WorkflowInstance
 
-
+User = get_user_model()
 LOGGER = logging.getLogger(__name__)
 
 
@@ -138,12 +139,22 @@ class Wforder(BaseModel):
         return workflow_instance and workflow_instance.on_initial_state
 
     def get_current_handle_users(self):
+        users = []
         workflow_instance = self.get_workflow_instance()
         if workflow_instance:
-            approval = workflow_instance.get_recent_approval()
-            if approval:
-                return approval.users.all()
-        return []
+            approvals = workflow_instance.get_next_approvals()
+            tempusers = User.objects.filter(transition_approvals__in=approvals).all()
+            users.extend(tempusers)
+        return users
+
+    def is_current_handle_user(self, user):
+        workflow_instance = self.get_workflow_instance()
+        if workflow_instance:
+            approvals = workflow_instance.get_next_approvals()
+            return User.objects.filter(
+                transition_approvals__in=approvals, id=user.id
+            ).exists()
+        return False
 
     def get_status(self):
         return self.rstatus

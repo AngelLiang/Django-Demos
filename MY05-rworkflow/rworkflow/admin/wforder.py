@@ -11,7 +11,6 @@ from django.contrib.admin.utils import quote
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-
 from .base import BaseAdmin
 from .. import models
 from ..tables import TransitionApprovalTable
@@ -208,7 +207,12 @@ class WforderAdmin(BaseAdmin):
                                               'next_state_id': approval.transition.destination_state.pk})
                         value = approval.name or f'{approval.transition.source_state} -> {approval.transition.destination_state}'
                         next_approvals.append({'value': value, 'url': url})
-                    extra_context.update({'next_approvals': next_approvals})
+
+                    is_current_handle_user = obj.is_current_handle_user(user)
+                    extra_context.update({
+                        'is_current_handle_user': is_current_handle_user,
+                        'next_approvals': next_approvals
+                    })
 
         return super().changeform_view(request, object_id, form_url, extra_context)
 
