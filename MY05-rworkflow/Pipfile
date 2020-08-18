@@ -12,6 +12,7 @@ django-cte = "*"
 six = "*"
 django-tables2 = "*"
 pillow = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.6"
