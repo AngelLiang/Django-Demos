@@ -50,7 +50,10 @@ class RuleParser(object):
 
     def __init__(self, rule):
         if isinstance(rule, str):
-            self.rule = json.loads(rule)
+            try:
+                self.rule = json.loads(rule)
+            except json.decoder.JSONDecodeError:
+                raise RuleEvaluationError('不符合Json规则')
         else:
             self.rule = rule
         self.validate(self.rule)
@@ -58,9 +61,9 @@ class RuleParser(object):
     @staticmethod
     def validate(rule):
         if not isinstance(rule, list):
-            raise RuleEvaluationError('Rule must be a list, got {}'.format(type(rule)))
+            raise RuleEvaluationError('Rule 必须是 list, got {}'.format(type(rule)))
         if len(rule) < 2:
-            raise RuleEvaluationError('Must have at least one argument.')
+            raise RuleEvaluationError('至少要有一个参数')
 
     class Functions(object):
 

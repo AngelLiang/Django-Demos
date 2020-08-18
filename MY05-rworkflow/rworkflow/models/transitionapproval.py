@@ -135,6 +135,9 @@ class TransitionApproval(models.Model):
         related_name='transition_approvals',
     )
 
+    rule = models.TextField(_('条件判断规则'), default='', blank=True)
+    rule_result = models.BooleanField(_('条件判断结果'), null=True, blank=True)
+
     def __str__(self):
         return f'{self.meta} - {self.status}'
 

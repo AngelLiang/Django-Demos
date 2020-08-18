@@ -143,6 +143,10 @@ class TransitionApprovalMeta(BaseModel):
 
     ################################################################
 
+    rule = models.TextField(_('条件判断规则'), default='', blank=True)
+    rule_enabled = models.BooleanField(_('是否启用条件判断规则？'), default=False)
+    rule_memo = models.TextField(_('条件判断规则说明'), default='', blank=True)
+
     def __str__(self):
         return '流转: %s, 优先级: %s' % (self.transition_meta, self.priority)
 

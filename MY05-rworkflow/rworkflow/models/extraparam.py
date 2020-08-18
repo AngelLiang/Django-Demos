@@ -108,6 +108,15 @@ class ExtraParam(models.Model):
         related_name='extra_params',
     )
 
+    workflow = models.ForeignKey(
+        'Workflow',
+        verbose_name=_('工作流程'),
+        on_delete=models.PROTECT,
+        db_constraint=False,
+        blank=True, null=True,
+        related_name='extra_params',
+    )
+
     ################################################################
     # 关联的对象
     ################################################################
@@ -191,6 +200,14 @@ class ExtraParam(models.Model):
         verbose_name_plural = _('额外参数')
 
     objects = EatraParamManager()
+
+    def initialize_workflow(self):
+        if self.wo and self.wo.workflow:
+            self.workflow = self.wo.workflow
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.initialize_workflow()
+        super().save(force_insert, force_update, using, update_fields)
 
     def gen_value_attr(self):
         return f'{self.value_tp}_value'

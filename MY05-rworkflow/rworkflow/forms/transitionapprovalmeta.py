@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from ..models import TransitionApprovalMeta, TransitionMeta
+from ..core.rule_parser import RuleParser, RuleEvaluationError
 
 
 class TransitionApprovalMetaForm(forms.ModelForm):
@@ -19,9 +20,14 @@ class TransitionApprovalMetaForm(forms.ModelForm):
         label=_('上级批准'), queryset=TransitionApprovalMeta.objects, required=False
     )
 
+    # rule = forms.CharField(widget=forms.Textarea())
+
     class Meta:
         model = TransitionApprovalMeta
         fields = '__all__'
+        help_texts = {
+            'rule': _('格式为 ["操作符", ["操作符1", "参数1", "参数2", ...], ["操作符2", "参数1", "参数2", ...]]')
+        }
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)
@@ -30,3 +36,15 @@ class TransitionApprovalMetaForm(forms.ModelForm):
             self.declared_fields['parents'].queryset = instance.peers
 
         super().__init__(*args, **kwargs)
+
+    def clean_rule(self):
+        data = self.cleaned_data['rule']
+
+        if data:
+            try:
+                RuleParser(data)
+            except RuleEvaluationError as e:
+                raise forms.ValidationError(e.args[0])
+            except RuleEvaluationError as e:
+                raise forms.ValidationError(e.args[0])
+        return data

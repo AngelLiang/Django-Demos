@@ -138,6 +138,7 @@ class WorkflowInstance(BaseModel):
                         meta=transition_approval_meta,
                         name=transition_approval_meta.name,
                         priority=transition_approval_meta.priority,
+                        rule=transition_approval_meta.rule if transition_approval_meta.rule_enabled else '',
 
                         workflow=self.workflow,
                         workflow_object=workflow_object,
@@ -298,10 +299,14 @@ class WorkflowInstance(BaseModel):
 
         qs = self.next_approvals
         qs = qs.filter(status=TransitionApproval.PENDING)
+        # 筛选符合条件的用户
         if as_user:
             qs = qs.filter(users__id=as_user.id)
+        # 筛选符合条件的目的状态
         if destination_state:
             qs = qs.filter(transition__destination_state=destination_state)
+        # 条件判断可以放在获取对象后再判断是否需要显示
+
         return qs
 
     def approve_update_approval(self, available_approvals, as_user, **kwargs):
@@ -321,7 +326,11 @@ class WorkflowInstance(BaseModel):
 
     @transaction.atomic
     def approve(self, as_user, next_state=None, *args, **kwargs):
-        """批准"""
+        """批准
+
+        :param as_user: 批准用户
+        :param next_state: 下一状态
+        """
         available_approvals = self.get_available_approvals(as_user=as_user)
         number_of_available_approvals = available_approvals.count()
         if number_of_available_approvals == 0:
@@ -329,18 +338,17 @@ class WorkflowInstance(BaseModel):
             #                      "There is no available approval for the user.")
             raise ValueError("There is no available approval for the user.")
         elif next_state:
-            available_approvals = available_approvals.filter(
-                transition__destination_state=next_state)
+            available_approvals = available_approvals.filter(transition__destination_state=next_state)
             if available_approvals.count() == 0:
                 available_states = self.get_available_states(as_user)
                 # raise RiverException(ErrorCode.INVALID_NEXT_STATE_FOR_USER, "Invalid state is given(%s). Valid states is(are) %s" % (
                 #     next_state.__str__(), ','.join([ast.__str__() for ast in available_states])))
-                raise ValueError()
+                raise ValueError("Invalid state is given(%s). Valid states is(are) %s" % (
+                    next_state.__str__(), ','.join([ast.__str__() for ast in available_states])))
         elif number_of_available_approvals > 1 and not next_state:
             # raise RiverException(ErrorCode.NEXT_STATE_IS_REQUIRED,
             #                      "State must be given when there are multiple states for destination")
-            raise ValueError(
-                "State must be given when there are multiple states for destination")
+            raise ValueError("State must be given when there are multiple states for destination")
 
         approval = self.approve_update_approval(available_approvals, as_user, **kwargs)
         if next_state:
@@ -419,8 +427,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
-            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
+            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):
@@ -434,26 +442,33 @@ class WorkflowInstance(BaseModel):
                     iteration=iteration,
                     status=Transition.PENDING,
 
+                    meta=old_transition.meta,
                     name=old_transition.name,
                     source_state=old_transition.source_state,
                     destination_state=old_transition.destination_state,
                     workflow=old_transition.workflow,
                     object_id=old_transition.workflow_object.pk,
                     content_type=old_transition.content_type,
-                    meta=old_transition.meta
                 )
+                # cycled_transition = old_transition
+                # cycled_transition.pk = None
+                # cycled_transition.iteration = iteration
+                # cycled_transition.status = Transition.PENDING
+                # cycled_transition.created_at = None
+                # cycled_transition.save()
 
                 for old_approval in old_transition.transition_approvals.all():
                     cycled_approval = TransitionApproval.objects.create(
                         transition=cycled_transition,
                         status=TransitionApproval.PENDING,
 
+                        meta=old_approval.meta,
                         name=old_approval.name,
                         workflow=old_approval.workflow,
                         object_id=old_approval.workflow_object.pk,
                         content_type=old_approval.content_type,
                         priority=old_approval.priority,
-                        meta=old_approval.meta,
+                        rule=old_approval.rule,
                     )
                     cycled_approval.users.set(old_approval.users.all())
 

@@ -1,4 +1,4 @@
-
+import re
 import logging
 
 from django.contrib import admin
@@ -15,7 +15,7 @@ from .base import BaseAdmin
 from .. import models
 from ..tables import TransitionApprovalTable
 from ..forms import ExtraParamForm
-
+from ..core.rule_parser import RuleParser
 
 LOGGER = logging.getLogger(__name__)
 
@@ -141,9 +141,9 @@ class WforderAdmin(BaseAdmin):
         """
         user = request.user
         if obj:
-            if obj.is_on_initial_state() or obj.is_current_handle_user(user):
+            if obj.is_wf_start() and (obj.is_on_initial_state() or obj.is_current_handle_user(user)):
                 return obj.can_edit()
-            return False
+            # return False
         return super().has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
@@ -184,13 +184,38 @@ class WforderAdmin(BaseAdmin):
                     current_app=self.admin_site.name)
         )
 
+    def approval_rule_replace(self, rule, obj):
+        # reg = re.compile(r'"EX\d+"')
+        reg = re.compile(r'EX\d+')
+        param_codes = reg.findall(rule)
+
+        # for code in param_codes:
+        #     print(code)
+        extra_params = obj.extra_params.filter(meta__code__in=param_codes).all()
+        for ep in extra_params:
+            code = ep.meta.code
+            value = ep.get_value()
+            rule = rule.replace(f'"{code}"', str(value))
+        LOGGER.debug(rule)
+        return rule
+
+    def validate_approval_rule(self, approval, obj):
+        rule = approval.rule
+        if not rule:
+            LOGGER.debug('rule为空')
+            return True
+        LOGGER.debug(f'rule:{rule}')
+        rule = self.approval_rule_replace(rule, obj)
+        rp = RuleParser(rule)
+        return rp.evaluate()
+
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
         user = request.user
         extra_context = extra_context or {}
 
         opts = self.opts
-        app_label = opts.app_label
-        model_name = opts.model_name
+        # app_label = opts.app_label
+        # model_name = opts.model_name
 
         if object_id:
             # 获取对象
@@ -209,6 +234,9 @@ class WforderAdmin(BaseAdmin):
                     approvals = workflow_instance.get_available_approvals(user).all()
                     LOGGER.debug(f'approvals:{approvals}')
                     for approval in approvals:
+                        # 可能需要进行条件判断
+                        if not self.validate_approval_rule(approval, obj):
+                            continue
                         url = reverse(f'admin:wf_approve',
                                       kwargs={'object_id': obj.pk,
                                               'next_state_id': approval.transition.destination_state.pk})

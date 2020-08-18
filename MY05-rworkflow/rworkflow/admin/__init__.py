@@ -13,7 +13,6 @@ from .transition import TransitionAdmin
 from .wforder import WforderAdmin
 from .extraparam import ExtraParamMetaAdmin, ExtraParamAdmin
 
-
 from .. import models
 
 

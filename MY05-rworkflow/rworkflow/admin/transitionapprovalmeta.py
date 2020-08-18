@@ -45,6 +45,9 @@ class TransitionApprovalMetaAdmin(BaseAdmin):
                 'user_handler_sql',
             ),
         }),
+        (_('条件判断规则'), {
+            'fields': ('rule_enabled', 'rule', 'rule_memo')
+        })
     )
     readonly_fields = ('workflow',)
     form = TransitionApprovalMetaForm

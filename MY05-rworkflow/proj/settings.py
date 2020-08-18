@@ -174,7 +174,7 @@ LOGGING = {
     'loggers': {
         'rworkflow.admin.wforder': {
             'handlers': ['console', ],
-            'level': 'INFO',
+            'level': 'DEBUG',
         },
         'rworkflow.models.workflow_instance': {
             'handlers': ['console', ],
