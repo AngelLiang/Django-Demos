@@ -17,7 +17,7 @@ User = get_user_model()
 LOGGER = logging.getLogger(__name__)
 
 
-class Wforder(BaseModel):
+class WorkOrder(BaseModel):
     """工单"""
 
     CODE_PREFIX = 'WO'

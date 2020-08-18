@@ -6,7 +6,7 @@ from .transitionmeta import TransitionMeta
 from .transition import Transition
 from .transitionapprovalmeta import TransitionApprovalMeta
 from .transitionapproval import TransitionApproval
-from .wforder import Wforder
+from .workorder import WorkOrder
 from .extraparam import (
     ExtraParamMeta, ExtraParam,
     ExtraParamChoiceMeta, ExtraParamChoice

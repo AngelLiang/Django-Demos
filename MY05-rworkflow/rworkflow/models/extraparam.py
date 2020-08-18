@@ -101,7 +101,7 @@ class ExtraParam(models.Model):
     CODE_NUMBER_WIDTH = 8
 
     wo = models.ForeignKey(
-        'Wforder',
+        'WorkOrder',
         verbose_name=_('工单'),
         on_delete=models.CASCADE,
         db_constraint=False,

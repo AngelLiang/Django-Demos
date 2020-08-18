@@ -163,11 +163,11 @@ from django.urls import reverse
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
-from .models import State, Wforder
+from .models import State, WorkOrder
 
 
 def approve_order(request, order_id, next_state_id=None):
-    order = get_object_or_404(Wforder, pk=order_id)
+    order = get_object_or_404(WorkOrder, pk=order_id)
     next_state = get_object_or_404(State, pk=next_state_id)
 
     try:

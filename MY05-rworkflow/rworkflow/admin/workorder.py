@@ -105,7 +105,7 @@ class ExtraParamInline(admin.TabularInline):
     #     return None
 
 
-class WforderAdmin(BaseAdmin):
+class WorkOrderAdmin(BaseAdmin):
     CODE_PREFIX = 'WO'
     CODE_NUMBER_WIDTH = 5
 

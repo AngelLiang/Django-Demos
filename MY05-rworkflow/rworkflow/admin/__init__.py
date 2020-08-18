@@ -10,7 +10,7 @@ from .transitionapprovalmeta import TransitionApprovalMetaAdmin
 from .transitionapproval import TransitionApprovalAdmin
 from .transitionmeta import TransitionMetaAdmin
 from .transition import TransitionAdmin
-from .wforder import WforderAdmin
+from .workorder import WorkOrderAdmin
 from .extraparam import ExtraParamMetaAdmin, ExtraParamAdmin
 
 from .. import models
@@ -41,7 +41,7 @@ admin.site._registry = registry
 admin.site.index = index_decorator(admin.site.index)
 admin.site.app_index = index_decorator(admin.site.app_index)
 
-admin.site.register(models.Wforder, WforderAdmin)
+admin.site.register(models.WorkOrder, WorkOrderAdmin)
 admin.site.register(models.Workflow, WorkflowAdmin)
 admin.site.register(models.WorkflowCategory, WorkflowCategoryAdmin)
 admin.site.register(models.WorkflowInstance, WorkflowInstanceAdmin)

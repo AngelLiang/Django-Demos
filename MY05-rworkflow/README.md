@@ -3,7 +3,7 @@
 
 ## 备份配置和必要的数据
 
-    $ python manage.py dumpdata rworkflow.workflow rworkflow.workflowcategory rworkflow.transitionapprovalmeta rworkflow.transitionmeta rworkflow.state organization hr auth -o fixtures\initdata.json
+    $ python manage.py dumpdata rworkflow.workflow rworkflow.workflowcategory rworkflow.transitionapprovalmeta rworkflow.transitionmeta rworkflow.state organization hr auth.user -o fixtures\initdata.json
 
 ## 恢复配置和必要的数据
 

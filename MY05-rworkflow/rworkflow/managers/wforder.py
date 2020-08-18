@@ -1,7 +1,7 @@
 from .base import BaseManager
 
 
-class WforderManager(BaseManager):
+class WorkOrderManager(BaseManager):
 
     def filter_by_creator(self, user):
         return self.filter(created_by=user.username)

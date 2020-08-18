@@ -95,11 +95,6 @@ class WorkflowInstance(BaseModel):
         return obj
     workflow_object = property(get_workflow_object)
 
-    # @property
-    # def workflow_object(self):
-    #     self.get_workflow_object()
-    #     return obj
-
     def is_wf_start(self):
         """判断工作流是否已经启动"""
         if self.initialized:
@@ -427,8 +422,8 @@ class WorkflowInstance(BaseModel):
         ).values_list("meta").annotate(max_iteration=Max("iteration"))
 
         return Transition.objects.filter(
-            Q(workflow=self.workflow, object_id=self.workflow_object.pk) &
-            six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
+            Q(workflow=self.workflow, object_id=self.workflow_object.pk)
+            & six.moves.reduce(lambda agg, q: q | agg, [Q(meta__id=meta_id, iteration=max_iteration) for meta_id, max_iteration in meta_max_iteration], Q(pk=-1))
         )
 
     def _re_create_cycled_path(self, done_transition):

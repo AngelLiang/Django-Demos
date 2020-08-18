@@ -2,13 +2,13 @@ from django import forms
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from django.utils.html import format_html, format_html_join
 
 from ..models import TransitionApprovalMeta, TransitionMeta
 from ..core.rule_parser import RuleParser, RuleEvaluationError
 
 
 def _rule_help_text_html():
+    from django.utils.html import format_html, format_html_join
     help_texts = [
         '格式为 ["操作符", ["操作符1", "参数1", "参数2", ...], ["操作符2", "参数3", "参数4", ...]]',
         '可以使用 "额外参数编号" 格式来代表额外参数的数值，例如："EX001"',
