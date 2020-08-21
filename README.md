@@ -31,6 +31,9 @@
 | DJ20  | django-add-custom-button-in-list-view | Django admin 列表页面添加客制化按钮      |
 | DJ21  | django-admin-tools                    | django-admin-tools 使用示例（未完成）    |
 | DJ22  | django-subordinate-drop-down-list     | Django admin 从属下拉列表                |
+| DJ23  | django-advanced-filters               | django 高级搜索使用示例                  |
+| DJ24  | django-seed                           | django 随机生成数据使用示例              |
+| DJ25  | django-imagekit                       | django-imagekit 使用示例                 |
 | DJ999 | django-composite                      | Django 综合示例                          |
 | EX01  | django-with-jinja2                    | Django 使用 jinja2                       |
 | EX02  | django-flatpages                      | Django 使用 flatpages 示例               |
