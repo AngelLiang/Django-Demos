@@ -15,11 +15,11 @@ class AuthEntry(models.Model):
         (USER_LOGGED_FAILED, _('用户登录失败')),
     )
 
-    action = models.CharField(_('动作'), max_length=64, choices=ACTION_CHOICES)
+    action = models.CharField(_('动作'), max_length=32, choices=ACTION_CHOICES)
     action_at = models.DateTimeField(_('动作时间'), auto_now_add=True)
     ip = models.GenericIPAddressField(_('IP'), null=True)
 
-    username = models.CharField(_('用户名'), max_length=255, null=True)
+    username = models.CharField(_('用户名'), max_length=255, default='')
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -31,11 +31,16 @@ class AuthEntry(models.Model):
 
     def __str__(self):
         action = self.get_action_display()
-        return f'{self.username}{action}@{self.action_at}'
+        if self.user:
+            name = self.user.get_full_name()
+        if not name:
+            name = self.username
+        time = self.action_at.strftime('%Y-%m-%d %H:%M:%S')
+        return f'{name}{action}@{time}'
 
     class Meta:
         verbose_name = _('登录日志')
-        verbose_name_plural = verbose_name
+        verbose_name_plural = _('登录日志')
         default_permissions = ('view',)
 
 

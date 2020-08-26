@@ -8,7 +8,7 @@ class AuthEntryAdmin(admin.ModelAdmin):
     list_display = ('username', 'action', 'action_at', 'ip', )
     # list_display = ['__str__', 'ip']
     list_filter = ('action', 'action_at')
-
+    search_fields = ('username',)
     date_hierarchy = 'action_at'
 
     def has_add_permission(self, request):
