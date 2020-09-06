@@ -5,12 +5,14 @@
 
 <div id="tabs">
 
+  {% comment %} fieldset.name 为空的放在最前面 {% endcomment %}
   {% for fieldset in adminform %}
     {% if not fieldset.name %}
         {% include "admin/order/includes/fieldset.html" %}
     {% endif %}
   {% endfor %}
 
+  {% comment %} 渲染 tabs {% endcomment %}
   <ul>
     {% for fieldset in adminform %}
         {% if fieldset.name %}
@@ -19,6 +21,7 @@
     {% endfor %}
   </ul>
 
+  {% comment %} 渲染 tabs 的内容 {% endcomment %}
   {% for fieldset in adminform %}
     {% if fieldset.name %}
       {% include "admin/order/includes/fieldset.html" %}

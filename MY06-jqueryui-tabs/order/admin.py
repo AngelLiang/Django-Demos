@@ -54,7 +54,10 @@ class OrderAdmin(admin.ModelAdmin):
             'jquery-ui-1.12.1/jquery-ui.min.js',
         )
         css = {
-            'all': ('jquery-ui-1.12.1/jquery-ui.min.css',)
+            'all': (
+                'jquery-ui-1.12.1/jquery-ui.min.css',
+                'css/tabs.css',
+            )
         }
 
 
