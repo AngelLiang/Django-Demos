@@ -2,14 +2,36 @@
 
 
 {% block field_sets %}
+
+<div id="tabs">
+
   {% for fieldset in adminform %}
-    {% include "admin/includes/fieldset.html" %}
+    {% if not fieldset.name %}
+        {% include "admin/order/includes/fieldset.html" %}
+    {% endif %}
   {% endfor %}
+
+  <ul>
+    {% for fieldset in adminform %}
+        {% if fieldset.name %}
+            <li><a href="#{{ fieldset.description }}">{{ fieldset.name }}</a></li> 
+        {% endif %}
+    {% endfor %}
+  </ul>
+
+  {% for fieldset in adminform %}
+    {% if fieldset.name %}
+      {% include "admin/order/includes/fieldset.html" %}
+    {% endif %}
+  {% endfor %}
+
 {% endblock %}
+
+</div>
 
 {% block inline_field_sets %}
 
-<div id="tabs">
+<div id="inline-tabs">
   <ul>
   {% for inline_admin_formset in inline_admin_formsets %}
       <li><a href="#{{ inline_admin_formset.formset.prefix }}-group">{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</a></li> 
@@ -31,6 +53,7 @@
     <script type="text/javascript">
         (function($) {
             $("#tabs").tabs();
+            $("#inline-tabs").tabs();
         })(django.jQuery);
     </script>
 {% endblock %}
