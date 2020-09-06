@@ -1,0 +1,53 @@
+{% extends "admin/change_form.html" %}
+
+
+{% block field_sets %}
+
+  <div id="common-div">
+    {% for fieldset in adminform %}
+      {% include "admin/includes/fieldset.html" %}
+    {% endfor %}
+  </div>
+
+  <div id="readonly-div">
+    {% for fieldset in adminform %}
+      {% include "admin/order/includes/readonly_fieldset.html" %}
+    {% endfor %}
+  </div>
+
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        (function($) {
+          // TODO:
+          $('#common-div').hide()
+          $('#readonly-div').show()
+          $('.save-button').hide()
+
+          $('#edit-button').click(function(){
+            $('#common-div').toggle()
+            $('#readonly-div').toggle()
+            $('.save-button').toggle()
+
+            if ($('#readonly-div').is(':visible')){
+              $('#edit-button').html('编辑')
+            } else {
+              $('#edit-button').html('取消')
+            }
+          })
+          // 离开页面时还需要判断是否已经被编辑
+          var isChange = false
+          $('input').change(function(){
+            isChange = true
+            $(window).bind('beforeunload', function() {
+              return '您输入的内容尚未保存，确定离开此页面吗？';
+            });
+          })
+
+        })(django.jQuery);
+    </script>
+
+{% endblock %}
