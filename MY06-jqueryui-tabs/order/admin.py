@@ -34,14 +34,12 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': (
                 'amount',
             ),
-            'description': 'info',
         }),
 
         ('客户', {
             'fields': (
                 'customer',
             ),
-            'description': 'customer',
         }),
     )
 
