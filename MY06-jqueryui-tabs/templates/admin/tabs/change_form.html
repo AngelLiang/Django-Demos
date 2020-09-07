@@ -3,14 +3,14 @@
 
 {% block field_sets %}
 
-<div id="tabs">
+{% comment %} fieldset.name 为空的放在最前面 {% endcomment %}
+{% for fieldset in adminform %}
+  {% if forloop.counter0 == 0 %}
+      {% include "admin/tabs/includes/fieldset.html" %}
+  {% endif %}
+{% endfor %}
 
-  {% comment %} fieldset.name 为空的放在最前面 {% endcomment %}
-  {% for fieldset in adminform %}
-    {% if forloop.counter0 == 0 %}
-        {% include "admin/tabs/includes/fieldset.html" %}
-    {% endif %}
-  {% endfor %}
+<div id="tabs">
 
   {% comment %} 渲染 tabs {% endcomment %}
   <ul>
