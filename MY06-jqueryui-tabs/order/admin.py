@@ -16,7 +16,7 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     fields = ('product', 'quantity', 'price', 'amount',)
     readonly_fields = ('amount',)
-    template = 'admin/order/edit_inline/tabular.html'
+    template = 'admin/tabs/edit_inline/tabular.html'
 
 
 class OrderAdmin(admin.ModelAdmin):

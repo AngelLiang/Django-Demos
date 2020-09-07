@@ -1,0 +1,57 @@
+{% extends "admin/change_form.html" %}
+
+
+{% block field_sets %}
+
+<div id="tabs">
+
+  {% comment %} fieldset.name 为空的放在最前面 {% endcomment %}
+  {% for fieldset in adminform %}
+    {% if forloop.counter0 == 0 %}
+        {% include "admin/tabs/includes/fieldset.html" %}
+    {% endif %}
+  {% endfor %}
+
+  {% comment %} 渲染 tabs {% endcomment %}
+  <ul>
+    {% for fieldset in adminform %}
+      {% if forloop.counter0 != 0 %}
+        <li><a href="#fieldset-{{ forloop.counter0 }}">{{ fieldset.name }}</a></li> 
+      {% endif %}
+    {% endfor %}
+
+    {% for inline_admin_formset in inline_admin_formsets %}
+        <li><a href="#{{ inline_admin_formset.formset.prefix }}-group">{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</a></li> 
+    {% endfor %}
+
+  </ul>
+
+  {% comment %} 渲染 tabs 的内容 {% endcomment %}
+  {% for fieldset in adminform %}
+    {% if forloop.counter0 != 0 %}
+      {% include "admin/tabs/includes/fieldset.html" %}
+    {% endif %}
+  {% endfor %}
+
+  {% for inline_admin_formset in inline_admin_formsets %}
+      {% include inline_admin_formset.opts.template %}
+  {% endfor %}
+
+</div>
+
+{% endblock %}
+
+
+{% block inline_field_sets %}
+  {% comment %} 覆盖为空 {% endcomment %}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        (function($) {
+            $("#tabs").tabs();
+        })(django.jQuery);
+    </script>
+{% endblock %}
