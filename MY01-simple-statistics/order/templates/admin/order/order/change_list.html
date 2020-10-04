@@ -6,7 +6,7 @@
   {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
 
 {% comment %} 统计图 {% endcomment %}
-{% if show_chart %}
+{% if cl.model_admin.chart_show %}
 
 <br>
 
@@ -14,7 +14,7 @@
 <div class="results">
     <h2> {% blocktrans %} {{ chart_title }} {% endblocktrans %} </h2>
     <div class="bar-chart">
-    {% for x in summary_over_time %}
+    {% for x in chart_data %}
         <div class="bar" style="height:{{ x.pct }}%">
             <div class="bar-tooltip">
                 {{ x.total }}

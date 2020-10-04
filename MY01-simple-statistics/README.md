@@ -14,4 +14,4 @@
 
 ## 效果图
 
-![demo](screen/demo.png)
+![demo](screenshot/demo.png)

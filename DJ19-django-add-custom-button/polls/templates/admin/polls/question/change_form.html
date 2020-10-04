@@ -1,0 +1,12 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_bottom %}
+    {{ block.super }}
+
+    {% comment %} {% if original.is_draft %}
+        <div class="submit-row">
+            <input type="submit" value="发布" name="_set-publish" onclick="return confirm('确定要设置为发布吗？')" >
+        </div>
+    {% endif %} {% endcomment %}
+
+{% endblock %}

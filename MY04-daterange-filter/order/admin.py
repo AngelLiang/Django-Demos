@@ -1,4 +1,5 @@
 from django.contrib import admin
+from daterange_filter.listfilter import DateRangeFilter
 
 from . import models
 
@@ -32,6 +33,9 @@ class OrderItemInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'order_date', 'title', 'amount')
+    list_filter = (
+        ('order_date', DateRangeFilter),
+    )
     readonly_fields = ('amount',)
     inlines = (OrderItemInline,)
 
