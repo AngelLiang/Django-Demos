@@ -1,6 +1,10 @@
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.parsers import FormParser, MultiPartParser
+
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -17,6 +21,46 @@ class CustomAuthToken(ObtainAuthToken):
     #     }
     #     return Response(content)
 
+    parser_classes = (FormParser, MultiPartParser)
+
+    # 自定义swagger
+    @swagger_auto_schema(
+        operation_summary='用户登录，获取帐号的token',
+        operation_description='',
+        # request_body=openapi.Schema(
+        #     type=openapi.TYPE_OBJECT,
+        #     properties={
+        #         'username': openapi.Schema(
+        #             in_=openapi.IN_BODY,
+        #             type=openapi.TYPE_STRING,
+        #             description='用户名'
+        #         ),
+        #         'password': openapi.Schema(
+        #             in_=openapi.IN_BODY,
+        #             type=openapi.TYPE_STRING,
+        #             description='密码'
+        #         ),
+        #     }
+        # )
+
+        # 表单
+        manual_parameters=[
+            openapi.Parameter(
+                name='username',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description='用户名',
+            ),
+            openapi.Parameter(
+                name='password',
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_STRING,
+                required=True,
+                description='密码',
+            ),
+        ],
+    )
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})

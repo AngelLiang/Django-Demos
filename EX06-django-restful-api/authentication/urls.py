@@ -7,7 +7,7 @@ from .auth_token import CustomAuthToken
 
 
 urlpatterns = [
-    path('', ExampleView.as_view()),
+    path('user/info/', ExampleView.as_view()),
 ]
 urlpatterns += [
     # url(r'^api-token-auth/', views.obtain_auth_token)
