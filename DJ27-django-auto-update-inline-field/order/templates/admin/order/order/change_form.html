@@ -1,0 +1,72 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n admin_urls %}
+
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+
+  <script type="text/javascript">
+
+      (function($) {
+
+        $('div.inline-related > fieldset > table > tbody').on(
+          "change",
+          {% comment %} 可能需要根据inline名称修改下面字段 {% endcomment %}
+          'tr.dynamic-orderitem_set > td.field-product > div.related-widget-wrapper > select',
+          function(e) {
+            console.log(e)
+            {% comment %} 如果 admin 配置了 autocomplete_fields {% endcomment %}
+            {% comment %} var val = $(this).select2("val"); {% endcomment %}
+
+            {% comment %} 普通的 select {% endcomment %}
+            var val = $(this).val();
+
+            {% comment %} 更新采购单价 {% endcomment %}
+            var priceFieldInput = $(this).parent().parent().parent().children('td.field-price').children('input')
+            priceFieldInput.val("")
+            var reqUrl = '/admin/order/product/'+val+'/price/'
+            $.ajax({
+              url: reqUrl,    // URL
+              type: 'get',   // 请求类型： get/post
+              //data: sendData, // 请求数据： get一般放在query string
+              dataType: 'json', // 响应的数据格式
+              success: function (data, status) {
+                console.log(data);
+                // 更新计量单位
+                priceFieldInput.val(""+data.price)
+              },
+              error: function (data, status) {
+                console.error(data);
+              }
+            });
+        })
+
+        {% comment %} 自动计算采购明细行的小计 {% endcomment %}
+        $('div.inline-related > fieldset > table > tbody').on(
+          "keyup",
+          {% comment %} 可能需要根据 inline 名称修改下面字段 {% endcomment %}
+          'tr.dynamic-orderitem_set > td.field-price > input',
+          function() {
+            var price = $(this).val()
+            var quantity = $(this).parent().parent().children('td.field-quantity').children('input').val()
+            var amount = price * quantity
+            var fieldAmout = $(this).parent().parent().children('td.field-amount').children('p')
+            fieldAmout.html(''+amount.toFixed(2))
+        })
+
+        $('div.inline-related > fieldset > table > tbody').on(
+          "keyup",
+          {% comment %} 可能需要根据 inline 名称修改下面字段 {% endcomment %}
+          'tr.dynamic-orderitem_set > td.field-quantity > input',
+          function() {
+            var price = $(this).parent().parent().children('td.field-price').children('input').val()
+            quantity = $(this).val()
+            amount = price * quantity
+            var fieldAmout = $(this).parent().parent().children('td.field-amount').children('p')
+            fieldAmout.html(''+amount.toFixed(2))
+        })
+
+
+      })(django.jQuery);
+  </script>
+
+{% endblock %}
