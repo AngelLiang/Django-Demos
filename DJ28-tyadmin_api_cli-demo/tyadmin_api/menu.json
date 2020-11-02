@@ -1,0 +1,64 @@
+
+                [
+          {
+            name: '首页',
+            path: '/xadmin/index',
+            icon: 'dashboard',
+            component: './TyAdminBuiltIn/DashBoard'
+          },
+            {
+                      name: '权限',
+                      icon: 'smile',
+                      path: '/xadmin/permission',
+                      component: './AutoGenPage/PermissionList',
+                   },{
+                      name: '组',
+                      icon: 'smile',
+                      path: '/xadmin/group',
+                      component: './AutoGenPage/GroupList',
+                   },{
+                      name: '用户',
+                      icon: 'smile',
+                      path: '/xadmin/user',
+                      component: './AutoGenPage/UserList',
+                   },{
+                      name: '客户',
+                      icon: 'smile',
+                      path: '/xadmin/customer',
+                      component: './AutoGenPage/CustomerList',
+                   },{
+                      name: '产品',
+                      icon: 'smile',
+                      path: '/xadmin/product',
+                      component: './AutoGenPage/ProductList',
+                   },{
+                      name: '订单',
+                      icon: 'smile',
+                      path: '/xadmin/order',
+                      component: './AutoGenPage/OrderList',
+                   },{
+                      name: '订单明细',
+                      icon: 'smile',
+                      path: '/xadmin/order_item',
+                      component: './AutoGenPage/OrderItemList',
+                   }
+   ,{
+    name: 'Tyadmin内置',
+    icon: 'VideoCamera',
+    path: '/xadmin/sys',
+    routes: [
+      {
+        name: 'TyAdmin日志',
+        icon: 'smile',
+        path: '/xadmin/sys/ty_admin_sys_log',
+        component: './TyAdminBuiltIn/TyAdminSysLogList'
+      },
+      {
+        name: 'TyAdmin验证',
+        icon: 'smile',
+        path: '/xadmin/sys/ty_admin_email_verify_record',
+        component: './TyAdminBuiltIn/TyAdminEmailVerifyRecordList'
+      }
+    ]
+  }]
+        
