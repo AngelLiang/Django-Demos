@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a7fbc5706b426bccba0b1c0d9f4f765264efd1fb9bc1d557a058708b78df46f3"
+            "sha256": "2133f9d330ab2effe675589bf09d56ad8feb6d31a6c29a9e46d2e3c4c7bff7fd"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -26,10 +26,10 @@
         },
         "django-admin-json-editor": {
             "hashes": [
-                "sha256:12cf9dd1288f83f5ec83fbe2a39668e79a85e33bfbeb08157a6f5c7c4e480e20"
+                "sha256:bf245d72aad4fa43200bb20dd4ffb2f759f7dfe2af7e394456750cbe6027ffcc"
             ],
             "index": "pypi",
-            "version": "==0.2.3"
+            "version": "==0.2.0"
         },
         "psycopg2-binary": {
             "hashes": [

@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 django = ">=2.0,<3.0"
-django-admin-json-editor = "*"
+django-admin-json-editor = "==0.2.0"
 psycopg2-binary = "*"
 
 [requires]
