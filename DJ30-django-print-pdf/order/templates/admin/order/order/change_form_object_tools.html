@@ -1,0 +1,19 @@
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+
+{% comment %} 打印 {% endcomment %}
+<li>
+    {% url opts|admin_urlname:'print' original.pk|admin_urlquote as print_url %}
+    <a href="{% add_preserved_filters print_url %}" class="historylink">{% trans "打印" %}</a>
+</li>
+
+{% comment %} 历史纪录 {% endcomment %}
+<li>
+    {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+    <a href="{% add_preserved_filters history_url %}" class="historylink">{% trans "History" %}</a>
+</li>
+
+{% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif %}
+
+{% endblock %}
