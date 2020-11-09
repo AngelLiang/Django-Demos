@@ -1,0 +1,40 @@
+{% load i18n admin_urls %}
+
+<div class="submit-row">
+{% block submit-row %}
+
+    {% comment %} 删除按钮 {% endcomment %}
+    {% if show_delete_link and original %}
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}" class="deletelink">{% trans "Delete" %}</a></p>
+    {% endif %}
+
+    <div id="action-button" style='display:none;'> 
+
+        {% comment %} 保存为新的 {% endcomment %}
+        {% if show_save_as_new %}<input type="submit" value="{% trans 'Save as new' %}" name="_saveasnew">{% endif %}
+
+        {% comment %} 保存并新增一个 {% endcomment %}
+        {% if show_save_and_add_another %}<input type="submit" value="{% trans 'Save and add another' %}" name="_addanother">{% endif %}
+
+        {% comment %} 保存按钮 {% endcomment %}
+        {% if show_save %}<input type="submit" value="{% trans '保存并返回列表' %}" name="_save">{% endif %}
+
+        {% comment %} 保存并继续编辑 {% endcomment %}
+        {% if show_save_and_continue %}<input type="submit" value="{% if can_change %}{% trans '保存并查看' %}{% else %}{% trans 'Save and view' %}{% endif %}" name="_continue">{% endif %}
+
+        <div id="return-button" style='float:right; display:none;'>
+            <a href="#" class="default closelink" >{% trans '取消' %}</a>
+        </div>
+
+    </div>
+
+    <div id="edit-button" style='display:block'>
+        <a href="#" class="closelink" >{% trans '编辑' %}</a>
+    </div>
+    
+    {% comment %} 关闭按钮 {% endcomment %}
+    {% if show_close %}<a href="{% url opts|admin_urlname:'changelist' %}" class="closelink">{% trans 'Close' %}</a>{% endif %}
+
+{% endblock %}
+</div>
