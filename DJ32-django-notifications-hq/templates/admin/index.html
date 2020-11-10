@@ -1,0 +1,66 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+{% comment %} 导入 notifications_tags {% endcomment %}
+{% load notifications_tags %} 
+
+
+{% block welcome-msg %}
+    {{ block.super }}
+{% endblock %}
+
+{% block userlinks %}
+    <span style="color:#fff">
+        您有 <a href="#">{% notifications_unread %} 条未读消息</a> /
+    </span>
+
+    {{ block.super }}
+{% endblock %}
+
+{% block nav-global %}
+{% endblock %}
+
+
+{% comment %} 侧边栏 {% endcomment %}
+{% block sidebar %}
+<div id="content-related">
+
+    <div class="module" id="recent-actions-module">
+        <h2>{% trans 'Recent actions' %}</h2>
+        <h3>{% trans 'My actions' %}</h3>
+            {% load log %}
+            {% get_admin_log 10 as admin_log for_user user %}
+            {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+            {% else %}
+            <ul class="actionlist">
+            {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+                {% if entry.is_deletion or not entry.get_admin_url %}
+                    {{ entry.object_repr }}
+                {% else %}
+                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                {% endif %}
+                <br>
+                {% if entry.content_type %}
+                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type }}{% endfilter %}</span>
+                {% else %}
+                    <span class="mini quiet">{% trans 'Unknown content' %}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+    </div>
+
+    {% comment %} 通知 {% endcomment %}
+    <div class="module">
+        <h2>{% trans '通知' %}</h2>
+        <h3>{% trans '我的通知' %}</h3>
+        
+        {% include 'notifications/list.html' %}
+
+    </div>
+
+</div>
+
+{% endblock %}
