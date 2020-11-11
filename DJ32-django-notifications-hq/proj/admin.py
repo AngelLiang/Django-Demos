@@ -9,7 +9,7 @@ class MyAdminSite(admin.AdminSite):
 
     def index(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context['notifications'] = request.user.notifications.all()
+        extra_context['notifications'] = request.user.notifications.all()[:3]
         return super().index(request, extra_context)
 
 
