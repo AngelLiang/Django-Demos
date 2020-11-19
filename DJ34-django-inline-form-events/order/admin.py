@@ -16,6 +16,7 @@ class OrderItemInline(admin.TabularInline):
     extra = 1
     fields = ('product', 'quantity', 'price', 'amount',)
     readonly_fields = ('amount',)
+    max_num = 4
 
 
 class OrderAdmin(admin.ModelAdmin):

@@ -1,6 +1,47 @@
 // https://docs.djangoproject.com/zh-hans/2.2/ref/contrib/admin/javascript/#javascript-customizations-in-the-admin
 (function($) {
 
+
+
+    var reinitDateTimeShortCuts = function() {
+        // Reinitialize the calendar and clock widgets by force
+        if (typeof DateTimeShortcuts !== "undefined") {
+            $(".datetimeshortcuts").remove();
+            DateTimeShortcuts.init();
+        }
+    };
+
+    var updateSelectFilter = function() {
+        // If any SelectFilter widgets are a part of the new form,
+        // instantiate a new SelectFilter instance for it.
+        if (typeof SelectFilter !== 'undefined') {
+            $('.selectfilter').each(function(index, value) {
+                var namearr = value.name.split('-');
+                SelectFilter.init(value.id, namearr[namearr.length - 1], false);
+            });
+            $('.selectfilterstacked').each(function(index, value) {
+                var namearr = value.name.split('-');
+                SelectFilter.init(value.id, namearr[namearr.length - 1], true);
+            });
+        }
+    };
+
+    var initPrepopulatedFields = function(row) {
+        row.find('.prepopulated_field').each(function() {
+            var field = $(this),
+                input = field.find('input, select, textarea'),
+                dependency_list = input.data('dependency_list') || [],
+                dependencies = [];
+            $.each(dependency_list, function(i, field_name) {
+                dependencies.push('#' + row.find('.field-' + field_name).find('input, select, textarea').attr('id'));
+            });
+            if (dependencies.length) {
+                input.prepopulate(dependencies, input.attr('maxlength'));
+            }
+        });
+    };
+
+
     $.fn.formsetAddInline = function(opts) {
         var options = $.extend({}, $.fn.formset.defaults, opts);
         var $this = $(this);
@@ -139,45 +180,6 @@
                 .filter(":odd").addClass("row2");
             };
 
-
-            var reinitDateTimeShortCuts = function() {
-                // Reinitialize the calendar and clock widgets by force
-                if (typeof DateTimeShortcuts !== "undefined") {
-                    $(".datetimeshortcuts").remove();
-                    DateTimeShortcuts.init();
-                }
-            };
-        
-            var updateSelectFilter = function() {
-                // If any SelectFilter widgets are a part of the new form,
-                // instantiate a new SelectFilter instance for it.
-                if (typeof SelectFilter !== 'undefined') {
-                    $('.selectfilter').each(function(index, value) {
-                        var namearr = value.name.split('-');
-                        SelectFilter.init(value.id, namearr[namearr.length - 1], false);
-                    });
-                    $('.selectfilterstacked').each(function(index, value) {
-                        var namearr = value.name.split('-');
-                        SelectFilter.init(value.id, namearr[namearr.length - 1], true);
-                    });
-                }
-            };
-        
-            var initPrepopulatedFields = function(row) {
-                row.find('.prepopulated_field').each(function() {
-                    var field = $(this),
-                        input = field.find('input, select, textarea'),
-                        dependency_list = input.data('dependency_list') || [],
-                        dependencies = [];
-                    $.each(dependency_list, function(i, field_name) {
-                        dependencies.push('#' + row.find('.field-' + field_name).find('input, select, textarea').attr('id'));
-                    });
-                    if (dependencies.length) {
-                        input.prepopulate(dependencies, input.attr('maxlength'));
-                    }
-                });
-            };
-        
             var options = inlineOptions.options
             var opts= {
                 prefix: options.prefix,
@@ -186,13 +188,13 @@
                 deleteCssClass: "inline-deletelink",
                 deleteText: options.deleteText,
                 emptyCssClass: "empty-form",
-                // removed: alternatingRows,
-                // added: function(row) {
-                //     initPrepopulatedFields(row);
-                //     reinitDateTimeShortCuts();
-                //     updateSelectFilter();
-                //     alternatingRows(row);
-                // },
+                removed: alternatingRows,
+                added: function(row) {
+                    initPrepopulatedFields(row);
+                    reinitDateTimeShortCuts();
+                    updateSelectFilter();
+                    alternatingRows(row);
+                },
                 addButton: options.addButton
             }
 
