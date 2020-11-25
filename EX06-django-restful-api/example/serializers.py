@@ -10,9 +10,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         many=True, queryset=Snippet.objects.all()
     )
 
+    display_name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['url', 'username', 'email', 'groups', 'snippets']
+
+    def get_display_name(self, obj):
+        return obj.get_full_name() or obj.username
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
