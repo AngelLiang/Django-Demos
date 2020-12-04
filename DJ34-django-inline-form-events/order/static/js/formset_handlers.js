@@ -1,8 +1,6 @@
 // https://docs.djangoproject.com/zh-hans/2.2/ref/contrib/admin/javascript/#javascript-customizations-in-the-admin
 (function($) {
 
-
-
     var reinitDateTimeShortCuts = function() {
         // Reinitialize the calendar and clock widgets by force
         if (typeof DateTimeShortcuts !== "undefined") {
