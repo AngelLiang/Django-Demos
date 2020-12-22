@@ -46,9 +46,10 @@
 | EX07  | django-guardian                       | Django 对象级别的权限                                    |
 | EX08  | django-formtools                      | Django 使用 formtools 分步骤配置数据                     |
 | EX09  | django-totals                         | Django 简单统计功能                                      |
-| EX11  | django-river                          | django-river 工作流示例                                  |
 | MY01  | simple-statistics                     | Django 简易统计页面                                      |
 | MY02  | excel-export                          | Django 生成包含订单明细的 Excel 表并下载                 |
 | MY03  | admin-module-sort                     | 让 django admin 的 module 按权重排序                     |
 | MY04  | daterange-filter                      | django admin 按时间范围筛选数据                          |
 | TP01  | my-django-template                    | 我的 django 开发模板                                     |
+| WF01  | django-viewflow                       | django-viewflow 工作流使用示例                           |
+| WF02  | django-river                          | django-river 工作流使用示例                              |
