@@ -34,6 +34,10 @@
 
     openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout ca/ca-key.pem -out ca/ca-cert.pem -config req.cnf -sha256
 
+将证书导出成浏览器支持的.p12格式
+
+    openssl pkcs12 -export -clcerts -in ca/ca-cert.pem -inkey ca/ca-key.pem -out ca/ca.p12
+
 ### 导入证书
 
 浏览器导入 `cert/ca.p12` 证书到「受信任的根证书颁发机构」里。
