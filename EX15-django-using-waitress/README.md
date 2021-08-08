@@ -6,5 +6,5 @@
 
 使用 waitress-serve 命令启动
 
-    waitress-serve --listen=127.0.0.1:8080 proj.wsgi:application
+    waitress-serve --listen=0.0.0.0:8000 proj.wsgi:application
 
