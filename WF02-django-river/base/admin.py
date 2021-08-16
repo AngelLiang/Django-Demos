@@ -31,13 +31,13 @@ class TicketAdmin(RiverAdminMixin, admin.ModelAdmin):
         self._current_uesr = request.user  # 获取当前用户
         return super(TicketAdmin, self).get_list_display(request)
 
-    def river_actions(self, obj):
-        content = ""
-        # 遍历
-        for transition_approval in obj.river.status.get_available_approvals(as_user=self._current_uesr):
-            content += create_river_button(obj, transition_approval)
+    # def river_actions(self, obj):
+    #     content = ""
+    #     # 遍历
+    #     for transition_approval in obj.river.status.get_available_approvals(as_user=self._current_uesr):
+    #         content += create_river_button(obj, transition_approval)
 
-        return mark_safe(content)
+    #     return mark_safe(content)
 
 
 admin.site.register(Ticket, TicketAdmin)
