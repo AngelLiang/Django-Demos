@@ -38,10 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
     'rest_framework.authtoken',
     'codemirror2',
     'river',
     'river_admin',
+    'river_patch',
+    'django_tables2',
 
     'base.apps.BaseConfig',
     'order.apps.OrderConfig',

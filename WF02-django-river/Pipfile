@@ -11,6 +11,7 @@ django-river = ">=3.2.2,<4.0"
 six = "*"
 river-admin = "*"
 django-codemirror2 = "*"
+django-tables2 = "*"
 
 [requires]
 python_version = "3.6"

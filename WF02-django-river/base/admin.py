@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from base.models import Ticket
+from river_patch.mixins.admin import RiverAdminMixin
 
 
 def create_river_button(obj, transition_approval):
@@ -22,7 +23,7 @@ def create_river_button(obj, transition_approval):
     """
 
 
-class TicketAdmin(admin.ModelAdmin):
+class TicketAdmin(RiverAdminMixin, admin.ModelAdmin):
     list_display = ('no', 'subject', 'description', 'status', 'river_actions')
 
     def get_list_display(self, request):
