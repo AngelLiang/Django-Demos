@@ -35,5 +35,6 @@ class OrderItemAdmin(SoftDeletionAdminMixin, admin.ModelAdmin):
 
 admin.site.register(models.Customer, CustomerAdmin)
 admin.site.register(models.Product, ProductAdmin)
+admin.site.register(models.OrderTemplate, admin.ModelAdmin)
 admin.site.register(models.Order, OrderAdmin)
 admin.site.register(models.OrderItem, OrderItemAdmin)

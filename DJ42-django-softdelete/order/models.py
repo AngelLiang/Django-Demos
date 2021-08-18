@@ -28,15 +28,21 @@ class Product(models.Model):
         verbose_name_plural = '产品'
 
 
-class Order(SoftDeletionModelMixin, models.Model):
+class OrderTemplate(SoftDeletionModelMixin, models.Model):
     order_date = models.DateField('订单日期')
-    title = models.CharField('标题', max_length=255, default='')
-    amount = models.DecimalField('总金额', max_digits=11, decimal_places=2, blank=True, default=0)
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='客户')
+    class Meta:
+        verbose_name = '订单模板'
+        verbose_name_plural = '订单模板'
 
     def __str__(self):
         return f'[{self.id}]{self.order_date}'
+
+
+class Order(OrderTemplate):
+    title = models.CharField('标题', max_length=255, default='')
+    amount = models.DecimalField('总金额', max_digits=11, decimal_places=2, blank=True, default=0)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name='客户')
 
     class Meta:
         verbose_name = '订单'

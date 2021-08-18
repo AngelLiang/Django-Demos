@@ -98,8 +98,8 @@ class SoftDeletionModelMixin(SaveSignalHandlingModel, models.Model):
     is_deleted = models.BooleanField(_('已删除'), default=False, editable=False, db_index=True)
     deleted_at = models.DateTimeField(_('删除时间'), null=True, blank=True, editable=False)
 
-    objects = SoftDeletableManager()
-    all_objects = models.Manager()
+    # objects = SoftDeletableManager()
+    # all_objects = models.Manager()
     # deleted_objects = SoftDeletedObjectManager()
 
     def _delete(self):

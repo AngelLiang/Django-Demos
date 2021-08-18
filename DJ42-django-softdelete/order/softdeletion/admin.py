@@ -17,5 +17,5 @@ class SoftDeletionAdminMixin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         # 超级管理员能查看所有数据
         if request.user.is_superuser:
-            return self.model.all_objects.all()
-        return qs
+            return self.model.objects.all()
+        return qs.filter(is_deleted=False)
