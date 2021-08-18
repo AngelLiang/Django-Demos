@@ -20,7 +20,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 class OrderAdmin(SoftDeletionAdminMixin, admin.ModelAdmin):
-    list_display = ('__str__', 'order_date', 'title', 'amount', 'is_deleted')
+    list_display = ('__str__', 'order_date', 'title', 'amount', 'is_deleted', 'deleted_at')
     readonly_fields = ('amount',)
     inlines = (OrderItemInline,)
 
@@ -30,7 +30,7 @@ class OrderAdmin(SoftDeletionAdminMixin, admin.ModelAdmin):
 
 
 class OrderItemAdmin(SoftDeletionAdminMixin, admin.ModelAdmin):
-    list_display = ('__str__', 'is_deleted')
+    list_display = ('__str__', 'is_deleted', 'deleted_at')
 
 
 admin.site.register(models.Customer, CustomerAdmin)

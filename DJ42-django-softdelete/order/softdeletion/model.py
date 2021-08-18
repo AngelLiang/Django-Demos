@@ -53,7 +53,11 @@ class SoftDeletableQuerySet(QuerySet):
         return sum(deleted_counter.values()), dict(deleted_counter)
 
 
-class SoftDeletableManager(models.Manager):
+class AllSoftDeletedManager(models.Manager):
+    _queryset_class = SoftDeletableQuerySet
+
+
+class FalseSoftDeletedManager(AllSoftDeletedManager):
     _queryset_class = SoftDeletableQuerySet
 
     def get_queryset(self):
@@ -70,7 +74,7 @@ class SoftDeletableManager(models.Manager):
         return qs
 
 
-class SoftDeletedObjectManager(SoftDeletableManager):
+class TrueSoftDeletedManager(AllSoftDeletedManager):
     def get_queryset(self):
         """
         Return queryset limited to not deleted entries.
@@ -98,9 +102,8 @@ class SoftDeletionModelMixin(SaveSignalHandlingModel, models.Model):
     is_deleted = models.BooleanField(_('已删除'), default=False, editable=False, db_index=True)
     deleted_at = models.DateTimeField(_('删除时间'), null=True, blank=True, editable=False)
 
-    # objects = SoftDeletableManager()
-    # all_objects = models.Manager()
-    # deleted_objects = SoftDeletedObjectManager()
+    objects = AllSoftDeletedManager()
+    not_delete_objects = TrueSoftDeletedManager()
 
     def _delete(self):
         self.is_deleted = True
@@ -118,8 +121,9 @@ class SoftDeletionModelMixin(SaveSignalHandlingModel, models.Model):
 
         def recover_callback(obj):
             model = obj.__class__
-            obj._recover()
-            obj.save(update_fields=['is_deleted', 'deleted_at'])
+            if obj.is_deleted: 
+                obj._recover()
+                obj.save(update_fields=['is_deleted', 'deleted_at'])
             return obj
 
         to_recover_list = collector.nested(recover_callback)
