@@ -14,6 +14,30 @@ from django.utils import timezone
 from .utils.save_signal_handle_model import SaveSignalHandlingModel
 
 
+class DeleteCallback(object):
+    def __init__(self, deleted_counter=None):
+        self.deleted_counter = deleted_counter or Counter()
+
+    def delete_callback(self, obj):
+        if not isinstance(obj, SoftDeletionModelMixin):
+            obj.delete()
+            return obj
+        model = obj.__class__
+        # if not model._meta.auto_created:
+        #     # 发送预删除信号
+        #     signals.pre_delete.send(sender=model, instance=obj, using=using)
+
+        obj._delete()
+        # signals_to_disable： 禁止触发 pre_save 和 post_save 信号
+        obj.save(update_fields=['is_deleted', 'deleted_at'], signals_to_disable=['pre_save', 'post_save'])
+        self.deleted_counter[model._meta.label] += 1
+
+        # if not model._meta.auto_created:
+        #     # 发送删除结束信号
+        #     signals.post_delete.send(sender=model, instance=obj, using=using)
+        return obj
+
+
 class SoftDeletableQuerySet(QuerySet):
     def delete(self):
         """Delete the records in the current QuerySet."""
@@ -27,30 +51,11 @@ class SoftDeletableQuerySet(QuerySet):
         del_query = self._chain()
         using = del_query.db
 
-        deleted_counter = Counter()
-        def delete_callback(obj):
-            if not isinstance(obj, SoftDeletionModelMixin):
-                obj.delete()
-                return obj
-            model = obj.__class__
-            if not model._meta.auto_created:
-                # 发送预删除信号
-                signals.pre_delete.send(sender=model, instance=obj, using=using)
-
-            obj._delete()
-            # signals_to_disable： 禁止触发 pre_save 和 post_save 信号
-            obj.save(update_fields=['is_deleted', 'deleted_at'], signals_to_disable=['pre_save', 'post_save'])
-            deleted_counter[model._meta.label] += 1
-            
-            if not model._meta.auto_created:
-                # 发送删除结束信号
-                signals.post_delete.send(sender=model, instance=obj, using=using)
-            return obj
-
+        dc = DeleteCallback()
         collector = NestedObjects(using=using)
         collector.collect(del_query)
-        to_delete_list = collector.nested(delete_callback)
-        return sum(deleted_counter.values()), dict(deleted_counter)
+        to_delete_list = collector.nested(dc.delete_callback)
+        return sum(dc.deleted_counter.values()), dict(dc.deleted_counter)
 
 
 class AllSoftDeletedManager(models.Manager):
@@ -144,31 +149,11 @@ class SoftDeletionModelMixin(SaveSignalHandlingModel, models.Model):
         if soft is None:
             soft = not self.is_deleted
         if soft:
-            deleted_counter = Counter()
+            dc = DeleteCallback()
             collector = NestedObjects(using=using)
             collector.collect([self], keep_parents=keep_parents)
-
-            def delete_callback(obj):
-                if not isinstance(obj, SoftDeletionModelMixin):
-                    obj.delete()
-                    return obj
-                model = obj.__class__
-                if not model._meta.auto_created:
-                    # 发送预删除信号
-                    signals.pre_delete.send(sender=model, instance=obj, using=using)
-
-                obj._delete()
-                # signals_to_disable： 禁止触发 pre_save 和 post_save 信号
-                obj.save(update_fields=['is_deleted', 'deleted_at'], signals_to_disable=['pre_save', 'post_save'])
-                deleted_counter[model._meta.label] += 1
-                
-                if not model._meta.auto_created:
-                    # 发送删除结束信号
-                    signals.post_delete.send(sender=model, instance=obj, using=using)
-                return obj
-
-            to_delete_list = collector.nested(delete_callback)
-            return sum(deleted_counter.values()), dict(deleted_counter)
+            to_delete_list = collector.nested(dc.delete_callback)
+            return sum(dc.deleted_counter.values()), dict(dc.deleted_counter)
         else:
             return super().delete(using=using, *args, **kwargs)
 
