@@ -8,6 +8,6 @@ class Photo(models.Model):
     avatar = models.ImageField(upload_to='avatars')
     avatar_thumbnail = ImageSpecField(
         source='avatar',
-        processors=[ResizeToFill(100, 50)],
+        processors=[ResizeToFill(45, 45)],
         format='JPEG',
         options={'quality': 60})
