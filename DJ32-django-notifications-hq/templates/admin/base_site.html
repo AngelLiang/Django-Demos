@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+{% comment %} 导入 notifications_tags {% endcomment %}
+{% load notifications_tags %} 
+
+{% comment %} 渲染标题 {% endcomment %}
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+
+{% block userlinks %}
+    <span style="color:#fff">
+        您有 <a href="/admin/my_notifications/mynotification/">{% notifications_unread %} 条未读消息</a> /
+    </span>
+
+    {{ block.super }}
+{% endblock %}
