@@ -2,7 +2,7 @@ from django.contrib import admin
 from parsley.mixins import ParsleyAdminMixin
 
 from . import models
-from .form import OrderForm
+from .form import OrderForm, OrderItemForm
 
 
 class CustomerAdmin(ParsleyAdminMixin, admin.ModelAdmin):
@@ -15,13 +15,20 @@ class CustomerAdmin(ParsleyAdminMixin, admin.ModelAdmin):
         )
 
 
-class ProductAdmin(admin.ModelAdmin):
-    pass
+class ProductAdmin(ParsleyAdminMixin, admin.ModelAdmin):
+
+    class Media:
+        js = (
+            "//code.jquery.com/jquery-latest.min.js",
+            "parsley/js/parsley.min.js",
+            "parsley/js/parsley.django-admin.js"
+        )
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(ParsleyAdminMixin, admin.TabularInline):
     model = models.OrderItem
     extra = 1
+    form = OrderItemForm
     fields = ('product', 'quantity', 'price', 'amount',)
     readonly_fields = ('amount',)
 
