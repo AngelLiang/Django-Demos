@@ -125,3 +125,5 @@ STATIC_URL = '/static/'
 
 CELERY_TIMEZONE = TIME_ZONE
 # CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = os.path.join(BASE_DIR, 'db.sqlite3')
+# CELERY_RESULT_BACKEND = 'db+postgresql://postgres:postgres@127.0.0.1/db'
