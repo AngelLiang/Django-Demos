@@ -46,9 +46,21 @@ class WeChatLoginAPIView(views.APIView):
         if not openid:
             return Response({"error": "WeChat server doesn't return openid"})
 
-        user, _ = User.objects.get_or_create(username=openid)
-        wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid, user=user)
-        wechataccount.openId = openid
+        # v1
+        # user, _ = User.objects.get_or_create(username=openid)
+        # wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid, user=user)
+        # wechataccount.openId = openid
+        # wechataccount.session_key = session_key
+        # wechataccount.unionId = json.get('unionid', '')
+        # wechataccount.save()
+
+        # v2
+        wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid)
+        if not wechataccount.user:
+            user, _ = User.objects.get_or_create(username=openid)
+            wechataccount.user = user
+        else:
+            user = wechataccount.user
         wechataccount.session_key = session_key
         wechataccount.unionId = json.get('unionid', '')
         wechataccount.save()

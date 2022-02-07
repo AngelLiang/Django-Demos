@@ -14,6 +14,7 @@ class WeChatAccount(models.Model):
         User, verbose_name=_('帐号'),
         on_delete=models.CASCADE,
         db_constraint=False,
+        null=True, blank=True,
     )
     userinfo = models.OneToOneField(
         'WeChatUserInfo',
