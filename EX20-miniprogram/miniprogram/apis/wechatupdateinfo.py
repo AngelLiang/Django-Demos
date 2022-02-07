@@ -23,6 +23,7 @@ class WeChatUpdateInfoAPIView(views.APIView):
 
     def post(self, request):
         params = request.data
+        # print(params)
         encryptedData = params.get('encryptedData', None)
         iv = params.get('iv', None)
 
@@ -33,7 +34,7 @@ class WeChatUpdateInfoAPIView(views.APIView):
             return Response({"iv": "This field is reuqired"}, status=status.HTTP_400_BAD_REQUEST)
 
         wechat_user = WeChatAccount.objects.filter(user=request.user).first()
-        pc = WeChatCrypt(settings.WECHAT_MINIPROGRAM_CONFIG['APPID'], wechat_user.session_key)
+        pc = WeChatCrypt(settings.MINIPROGRAM_CONFIG['APPID'], wechat_user.session_key)
 
         user = pc.decrypt(encryptedData, iv)
         if not wechat_user.userinfo:
