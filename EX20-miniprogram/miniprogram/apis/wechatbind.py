@@ -14,6 +14,26 @@ from ..models.wechataccount import WeChatAccount
 from .utils import get_wechat_login_code_url
 
 
+def fetch_openid(code):
+    url = get_wechat_login_code_url(code)
+    resp = requests.get(url)
+
+    if resp.status_code != 200:
+        return None, "WeChat server return error, please try again later"
+    json = resp.json()
+    # print(json)
+    if "errcode" in json:
+        return None, json["errmsg"]
+    openid = json['openid']
+    session_key = json['session_key']
+
+    if not session_key:
+        return None, "WeChat server doesn't return session key"
+    if not openid:
+        return None, "WeChat server doesn't return openid"
+    return json, None
+
+
 class WeChatBindAPIView(views.APIView):
     permission_classes = []
 
@@ -35,24 +55,12 @@ class WeChatBindAPIView(views.APIView):
         code = request.data.get('code', None)
         if not code:
             return Response({"code": "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
-        url = get_wechat_login_code_url(code)
-        resp = requests.get(url)
+        json, errMsg = fetch_openid(code)
+        if errMsg:
+            return Response({"error": errMsg})
 
-        openid = ''
-        session_key = ''
-        if resp.status_code != 200:
-            return Response({"error": "WeChat server return error, please try again later"})
-        json = resp.json()
-        # print(json)
-        if "errcode" in json:
-            return Response({"error": json["errmsg"]})
         openid = json['openid']
         session_key = json['session_key']
-
-        if not session_key:
-            return Response({"error": "WeChat server doesn't return session key"})
-        if not openid:
-            return Response({"error": "WeChat server doesn't return openid"})
 
         wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid)
         wechataccount.user = user
@@ -85,24 +93,11 @@ class WeChatLoginAPIView(views.APIView):
         code = request.data.get('code', None)
         if not code:
             return Response({"code": "This field is required"}, status=status.HTTP_400_BAD_REQUEST)
-        url = get_wechat_login_code_url(code)
-        resp = requests.get(url)
 
-        openid = ''
-        session_key = ''
-        if resp.status_code != 200:
-            return Response({"error": "WeChat server return error, please try again later"})
-        json = resp.json()
-        # print(json)
-        if "errcode" in json:
-            return Response({"error": json["errmsg"]})
+        json, errMsg = fetch_openid(code)
+        if errMsg:
+            return Response({"error": errMsg})
         openid = json['openid']
-        session_key = json['session_key']
-
-        if not session_key:
-            return Response({"error": "WeChat server doesn't return session key"})
-        if not openid:
-            return Response({"error": "WeChat server doesn't return openid"})
 
         wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid)
         if wechataccount.user:
