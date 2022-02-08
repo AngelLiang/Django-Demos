@@ -61,9 +61,11 @@ class WeChatBindAPIView(views.APIView):
 
         openid = json['openid']
         session_key = json['session_key']
+        unionid = json.get('unionid', '')
 
         wechataccount, _ = WeChatAccount.objects.get_or_create(openId=openid)
         wechataccount.session_key = session_key
+        wechataccount.unionid = unionid
         wechataccount.user = user
         wechataccount.save()
         if wechataccount.user:
