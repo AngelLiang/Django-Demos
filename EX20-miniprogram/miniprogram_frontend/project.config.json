@@ -30,8 +30,7 @@
             "disablePlugins": [],
             "outputPath": ""
         },
-        "enableEngineNative": false,
-        "useIsolateContext": true,
+        "useIsolateContext": false,
         "userConfirmedBundleSwitch": false,
         "packNpmManually": false,
         "packNpmRelationList": [],
@@ -39,12 +38,13 @@
         "disableUseStrict": false,
         "minifyWXML": true,
         "showES6CompileOption": false,
-        "useCompilerPlugins": false
+        "useCompilerPlugins": false,
+        "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
     "libVersion": "2.21.0",
     "appid": "wx432a84eb544bef6d",
-    "projectname": "miniprogram-demo",
+    "projectname": "miniprogram_frontend",
     "debugOptions": {
         "hidedInDevtools": []
     },

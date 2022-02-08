@@ -3,4 +3,4 @@ from django.contrib import admin
 
 
 class WeChatAccountAdmin(admin.ModelAdmin):
-    list_display = ('openId', 'unionId', 'userinfo')
+    list_display = ('openId', 'unionId', 'userinfo', 'user')

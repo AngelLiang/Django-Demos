@@ -18,6 +18,13 @@ App({
           },
           success: (res) => {
             console.log(res)
+            // 没有绑定帐号，则会跳转到绑定页面
+            if(!res.data.success) {
+              wx.navigateTo({
+                url: '../bind/bind'
+              })
+            }
+
             wx.setStorageSync('token', res.data.token);
           },
           fail: res => {

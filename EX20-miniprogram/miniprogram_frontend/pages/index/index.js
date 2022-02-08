@@ -10,7 +10,9 @@ Page({
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
     canIUseGetUserProfile: false,
     //canIUseOpenData: wx.canIUse('open-data.type.userAvatarUrl') && wx.canIUse('open-data.type.userNickName') // 如需尝试获取用户信息可改为false
-    canIUseOpenData: false
+    canIUseOpenData: false,
+
+    token : ''
   },
   // 事件处理函数
   bindViewTap() {
@@ -18,15 +20,23 @@ Page({
       url: '../logs/logs'
     })
   },
+  bindUser() {
+    wx.navigateTo({
+      url: '../bind/bind'
+    })
+  },
   onLoad() {
+    let token = wx.getStorageSync('token')
     if (wx.getUserProfile) {
+
       this.setData({
-        canIUseGetUserProfile: true
+        canIUseGetUserProfile: Boolean(wx.getStorageSync('token'))
+        // token: wx.getStorageSync('token')
       })
     }
   },
   getUserProfile(e) {
-    let token = wx.getStorageSync('token')
+    // let token = wx.getStorageSync('token')
     console.log(`token ${token}`)
 
     // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
