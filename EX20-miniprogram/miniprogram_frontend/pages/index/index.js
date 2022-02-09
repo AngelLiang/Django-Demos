@@ -1,4 +1,6 @@
 // index.js
+
+const urls = require('../../urls.js');
 // 获取应用实例
 const app = getApp()
 
@@ -46,10 +48,9 @@ Page({
       success: (res) => {
         console.log(res)
 
-        wx.request({
-          url: 'http://127.0.0.1:8000/miniprogram/updateUserInfo/',
+        wx.newWx.request({
+          url: urls.updateUserInfo,
           method: 'post',
-          header: {'Authorization': `Token ${token}`},
           data: {
             encryptedData: res.encryptedData,
             iv: res.iv,

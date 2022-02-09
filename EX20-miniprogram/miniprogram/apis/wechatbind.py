@@ -89,7 +89,7 @@ class WeChatBindAPIView(views.APIView):
         })
 
 
-class WeChatLoginAPIView(views.APIView):
+class WeChatOnLoginAPIView(views.APIView):
     permission_classes = []
 
     def post(self, request):

@@ -1,4 +1,6 @@
 // pages/bind.js
+const urls = require('../../urls.js');
+
 Page({
 
     /**
@@ -73,7 +75,8 @@ Page({
             success: res => {
             // 发送 res.code 到后台换取 openId, sessionKey, unionId
             wx.request({
-                url: 'http://127.0.0.1:8000/miniprogram/bind/',
+                // url: 'http://127.0.0.1:8000/miniprogram/bind/',
+                url: urls.bindUser,
                 method: 'post',
                 data: {
                     username: e.detail.value.username,
@@ -82,10 +85,12 @@ Page({
                 },
                 success: (res) => {
                     console.log(res)
-                    wx.setStorageSync('token', res.data.token);
-                    wx.navigateTo({
-                        url: '../bindsucc/bindsucc'
-                      })
+                    if (res.data.success) {
+                        wx.setStorageSync('token', res.data.token);
+                        wx.navigateTo({
+                            url: '../bindsucc/bindsucc'
+                          })
+                    }
                 },
                 fail: res => {
                     wx.setStorageSync('token', null);
