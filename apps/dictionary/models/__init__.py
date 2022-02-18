@@ -1,2 +1,2 @@
 from .dictionary import Dictionary
-from .dictionaryitem import DictionarytItem
+from .dictionaryitem import DictionaryItem
